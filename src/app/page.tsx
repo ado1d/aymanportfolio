@@ -70,6 +70,10 @@ import { FavoritesCount } from '@/components/portfolio/favorite-toggle'
 import { TechMarquee } from '@/components/portfolio/tech-marquee'
 import { CursorFollower } from '@/components/portfolio/cursor-follower'
 import { ScrollProgressButton } from '@/components/portfolio/scroll-progress-button'
+import { SoundProvider } from '@/components/portfolio/sound-provider'
+import { MeshBlobs } from '@/components/portfolio/mesh-blobs'
+import { FunFactsWidget } from '@/components/portfolio/fun-facts-widget'
+import { MagneticButton } from '@/components/portfolio/magnetic-button'
 import { downloadVCard } from '@/lib/vcard'
 import { useTypewriter } from '@/hooks/use-typewriter'
 import { useParallax } from '@/hooks/use-parallax'
@@ -377,6 +381,7 @@ export default function Home() {
   const otherProjects = projects.filter((p) => !p.featured)
 
   return (
+    <SoundProvider>
     <KonamiEasterEgg>
     <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
       <JsonLd profile={profile} projects={projects} socialLinks={socialLinks} />
@@ -384,6 +389,7 @@ export default function Home() {
 
       {/* Background Effects */}
       <div className="fixed inset-0 grid-bg pointer-events-none" />
+      <MeshBlobs />
       <div className="aurora" />
       <FloatingParticles />
       <div className="mouse-light" style={{ left: mousePosition.x, top: mousePosition.y }} />
@@ -585,17 +591,17 @@ export default function Home() {
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-3">
-              <Button size="lg" className="hover-lift" asChild>
+              <MagneticButton size="lg" className="hover-lift" asChild>
                 <a href="#contact">
                   <Send className="w-4 h-4 mr-2" /> Let&apos;s Connect
                 </a>
-              </Button>
-              <Button variant="outline" size="lg" className="hover-lift" asChild>
+              </MagneticButton>
+              <MagneticButton variant="outline" size="lg" className="hover-lift" asChild>
                 <a href="#projects">
                   <Eye className="w-4 h-4 mr-2" /> View Projects
                 </a>
-              </Button>
-              <Button
+              </MagneticButton>
+              <MagneticButton
                 variant="ghost"
                 size="lg"
                 className="hover-lift"
@@ -603,7 +609,7 @@ export default function Home() {
                 title="Download contact as vCard"
               >
                 <UserPlus className="w-4 h-4 mr-2" /> Save Contact
-              </Button>
+              </MagneticButton>
               {profile?.resumeUrl && (
                 <Button variant="ghost" size="lg" className="hover-lift" asChild>
                   <a href={profile.resumeUrl} target="_blank" rel="noopener noreferrer">
@@ -647,6 +653,7 @@ export default function Home() {
               <CurrentlyWidget currently={currently} editMode={edit.editMode} onSaved={refresh} />
               <ActivityHeatmap />
             </div>
+            <FunFactsWidget />
             {edit.editMode && <VisitorBadge detailed />}
           </div>
         </section>
@@ -832,6 +839,7 @@ export default function Home() {
       />
     </div>
     </KonamiEasterEgg>
+    </SoundProvider>
   )
 }
 

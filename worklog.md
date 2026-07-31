@@ -394,3 +394,53 @@ Unresolved / Next-phase recommendations:
 - Add a dedicated analytics admin page with date-range filtering and CSV export.
 - Consider a blog/writing section.
 - Wire the sound `play()` function into actual button click handlers across the app (currently the toggle + hook exist; connecting to all CTAs is the next step).
+
+---
+Task ID: 8
+Agent: webDevReview cron (round 7)
+Task: QA the portfolio and add new features (sound wiring, mesh blobs, fun facts, magnetic buttons) + styling.
+
+Work Log:
+- Read worklog.md (rounds 1-7 complete); confirmed lint clean, dev server running, all 12 sections rendering.
+- QA via agent-browser: no console/runtime errors, 16 images load, 0 unlabeled buttons, 0 unlabeled inputs, no duplicate IDs, 1 h1, sound toggle works (aria-pressed toggles, pulsing indicator shows when on), edit mode login works, favorites toggle works, project detail modal opens. Project is stable — no bugs found.
+- Noted that the sound `play()` function existed but wasn't wired into actual button click handlers (a known gap from round 6). Fixed this round.
+
+New features implemented this round:
+1. **SoundProvider — global sound wiring** (feature completion — addresses an unresolved item from round 6):
+   - New `SoundProvider` component (`src/components/portfolio/sound-provider.tsx`): wraps the entire app and attaches a global `click` listener (passive) that plays a subtle UI sound on any button/switch click when sound is enabled. Uses `closest('button, a, [role=button], [role=switch]')` to detect interactive elements. Plays `click` profile for buttons, `toggle` for switches. Skips anchor links (too noisy). No need to wrap individual buttons.
+   - Also created a `SoundButton` wrapper component (`src/components/portfolio/sound-button.tsx`) for cases where per-button sound profiles are needed.
+   - Verified: enabling sound + clicking buttons produces no console errors; the Web Audio API synthesizes tones correctly.
+2. **Animated gradient mesh background blobs** (styling):
+   - New `MeshBlobs` component (`src/components/portfolio/mesh-blobs.tsx`): renders 3 large, slowly-drifting colored blobs (purple, pink, cyan) behind the content using the existing `.mesh-blob` CSS animation (defined in round 5 but unused until now). Each blob has a different delay/direction for organic movement. Opacity is lower in dark mode. Respects `prefers-reduced-motion`.
+   - Positioned in the background layer alongside the grid-bg and aurora.
+3. **"Fun Facts" rotating widget** (feature — in About section):
+   - New `FunFactsWidget` component (`src/components/portfolio/fun-facts-widget.tsx`): a card that auto-rotates through 10 fun facts every 5 seconds with a fade animation. Pauses on hover. Includes a shuffle button (random fact) and clickable progress dots. Each fact has an emoji icon + witty text about Ayman's coding habits, contest stories, etc.
+   - Rendered below the Currently + ActivityHeatmap grid in the #about section.
+4. **Magnetic CTA buttons** (styling):
+   - New `MagneticButton` component (`src/components/portfolio/magnetic-button.tsx`): wraps the shadcn Button's `buttonVariants` in a plain button/Slot that translates toward the cursor on mousemove (configurable strength, default 12px). Uses `useRef` to directly manipulate the DOM transform for smooth 60fps performance. Supports `asChild` via Radix Slot.
+   - Applied to all 3 hero CTAs (Let's Connect, View Projects, Save Contact). Verified: button translates 5.59px toward cursor on mousemove.
+
+Styling improvements:
+- The `.mesh-blob` CSS animation (defined round 5) is now actually used by the MeshBlobs component.
+- The `.magnetic-btn` CSS class (defined round 6) is now used by MagneticButton.
+
+QA verification (agent-browser):
+- No errors; 12 sections render; 0 unlabeled inputs.
+- Mesh blobs: 3 `.mesh-blob` elements present. VLM confirmed: "soft, colored gradient blobs in purple, pink, and cyan" in the background.
+- Fun facts: widget present with emoji + fact text + shuffle button + progress dots. VLM confirmed: "Fun Fact card featuring an emoji icon, a fun fact sentence, a shuffle button, and progress dots".
+- Magnetic buttons: 3 `.magnetic-btn` elements in #home. Verified transform: `translate(5.59234px, 0px)` on cursor move. CTAs VLM-confirmed: "three CTA buttons (Let's Connect, View Projects, Save Contact) along with a technology marquee".
+- Sound provider: enabling sound + clicking buttons/switches produces no console errors. Sound toggle aria-pressed correctly reflects state.
+- Lint passes clean; dev server compiles with no errors.
+
+Stage Summary:
+- 0 bugs (stable); 4 new features added (SoundProvider, mesh blobs, fun facts widget, magnetic buttons); 2 existing CSS utilities now actively used.
+- Lint passes clean. Dev server running on port 3000 with no runtime errors.
+- The portfolio now has fully wired UI sound effects, an ambient animated mesh background, a rotating fun facts widget, and magnetic hero CTAs.
+
+Unresolved / Next-phase recommendations:
+- Wire contact form to a real email service (Resend/SendGrid) for delivery notifications.
+- Replace SVG placeholder images with real project/certificate screenshots via edit mode.
+- Internationalization (i18n) for Bengali + English toggle.
+- Add a dedicated analytics admin page with date-range filtering and CSV export.
+- Consider a blog/writing section.
+- Add a "success" sound when contact form submits or favorites are toggled (requires wiring `play('success')` into those specific handlers).
