@@ -101,3 +101,62 @@ Unresolved / Next-phase recommendations:
 - Add per-section Open Graph images for link previews.
 - Replace SVG placeholder images with real project/certificate screenshots via edit mode.
 
+
+---
+Task ID: 3
+Agent: webDevReview cron (round 2)
+Task: QA the portfolio, fix bugs, and add new features (admin inbox, testimonials, typing animation, currently widget) + styling improvements.
+
+Work Log:
+- Read worklog.md (rounds 1 & 2 complete); confirmed lint clean, dev server running, contact API returning 200.
+- QA via agent-browser: no console/runtime errors, all 10 sections render, 16 images load, lightbox keyboard nav (ArrowRight moves 1→2/5), dark mode excellent (VLM: "excellent contrast"), edit mode login works, heading hierarchy correct (1→2→3), all external links have rel=noopener.
+- Found 1 accessibility bug: the project search input in the filter bar had no label or aria-label (inputsNoLabel=1). Fixed in `src/components/portfolio/projects-showcase.tsx` by adding a `sr-only` `<label htmlFor="project-search">` + `aria-label` on the input. Verified: 0 unlabeled inputs after fix.
+
+New features implemented this round:
+1. **Admin Inbox for contact messages** (addresses an unresolved item from round 2):
+   - New API routes: `GET /api/admin/messages` (list, auth-protected) and `PATCH/DELETE /api/admin/messages/[id]` (mark read/unread, delete).
+   - New `AdminInbox` component (`src/components/portfolio/admin-inbox.tsx`): a two-pane dialog (message list + detail view) with unread badge count, refresh button, mark-read/unread toggle, delete with confirmation, and a "Reply via email" mailto link.
+   - An Inbox button appears in the nav (only when authed) next to the Edit button.
+   - Fixed a module-not-found bug: the `verifyAuth` import path in both messages route files was `../../auth/route` (too deep) — corrected to `../auth/route` and `../../auth/route`→`../auth/route` for the [id] route. Verified GET returns 200, PATCH and DELETE return 200.
+2. **Testimonials section** (new):
+   - New `Testimonial` Prisma model (name, role, company, avatarUrl, quote, rating, order). Seeded 3 realistic testimonials (professor, hackathon mentor, ICPC teammate).
+   - New `Testimonials` component (`src/components/portfolio/testimonials.tsx`): a carousel with star ratings, avatar/initials, big quote-mark decoration, prev/next chevron buttons, and clickable dot indicators. Edit mode supports add/edit/delete.
+   - Added to NAV_ITEMS and rendered as a new `#testimonials` section between Achievements and Contact.
+3. **Typing animation in hero** (styling):
+   - New `useTypewriter` hook (`src/hooks/use-typewriter.ts`): cycles through ["Competitive Programmer", "Hackathon Winner", "Full-Stack Builder", "CS Undergraduate", "Problem Solver"] with type/delete speeds and a pause. Implemented with `useReducer` + timeouts (no setState-in-effect). Fixed two lint errors during development (setState-in-effect → reducer; ref-during-render → ref-in-effect).
+   - Hero subtitle now shows "I'm a [typed role]" with a blinking cursor (`.animate-blink` CSS).
+4. **"Currently" widget** (new feature, in About section):
+   - New `CurrentlyItem` Prisma model (type: learning/building/reading/listening, label). Seeded 6 items.
+   - New `CurrentlyWidget` component (`src/components/portfolio/currently-widget.tsx`): a card with a pulsing green "live" dot, grouping items by type with color-coded icons (Lightbulb/Hammer/BookOpen/Music). Edit mode supports adding items.
+   - Rendered below the About block in the `#about` section.
+5. **Magnetic buttons + skill tooltips + new CSS animations** (styling in `globals.css`):
+   - `.animate-blink` (cursor blink), `.magnetic` (subtle cursor-pull transition), `.skill-tooltip` / `.skill-tooltip-wrap` (hover tooltips), `.glow-pulse-amber` (pulsing glow for featured badges), `.quote-fade` (testimonial transition).
+
+Schema/API changes:
+- Added `Testimonial` and `CurrentlyItem` models to `prisma/schema.prisma`; pushed with `db:push`.
+- Added both to the `ENTITY_CONFIG` maps in `src/app/api/admin/[entity]/route.ts` and `[id]/route.ts` so the generic CRUD works for them.
+- Added field definitions for `testimonial` and `currentlyItem` in `field-defs.ts`.
+- Updated `/api/portfolio` to return `testimonials` and `currently` (grouped by type).
+- Updated `src/lib/types.ts` with `Testimonial`, `CurrentlyData`, and extended `PortfolioData`.
+- Seeded via `prisma/seed-extras.ts` (3 testimonials, 6 currently items).
+- Triggered a full Next.js server restart (touch next.config.ts) so the dev server picked up the regenerated Prisma client.
+
+QA verification (agent-browser):
+- 11 sections now render (added #testimonials); 0 unlabeled inputs (a11y bug fixed).
+- Typing animation confirmed cycling: "CS Undergraduate" → "Pro" → "Problem Sol" over 6s.
+- Currently widget present in #about with Learning/Building/Reading items and pulsing green dot.
+- Admin inbox: after login, Inbox button appears; opening it lists messages with unread badge; clicking a message shows full detail with sender, timestamp, and reply link; mark-read and delete both work (PATCH/DELETE return 200).
+- Testimonials carousel: 3 dots, next button advances to the next quote.
+- Dark mode: VLM confirmed "excellent contrast, no readability issues."
+
+Stage Summary:
+- 1 accessibility bug fixed; 4 new features added (admin inbox, testimonials, typing animation, currently widget); styling expanded with 5 new CSS utilities/animations.
+- Lint passes clean. Dev server running on port 3000 with no runtime errors.
+- All new Prisma models require a server restart to be picked up (done via next.config.ts touch).
+
+Unresolved / Next-phase recommendations:
+- Wire contact form to a real email service (Resend/SendGrid) for delivery notifications.
+- Add per-section Open Graph images for link previews.
+- Replace SVG placeholder images with real project/certificate screenshots via edit mode.
+- Consider a blog/writing section.
+- Add keyboard shortcut help overlay (? key) listing all shortcuts (⌘K, Esc, ↑↓).

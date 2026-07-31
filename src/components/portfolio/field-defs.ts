@@ -84,6 +84,20 @@ export const FIELD_DEFS: Record<string, FieldDef[]> = {
     { key: 'icon', label: 'Icon key', type: 'text', placeholder: 'github, linkedin, codeforces...' },
     { key: 'order', label: 'Order', type: 'number' },
   ],
+  testimonial: [
+    { key: 'name', label: 'Person name', type: 'text', required: true },
+    { key: 'role', label: 'Role / Title', type: 'text', required: true, full: true },
+    { key: 'company', label: 'Company / Org', type: 'text' },
+    { key: 'avatarUrl', label: 'Avatar (optional)', type: 'image' },
+    { key: 'rating', label: 'Rating (1-5)', type: 'number' },
+    { key: 'quote', label: 'Quote', type: 'textarea', full: true, required: true },
+    { key: 'order', label: 'Order', type: 'number' },
+  ],
+  currentlyItem: [
+    { key: 'type', label: 'Type', type: 'text', placeholder: 'learning, reading, building, listening' },
+    { key: 'label', label: 'Label', type: 'text', required: true, full: true },
+    { key: 'order', label: 'Order', type: 'number' },
+  ],
 }
 
 export const ENTITY_LABELS: Record<string, string> = {
@@ -96,4 +110,6 @@ export const ENTITY_LABELS: Record<string, string> = {
   achievement: 'Achievement',
   project: 'Project',
   socialLink: 'Social Link',
+  testimonial: 'Testimonial',
+  currentlyItem: 'Currently Item',
 }

@@ -99,6 +99,19 @@ export interface SocialLink {
   order: number
 }
 
+export interface Testimonial {
+  id: string
+  name: string
+  role: string
+  company: string | null
+  avatarUrl: string | null
+  quote: string
+  rating: number
+  order: number
+}
+
+export type CurrentlyData = Record<string, string[]>
+
 export interface PortfolioData {
   profile: Profile | null
   skills: Skills
@@ -109,4 +122,6 @@ export interface PortfolioData {
   achievements: Achievement[]
   projects: Project[]
   socialLinks: SocialLink[]
+  testimonials: Testimonial[]
+  currently: CurrentlyData
 }

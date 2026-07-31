@@ -12,6 +12,8 @@ const ENTITY_CONFIG: Record<string, { model: keyof typeof db }> = {
   achievement: { model: 'achievement' },
   project: { model: 'project' },
   socialLink: { model: 'socialLink' },
+  testimonial: { model: 'testimonial' },
+  currentlyItem: { model: 'currentlyItem' },
 }
 
 export async function PUT(

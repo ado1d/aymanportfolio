@@ -153,3 +153,25 @@ model Message {
   createdAt DateTime @default(now())
 }
 
+// Testimonials / recommendations from mentors, teammates, professors
+model Testimonial {
+  id          String   @id @default(cuid())
+  name        String
+  role        String
+  company     String?
+  avatarUrl   String?
+  quote       String
+  rating      Int      @default(5) // 1-5
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// "Currently" widget — what I'm learning / reading / building right now
+model CurrentlyItem {
+  id    String @id @default(cuid())
+  type  String // learning, reading, building, listening
+  label String
+  order Int    @default(0)
+}
+

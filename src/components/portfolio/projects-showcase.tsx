@@ -67,12 +67,15 @@ export function ProjectsShowcaseWithFilter({
       <div className="sticky top-16 z-30 -mx-4 px-4 py-3 bg-background/80 backdrop-blur-md border-y">
         <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
           <div className="relative flex-1 max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <label htmlFor="project-search" className="sr-only">Search projects</label>
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             <input
+              id="project-search"
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search projects..."
+              aria-label="Search projects by name, description, or tag"
               className="w-full h-9 pl-9 pr-8 rounded-md border bg-card text-sm outline-none focus:border-primary transition-colors"
             />
             {search && (

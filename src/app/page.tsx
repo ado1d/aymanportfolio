@@ -35,6 +35,8 @@ import {
   FileText,
   CheckCircle2,
   Command,
+  Inbox,
+  Quote,
 } from 'lucide-react'
 import { getSocialIcon, getPlatformIcon } from '@/components/portfolio/icons'
 import { useScrollReveal, useCountUp } from '@/hooks/use-scroll-reveal'
@@ -50,6 +52,10 @@ import { CommandPalette } from '@/components/portfolio/command-palette'
 import { PortfolioSkeleton } from '@/components/portfolio/portfolio-skeleton'
 import { ProjectsShowcaseWithFilter } from '@/components/portfolio/projects-showcase'
 import { JsonLd } from '@/components/portfolio/json-ld'
+import { AdminInbox } from '@/components/portfolio/admin-inbox'
+import { Testimonials } from '@/components/portfolio/testimonials'
+import { CurrentlyWidget } from '@/components/portfolio/currently-widget'
+import { useTypewriter } from '@/hooks/use-typewriter'
 import type {
   PortfolioData,
   Project,
@@ -69,6 +75,7 @@ const NAV_ITEMS = [
   { label: 'Contests', id: 'contests' },
   { label: 'Projects', id: 'projects' },
   { label: 'Certificates', id: 'certificates' },
+  { label: 'Testimonials', id: 'testimonials' },
   { label: 'Contact', id: 'contact' },
 ]
 
@@ -154,6 +161,19 @@ export default function Home() {
   const [activeSection, setActiveSection] = useState('')
   const [lightbox, setLightbox] = useState<LightboxState | null>(null)
   const [cmdOpen, setCmdOpen] = useState(false)
+  const [inboxOpen, setInboxOpen] = useState(false)
+
+  // Typing animation for the hero rotating roles
+  const typedRole = useTypewriter(
+    [
+      'Competitive Programmer',
+      'Hackathon Winner',
+      'Full-Stack Builder',
+      'CS Undergraduate',
+      'Problem Solver',
+    ],
+    { typeSpeed: 80, deleteSpeed: 40, pauseEnd: 1600 }
+  )
 
   const [isDark, setIsDark] = useState(false)
   const edit = useEditMode()
@@ -254,6 +274,8 @@ export default function Home() {
   const achievements = data?.achievements || []
   const projects = data?.projects || []
   const socialLinks = data?.socialLinks || []
+  const testimonials = data?.testimonials || []
+  const currently = data?.currently || {}
 
   const displayName = profile?.name || 'Ayman'
   const displayTitle = profile?.title || 'Computer Science Student'
@@ -341,6 +363,17 @@ export default function Home() {
                   </>
                 )}
               </Button>
+              {edit.authed && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setInboxOpen(true)}
+                  className="hidden sm:inline-flex relative"
+                  title="Message inbox"
+                >
+                  <Inbox className="w-4 h-4" />
+                </Button>
+              )}
               <button
                 className="lg:hidden p-2"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -419,9 +452,13 @@ export default function Home() {
               Hi, I&apos;m <span className="gradient-text">{firstName}</span>
             </h1>
 
-            <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-3 max-w-2xl mx-auto">
-              {displayTitle}
-            </p>
+            <div className="flex items-center justify-center gap-2 mb-3 h-9">
+              <span className="text-lg sm:text-xl md:text-2xl text-muted-foreground">I&apos;m a</span>
+              <span className="text-lg sm:text-xl md:text-2xl font-semibold gradient-text-static inline-flex items-center">
+                {typedRole}
+                <span className="inline-block w-0.5 h-6 sm:h-7 ml-1 bg-primary animate-blink" aria-hidden />
+              </span>
+            </div>
             {profile?.tagline && (
               <p className="text-base text-muted-foreground/80 italic mb-8 max-w-xl mx-auto">
                 &ldquo;{profile.tagline}&rdquo;
@@ -481,9 +518,10 @@ export default function Home() {
 
         {/* ============ ABOUT ============ */}
         <section id="about" className="py-24 px-4 sm:px-6">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto space-y-8">
             <SectionHeader eyebrow="Who I am" title="About Me" icon={Sparkles} />
             <AboutBlock profile={profile} editMode={edit.editMode} onSaved={refresh} />
+            <CurrentlyWidget currently={currently} editMode={edit.editMode} onSaved={refresh} />
           </div>
         </section>
 
@@ -583,6 +621,14 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ============ TESTIMONIALS ============ */}
+        <section id="testimonials" className="py-24 px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
+            <SectionHeader eyebrow="Kind Words" title="Testimonials" icon={Quote} subtitle="What mentors, teammates, and professors say" />
+            <Testimonials testimonials={testimonials} editMode={edit.editMode} onSaved={refresh} />
+          </div>
+        </section>
+
         {/* ============ CONTACT ============ */}
         <section id="contact" className="py-24 px-4 sm:px-6">
           <div className="max-w-3xl mx-auto">
@@ -640,6 +686,7 @@ export default function Home() {
         onToggleTheme={toggleTheme}
         isDark={isDark}
       />
+      <AdminInbox open={inboxOpen} onOpenChange={setInboxOpen} authed={edit.authed} />
     </div>
   )
 }

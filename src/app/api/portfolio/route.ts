@@ -13,6 +13,8 @@ export async function GET() {
       achievements,
       projects,
       socialLinks,
+      testimonials,
+      currentlyItems,
     ] = await Promise.all([
       db.profile.findFirst(),
       db.skill.findMany({ orderBy: [{ category: 'asc' }, { order: 'asc' }] }),
@@ -23,6 +25,8 @@ export async function GET() {
       db.achievement.findMany({ orderBy: { order: 'asc' } }),
       db.project.findMany({ orderBy: [{ featured: 'desc' }, { order: 'asc' }] }),
       db.socialLink.findMany({ orderBy: { order: 'asc' } }),
+      db.testimonial.findMany({ orderBy: { order: 'asc' } }),
+      db.currentlyItem.findMany({ orderBy: { order: 'asc' } }),
     ])
 
     const groupedSkills = skills.reduce((acc, skill) => {
@@ -30,6 +34,13 @@ export async function GET() {
       acc[skill.category].push({ id: skill.id, name: skill.name, level: skill.level })
       return acc
     }, {} as Record<string, { id: string; name: string; level: number }[]>)
+
+    // Group currently items by type
+    const groupedCurrently = currentlyItems.reduce((acc, item) => {
+      if (!acc[item.type]) acc[item.type] = []
+      acc[item.type].push(item.label)
+      return acc
+    }, {} as Record<string, string[]>)
 
     return NextResponse.json({
       profile,
@@ -41,6 +52,8 @@ export async function GET() {
       achievements,
       projects,
       socialLinks,
+      testimonials,
+      currently: groupedCurrently,
     })
   } catch (error) {
     console.error('Error fetching portfolio:', error)
