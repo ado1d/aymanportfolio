@@ -1,0 +1,143 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Admin session for authentication
+model AdminSession {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
+
+// Profile information
+model Profile {
+  id          String   @id @default(cuid())
+  name        String
+  title       String
+  tagline     String
+  about       String
+  email       String
+  phone       String?
+  location    String?
+  avatarUrl   String?
+  resumeUrl   String?
+  available   Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+}
+
+// Skills grouped by category with proficiency
+model Skill {
+  id         String @id @default(cuid())
+  category   String // Languages, Web, Databases, Tools, etc.
+  name       String
+  level      Int    @default(80) // 0-100 proficiency
+  order      Int    @default(0)
+}
+
+// Education (replaces Work Experience for a student)
+model Education {
+  id          String   @id @default(cuid())
+  institution String
+  degree      String
+  field       String
+  period      String
+  description String
+  gpa         String?
+  courses     String?  // comma-separated relevant courses
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Hackathons participated
+model Hackathon {
+  id           String   @id @default(cuid())
+  title        String
+  organizer    String
+  date         String
+  result       String?  // e.g. "1st Place", "Top 10", "Winner"
+  teamSize     Int      @default(1)
+  description  String
+  projectUrl   String?
+  imageUrl     String?
+  tags         String?  // comma-separated tech tags
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// Programming contests (Codeforces, ICPC, etc.)
+model Contest {
+  id          String   @id @default(cuid())
+  name        String
+  platform    String   // Codeforces, CodeChef, ICPC, LeetCode, etc.
+  date        String
+  rank        String?  // e.g. "Ranked 42nd", "Specialist"
+  rating      String?  // e.g. "1845"
+  description String
+  badge       String?  // medal emoji or color
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Certificates earned
+model Certificate {
+  id            String   @id @default(cuid())
+  title         String
+  issuer        String
+  date          String
+  credentialId  String?
+  credentialUrl String?
+  imageUrl      String?
+  description   String?
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// Achievements
+model Achievement {
+  id          String   @id @default(cuid())
+  icon        String   // emoji or icon name
+  title       String
+  description String
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Projects
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  longDescription String?
+  imageUrl    String?
+  gallery     String?  // comma-separated image URLs
+  githubUrl   String?
+  liveUrl     String?
+  tags        String?  // comma-separated tags
+  order       Int      @default(0)
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Social links
+model SocialLink {
+  id       String @id @default(cuid())
+  platform String // GitHub, LinkedIn, Facebook, Codeforces, etc.
+  url      String
+  icon     String // emoji or icon identifier
+  order    Int    @default(0)
+}
