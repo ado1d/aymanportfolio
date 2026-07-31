@@ -76,6 +76,8 @@ import { FunFactsWidget } from '@/components/portfolio/fun-facts-widget'
 import { MagneticButton } from '@/components/portfolio/magnetic-button'
 import { ContestStats } from '@/components/portfolio/contest-stats'
 import { HeroSpotlight } from '@/components/portfolio/hero-spotlight'
+import { SkillsRadar } from '@/components/portfolio/skills-radar'
+import { SectionDivider } from '@/components/portfolio/section-divider'
 import { Printer } from 'lucide-react'
 import { downloadVCard } from '@/lib/vcard'
 import { useTypewriter } from '@/hooks/use-typewriter'
@@ -657,6 +659,8 @@ export default function Home() {
           </div>
         </section>
 
+        <SectionDivider />
+
         {/* ============ ABOUT ============ */}
         <section id="about" className="py-24 px-4 sm:px-6">
           <div className="max-w-4xl mx-auto space-y-8">
@@ -680,7 +684,14 @@ export default function Home() {
                 <AddButton entity="skill" label="Add Skill" fields={FIELD_DEFS.skill} onSaved={refresh} />
               </div>
             )}
-            <SkillsWithTabs skills={skills} editMode={edit.editMode} onSaved={refresh} />
+            <div className="grid lg:grid-cols-3 gap-6 mb-8">
+              <div className="lg:col-span-2">
+                <SkillsWithTabs skills={skills} editMode={edit.editMode} onSaved={refresh} />
+              </div>
+              <div className="lg:col-span-1">
+                <SkillsRadar skills={skills} />
+              </div>
+            </div>
           </div>
         </section>
 
@@ -771,6 +782,8 @@ export default function Home() {
             <AchievementsGrid achievements={achievements} editMode={edit.editMode} onSaved={refresh} />
           </div>
         </section>
+
+        <SectionDivider flip />
 
         {/* ============ TESTIMONIALS ============ */}
         <section id="testimonials" className="py-24 px-4 sm:px-6">
@@ -1160,22 +1173,75 @@ function AchievementsGrid({ achievements, editMode, onSaved }: { achievements: A
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
       {achievements.map((a, i) => (
         <Reveal key={a.id} delay={(i % 3) * 80}>
-          <div className="relative">
-            {editMode && (
-              <div className="absolute top-2 right-2 z-20">
-                <EditActions entity="achievement" id={a.id} fields={FIELD_DEFS.achievement} data={a as unknown as Record<string, unknown>} onSaved={onSaved} compact />
-              </div>
-            )}
-            <Card className="glow-card hover-lift text-center h-full">
-              <CardContent className="p-5">
-                <div className="text-4xl mb-2">{a.icon}</div>
-                <h3 className="font-semibold text-sm mb-1">{a.title}</h3>
-                <p className="text-xs text-muted-foreground">{a.description}</p>
-              </CardContent>
-            </Card>
-          </div>
+          <AchievementCard achievement={a} editMode={editMode} onSaved={onSaved} index={i} />
         </Reveal>
       ))}
+    </div>
+  )
+}
+
+function AchievementCard({ achievement, editMode, onSaved, index }: {
+  achievement: Achievement
+  editMode: boolean
+  onSaved: () => void
+  index: number
+}) {
+  const { ref, visible } = useScrollReveal()
+  // SVG ring geometry
+  const size = 64
+  const stroke = 2.5
+  const radius = (size - stroke) / 2
+  const circumference = 2 * Math.PI * radius
+  const fillPct = visible ? 100 : 0
+  const dashOffset = circumference - (fillPct / 100) * circumference
+  const gradId = `ach-grad-${index}`
+
+  return (
+    <div className="relative" ref={ref}>
+      {editMode && (
+        <div className="absolute top-2 right-2 z-20">
+          <EditActions entity="achievement" id={achievement.id} fields={FIELD_DEFS.achievement} data={achievement as unknown as Record<string, unknown>} onSaved={onSaved} compact />
+        </div>
+      )}
+      <Card className="glow-card hover-lift text-center h-full group">
+        <CardContent className="p-5">
+          {/* Animated progress ring around the emoji */}
+          <div className="relative inline-flex items-center justify-center mb-3" style={{ width: size, height: size }}>
+            <svg width={size} height={size} className="transform -rotate-90 absolute inset-0">
+              <defs>
+                <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#7c3aed" />
+                  <stop offset="100%" stopColor="#ec4899" />
+                </linearGradient>
+              </defs>
+              <circle
+                cx={size / 2}
+                cy={size / 2}
+                r={radius}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={stroke}
+                className="text-muted opacity-20"
+              />
+              <circle
+                cx={size / 2}
+                cy={size / 2}
+                r={radius}
+                fill="none"
+                stroke={`url(#${gradId})`}
+                strokeWidth={stroke}
+                strokeLinecap="round"
+                strokeDasharray={circumference}
+                strokeDashoffset={dashOffset}
+                style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.16, 1, 0.3, 1)', transitionDelay: `${index * 100}ms` }}
+              />
+            </svg>
+            <span className="text-2xl">{achievement.icon}</span>
+          </div>
+          <h3 className="font-semibold text-sm mb-1 group-hover:text-primary transition-colors">{achievement.title}</h3>
+          <p className="text-xs text-muted-foreground">{achievement.description}</p>
+        </CardContent>
+      </Card>
     </div>
   )
 }
