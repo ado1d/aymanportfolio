@@ -160,3 +160,63 @@ Unresolved / Next-phase recommendations:
 - Replace SVG placeholder images with real project/certificate screenshots via edit mode.
 - Consider a blog/writing section.
 - Add keyboard shortcut help overlay (? key) listing all shortcuts (⌘K, Esc, ↑↓).
+
+---
+Task ID: 4
+Agent: webDevReview cron (round 3)
+Task: QA the portfolio, fix bugs, and add new features (keyboard shortcuts, skill tabs, rating chart, activity heatmap, Konami easter egg) + styling improvements.
+
+Work Log:
+- Read worklog.md (rounds 1-3 complete); confirmed lint clean, dev server running, all 11 sections rendering.
+- QA via agent-browser: no console/runtime errors, 16 images load, 0 unlabeled buttons, no duplicate IDs, mobile responsive (390px: hamburger, no overflow), edit mode login works, command palette opens via ⌘K, testimonials carousel (3 dots + prev/next), 6 contests render.
+- Found 1 minor a11y issue: the command palette search input had no aria-label. Fixed in `src/components/portfolio/command-palette.tsx` by adding `id="cmd-palette-search"`, a `sr-only` label, and `aria-label="Search commands"`. Verified: 0 unlabeled inputs after fix.
+
+New features implemented this round:
+1. **Keyboard shortcut help overlay** (addresses an unresolved item from round 3):
+   - New `ShortcutHelp` component (`src/components/portfolio/shortcut-help.tsx`): a dialog listing all shortcuts grouped by Global / Navigation / Theme / Gallery, with styled `<kbd>` key caps.
+   - Press `?` (Shift+/) anytime to toggle it.
+2. **Full keyboard navigation system** (new):
+   - `⌘K` / `Ctrl+K` — command palette (existing).
+   - `?` — shortcut help overlay.
+   - `/` — focus the project search input (scrolls to it first).
+   - `T` — toggle dark/light theme (reads current state from DOM to avoid stale closure).
+   - `G` + letter — Vim-style section jump: `G H` (home), `G A` (about), `G S` (skills), `G E` (education), `G P` (projects), `G C` (contact), `G T` (testimonials).
+   - All shortcuts are disabled while typing in inputs/textareas (except Esc).
+3. **Skill category tabs with filtering** (feature — replaces static SkillsGrid):
+   - New `SkillsWithTabs` component (`src/components/portfolio/skills-with-tabs.tsx`): a row of category pill buttons ("All", "Languages", "Web", "Tools", "CS Core", "AI/ML") with counts. Clicking a tab filters the visible skill bars. The active tab scales up with a shadow.
+   - Each skill bar now has a hover/focus tooltip showing the proficiency level label (Expert / Advanced / Intermediate / Familiar) + percentage, using the `.skill-tooltip` CSS.
+   - Removed the now-dead `SkillsGrid` and `SkillBar` functions from page.tsx.
+4. **Codeforces-style rating trajectory chart** (feature — in Contests section):
+   - New `RatingChart` component (`src/components/portfolio/rating-chart.tsx`): an SVG line chart showing a 9-point rating history (1200→1845) with rank-band gridlines (Newbie/Pupil/Specialist/Expert color-coded), an animated pulsing dot on the latest point, area-fill gradient, current/peak rating stats, total rating gain, and the current rank badge. Fully responsive with horizontal scroll on narrow screens.
+5. **GitHub-style activity heatmap** (feature — in About section):
+   - New `ActivityHeatmap` component (`src/components/portfolio/activity-heatmap.tsx`): a 52-week contribution grid with deterministic pseudo-random counts (stable per render), month labels, day labels, hover tooltips per day, a Less→More legend, total contributions count, and a longest-streak badge. Placed side-by-side with the Currently widget in a 2-column grid.
+6. **Konami code easter egg** (fun feature):
+   - New `KonamiEasterEgg` component (`src/components/portfolio/konami-easter-egg.tsx`): listens for ↑↑↓↓←→←→BA and triggers a full-screen confetti overlay with 80 pieces (colored squares + emoji 🏆⚡💻🎯🚀⭐) falling with rotation, plus a "You found the Konami code!" message. Auto-dismisses after 6 seconds. Wraps the entire app.
+
+Styling improvements (`src/app/globals.css`):
+- `@keyframes confetti-fall` — falling + rotating animation for easter egg confetti.
+- `.mesh-blob` + `@keyframes mesh-drift` — drifting gradient blob animation (available for future use).
+- `.shimmer-text` + `@keyframes shimmer-text` — animated shimmering gradient text effect.
+
+QA verification (agent-browser):
+- 11 sections render; 0 unlabeled inputs (a11y bug fixed); command palette input now has aria-label.
+- `?` opens shortcut help overlay (verified: shows all shortcuts grouped by category).
+- `G` + `P` scrolls to Projects section (verified: section top ≈ 0).
+- Skill tabs: 6 tabs (All + 5 categories); clicking "Languages" filters to show only the 6 language skills.
+- Rating chart: VLM confirmed "colored data points, rank band gridlines (Newbie/Pupil/Specialist), current/peak rating 1845".
+- Activity heatmap: VLM confirmed "GitHub-style contribution heatmap beside the Currently widget, side-by-side grid layout".
+- Konami code: 80 confetti pieces render with "You found the Konami code!" message; auto-dismisses after 6s.
+- Lint passes clean; dev server compiles with no errors.
+
+Stage Summary:
+- 1 a11y bug fixed; 6 new features added (shortcut help, full keyboard nav, skill tabs, rating chart, activity heatmap, Konami easter egg); 3 new CSS animations.
+- Lint passes clean. Dev server running on port 3000 with no runtime errors.
+- The portfolio now has Vim-style keyboard navigation, a competitive-programming rating visualization, a GitHub-style activity graph, and a fun discoverable easter egg.
+
+Unresolved / Next-phase recommendations:
+- Wire contact form to a real email service (Resend/SendGrid) for delivery notifications.
+- Add per-section Open Graph images for link previews.
+- Replace SVG placeholder images with real project/certificate screenshots via edit mode.
+- Consider a blog/writing section.
+- Add a visitor analytics dashboard (page views, unique visitors) using the existing SQLite DB.
+- Internationalization (i18n) for Bengali + English toggle.

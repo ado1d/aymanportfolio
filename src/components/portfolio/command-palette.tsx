@@ -174,12 +174,15 @@ export function CommandPalette({
         <DialogTitle className="sr-only">Command palette</DialogTitle>
         <div className="flex items-center gap-3 px-4 border-b">
           <Search className="w-4 h-4 text-muted-foreground shrink-0" />
+          <label htmlFor="cmd-palette-search" className="sr-only">Search commands</label>
           <input
+            id="cmd-palette-search"
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKeyDown}
             placeholder="Search sections, theme, links, actions..."
+            aria-label="Search commands"
             className="flex-1 h-14 bg-transparent outline-none text-sm placeholder:text-muted-foreground"
           />
           <kbd className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] text-muted-foreground">

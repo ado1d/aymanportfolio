@@ -586,3 +586,41 @@
 .quote-fade {
   animation: quote-fade 0.4s ease-out;
 }
+
+/* ============ Confetti fall (Konami easter egg) ============ */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(105vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* ============ Animated gradient mesh background blob ============ */
+@keyframes mesh-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(40px, -30px) scale(1.1); }
+  50% { transform: translate(-20px, 40px) scale(0.95); }
+  75% { transform: translate(-40px, -20px) scale(1.05); }
+}
+.mesh-blob {
+  animation: mesh-drift 18s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* ============ Gradient text shimmer for special headings ============ */
+@keyframes shimmer-text {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.shimmer-text {
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary) 40%, #ec4899 50%, var(--primary) 60%, var(--primary) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer-text 3s linear infinite;
+}

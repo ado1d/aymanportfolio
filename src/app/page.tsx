@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -55,6 +55,11 @@ import { JsonLd } from '@/components/portfolio/json-ld'
 import { AdminInbox } from '@/components/portfolio/admin-inbox'
 import { Testimonials } from '@/components/portfolio/testimonials'
 import { CurrentlyWidget } from '@/components/portfolio/currently-widget'
+import { ShortcutHelp } from '@/components/portfolio/shortcut-help'
+import { SkillsWithTabs } from '@/components/portfolio/skills-with-tabs'
+import { RatingChart } from '@/components/portfolio/rating-chart'
+import { ActivityHeatmap } from '@/components/portfolio/activity-heatmap'
+import { KonamiEasterEgg } from '@/components/portfolio/konami-easter-egg'
 import { useTypewriter } from '@/hooks/use-typewriter'
 import type {
   PortfolioData,
@@ -162,6 +167,8 @@ export default function Home() {
   const [lightbox, setLightbox] = useState<LightboxState | null>(null)
   const [cmdOpen, setCmdOpen] = useState(false)
   const [inboxOpen, setInboxOpen] = useState(false)
+  const [shortcutHelpOpen, setShortcutHelpOpen] = useState(false)
+  const projectSearchRef = useRef<HTMLInputElement | null>(null)
 
   // Typing animation for the hero rotating roles
   const typedRole = useTypewriter(
@@ -190,9 +197,76 @@ export default function Home() {
   // Cmd+K / Ctrl+K to open command palette
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // Don't trigger shortcuts when typing in an input/textarea (except Esc)
+      const target = e.target as HTMLElement
+      const isTyping =
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable
+
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault()
         setCmdOpen((o) => !o)
+        return
+      }
+
+      // "?" opens shortcut help (Shift+/) — but not while typing
+      if (e.shiftKey && e.key === '?' && !isTyping) {
+        e.preventDefault()
+        setShortcutHelpOpen((o) => !o)
+        return
+      }
+
+      if (isTyping) return
+
+      // "/" focuses project search
+      if (e.key === '/') {
+        const search = document.getElementById('project-search') as HTMLInputElement | null
+        if (search) {
+          e.preventDefault()
+          search.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          setTimeout(() => search.focus(), 400)
+        }
+        return
+      }
+
+      // "t" toggles theme (read current state from DOM to avoid stale closure)
+      if (e.key.toLowerCase() === 't' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        e.preventDefault()
+        const isCurrentlyDark = document.documentElement.classList.contains('dark')
+        if (isCurrentlyDark) {
+          document.documentElement.classList.remove('dark')
+          localStorage.setItem('theme', 'light')
+          setIsDark(false)
+        } else {
+          document.documentElement.classList.add('dark')
+          localStorage.setItem('theme', 'dark')
+          setIsDark(true)
+        }
+        return
+      }
+
+      // "g" + letter = go to section
+      if (e.key.toLowerCase() === 'g' && !e.metaKey && !e.ctrlKey) {
+        const handler = (ev: KeyboardEvent) => {
+          const map: Record<string, string> = {
+            h: 'home',
+            a: 'about',
+            s: 'skills',
+            e: 'education',
+            p: 'projects',
+            c: 'contact',
+            t: 'testimonials',
+          }
+          const id = map[ev.key.toLowerCase()]
+          if (id) {
+            ev.preventDefault()
+            document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+          }
+          window.removeEventListener('keydown', handler)
+        }
+        window.addEventListener('keydown', handler, { once: true })
+        return
       }
     }
     window.addEventListener('keydown', onKey)
@@ -287,6 +361,7 @@ export default function Home() {
   const otherProjects = projects.filter((p) => !p.featured)
 
   return (
+    <KonamiEasterEgg>
     <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
       <JsonLd profile={profile} projects={projects} socialLinks={socialLinks} />
       <ReadingProgress />
@@ -521,7 +596,10 @@ export default function Home() {
           <div className="max-w-4xl mx-auto space-y-8">
             <SectionHeader eyebrow="Who I am" title="About Me" icon={Sparkles} />
             <AboutBlock profile={profile} editMode={edit.editMode} onSaved={refresh} />
-            <CurrentlyWidget currently={currently} editMode={edit.editMode} onSaved={refresh} />
+            <div className="grid md:grid-cols-2 gap-6">
+              <CurrentlyWidget currently={currently} editMode={edit.editMode} onSaved={refresh} />
+              <ActivityHeatmap />
+            </div>
           </div>
         </section>
 
@@ -534,7 +612,7 @@ export default function Home() {
                 <AddButton entity="skill" label="Add Skill" fields={FIELD_DEFS.skill} onSaved={refresh} />
               </div>
             )}
-            <SkillsGrid skills={skills} editMode={edit.editMode} onSaved={refresh} />
+            <SkillsWithTabs skills={skills} editMode={edit.editMode} onSaved={refresh} />
           </div>
         </section>
 
@@ -573,6 +651,9 @@ export default function Home() {
                 <AddButton entity="contest" label="Add Contest" fields={FIELD_DEFS.contest} onSaved={refresh} />
               </div>
             )}
+            <div className="mb-10">
+              <RatingChart />
+            </div>
             <ContestList contests={contests} editMode={edit.editMode} onSaved={refresh} />
           </div>
         </section>
@@ -687,7 +768,9 @@ export default function Home() {
         isDark={isDark}
       />
       <AdminInbox open={inboxOpen} onOpenChange={setInboxOpen} authed={edit.authed} />
+      <ShortcutHelp open={shortcutHelpOpen} onOpenChange={setShortcutHelpOpen} />
     </div>
+    </KonamiEasterEgg>
   )
 }
 
@@ -719,52 +802,6 @@ function AboutBlock({ profile, editMode, onSaved }: { profile: PortfolioData['pr
   )
 }
 
-function SkillsGrid({ skills, editMode, onSaved }: { skills: PortfolioData['skills']; editMode: boolean; onSaved: () => void }) {
-  const categories = Object.keys(skills)
-  if (!categories.length) return <p className="text-center text-muted-foreground">No skills added yet.</p>
-  return (
-    <div className="space-y-8">
-      {categories.map((cat, ci) => (
-        <Reveal key={cat} delay={ci * 80}>
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-            {cat}
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {skills[cat].map((s, si) => (
-              <SkillBar key={si} skill={s} editMode={editMode} onSaved={onSaved} />
-            ))}
-          </div>
-        </Reveal>
-      ))}
-    </div>
-  )
-}
-
-function SkillBar({ skill, editMode, onSaved }: { skill: { name: string; level: number; id?: string }; editMode: boolean; onSaved: () => void }) {
-  const { ref, visible } = useScrollReveal()
-  return (
-    <div ref={ref} className="relative group">
-      {editMode && skill.id && (
-        <div className="absolute top-2 right-2 z-20">
-          <EditActions entity="skill" id={skill.id} fields={FIELD_DEFS.skill} data={skill as Record<string, unknown>} onSaved={onSaved} compact />
-        </div>
-      )}
-      <div className="p-4 rounded-xl border bg-card hover:border-primary/40 transition-colors">
-        <div className="flex items-center justify-between mb-2">
-          <span className="font-medium text-sm">{skill.name}</span>
-          <span className="text-xs text-muted-foreground">{skill.level}%</span>
-        </div>
-        <div className="h-2 rounded-full bg-muted overflow-hidden">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-primary to-pink-500 transition-all duration-1000"
-            style={{ width: visible ? `${skill.level}%` : '0%' }}
-          />
-        </div>
-      </div>
-    </div>
-  )
-}
 
 function EducationTimeline({ education, editMode, onSaved }: { education: Education[]; editMode: boolean; onSaved: () => void }) {
   if (!education.length) return <p className="text-center text-muted-foreground">No education added yet.</p>
