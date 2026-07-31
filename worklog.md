@@ -49,3 +49,55 @@ Unresolved / Next-phase recommendations:
 - Consider adding a blog/writing section and a "Now" page for current focus.
 - Add SEO: per-section Open Graph images, structured data (JSON-LD Person schema).
 - The cron-triggered webDevReview agent may propose additional polish (animations, micro-interactions, accessibility audits).
+
+---
+Task ID: 2
+Agent: webDevReview cron (round 1)
+Task: QA the portfolio via agent-browser, fix bugs, and add new features + styling improvements.
+
+Work Log:
+- Read worklog.md to understand prior progress; confirmed lint clean and dev server running.
+- QA via agent-browser: opened http://localhost:3000, checked console (no errors), verified all 10 sections render, 16 images lazy-load, structure correct (1 h1, 9 h2, no duplicate IDs).
+- Found 1 accessibility bug: the theme-toggle `<Switch>` lacked an `aria-label` (flagged by unlabeled-button audit). Fixed by adding `aria-label="Toggle dark mode"` to both desktop and mobile Switch instances in `src/app/page.tsx`.
+- Confirmed the contact section was only a mailto link (no real form) — a known gap from the prior phase.
+
+New features implemented this round:
+1. **Contact form with backend storage** (`src/components/portfolio/contact-form.tsx` + `src/app/api/contact/route.ts` + `Message` Prisma model):
+   - Name / email / subject / message fields with client + server validation (email regex, length caps).
+   - Messages persist to SQLite via a new `Message` model (added to `prisma/schema.prisma`, pushed with `db:push`).
+   - Success state shows a confirmation card with a "Send another" button; toast notifications for success/error.
+   - Copy-email-to-clipboard button with toast feedback.
+   - Resolved a stale-Prisma-client issue: the dev server held a cached `db` singleton from before the `Message` model existed, causing a 500. Triggered a full Next.js server reload by editing `next.config.ts` (Next restarts on config changes), which re-imported the regenerated `@prisma/client`.
+2. **Reading progress bar** (`src/components/portfolio/reading-progress.tsx`): a thin gradient bar fixed to the very top of the viewport that tracks scroll position.
+3. **Command Palette (Cmd+K / Ctrl+K)** (`src/components/portfolio/command-palette.tsx`): searchable launcher grouping Navigation (jump to section), Theme (toggle dark/light), Social (open links), and Actions (scroll-to-top, print/PDF). Keyboard-navigable (↑↓ to move, Enter to select, Esc to close). A "⌘K Search" button added to the desktop nav (hidden on mobile). Fixed two `react-hooks/set-state-in-effect` lint errors by switching to the React-recommended "adjust state during render" pattern (comparing previous prop/query values) instead of effects.
+4. **Project filtering & search** (`src/components/portfolio/projects-showcase.tsx`): replaced the static `ProjectsShowcase` with a version that has a sticky filter bar (search box + tag pills auto-derived from project tags), live result count, and an empty-state with a "Clear filters" button. Removed the now-dead local project card functions from `page.tsx`.
+5. **JSON-LD SEO** (`src/components/portfolio/json-ld.tsx`): injects a `Person` schema.org structured-data script (name, jobTitle, description, email, address, sameAs social links, knowsAbout project tags).
+6. **Polished loading skeleton** (`src/components/portfolio/portfolio-skeleton.tsx`): replaced the plain "Loading portfolio..." text with a full-page skeleton (nav, hero avatar, headings, stat cards, project grid) using staggered pulse animations.
+
+Styling improvements (`src/app/globals.css`):
+- Print stylesheet (`@media print`): hides nav/particles/aurora/edit controls, forces light background, plain borders, underlined links — so the portfolio prints/saves-as-PDF cleanly.
+- `prefers-reduced-motion` support: disables animations for users who request reduced motion.
+- `:focus-visible` ring for keyboard navigation; `::selection` styling.
+- `.tilt-card` (subtle 3D perspective hover), `.nav-underline` (animated gradient underline on nav links — applied to desktop nav), `.fade-overlay` utility.
+
+QA verification (agent-browser):
+- 0 unlabeled buttons (accessibility bug fixed).
+- Command palette opens via ⌘K; searching "hackathon" filters to 1 result; Enter selects.
+- Project search "algoarena" filters 6→1 project; "Next.js" tag filter shows 4 projects.
+- Contact form submits successfully (POST /api/contact returns 200, "Message sent" confirmation shown); cleaned up 2 test messages afterward.
+- JSON-LD script present and valid.
+- VLM confirmed: top progress bar, ⌘K search button, project filter pills all visible; "highly polished" design.
+- Mobile (390px): responsive, hamburger nav, ⌘K button hidden, no overflow.
+
+Stage Summary:
+- All bugs from QA fixed; 6 new features added; styling expanded with print/reduced-motion/accessibility utilities.
+- Lint passes clean. Dev server running on port 3000 with no runtime errors.
+- Note for future rounds: if a new Prisma model is added, the dev server must be fully restarted (not just HMR) to pick up the regenerated `@prisma/client` — editing `next.config.ts` is a reliable way to trigger this.
+
+Unresolved / Next-phase recommendations:
+- Add an admin view to read/delete submitted contact messages (currently they only persist in the DB).
+- Wire the contact form to an email service (Resend/SendGrid) for real delivery.
+- Consider a blog/writing section and a "Now/currently" widget.
+- Add per-section Open Graph images for link previews.
+- Replace SVG placeholder images with real project/certificate screenshots via edit mode.
+

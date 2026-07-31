@@ -34,6 +34,7 @@ import {
   Rocket,
   FileText,
   CheckCircle2,
+  Command,
 } from 'lucide-react'
 import { getSocialIcon, getPlatformIcon } from '@/components/portfolio/icons'
 import { useScrollReveal, useCountUp } from '@/hooks/use-scroll-reveal'
@@ -43,6 +44,12 @@ import { useEditMode } from '@/components/portfolio/use-edit-mode'
 import { LoginDialog } from '@/components/portfolio/login-dialog'
 import { AddButton, EditActions } from '@/components/portfolio/edit-controls'
 import { FIELD_DEFS } from '@/components/portfolio/field-defs'
+import { ContactForm } from '@/components/portfolio/contact-form'
+import { ReadingProgress } from '@/components/portfolio/reading-progress'
+import { CommandPalette } from '@/components/portfolio/command-palette'
+import { PortfolioSkeleton } from '@/components/portfolio/portfolio-skeleton'
+import { ProjectsShowcaseWithFilter } from '@/components/portfolio/projects-showcase'
+import { JsonLd } from '@/components/portfolio/json-ld'
 import type {
   PortfolioData,
   Project,
@@ -146,6 +153,7 @@ export default function Home() {
   const [showTop, setShowTop] = useState(false)
   const [activeSection, setActiveSection] = useState('')
   const [lightbox, setLightbox] = useState<LightboxState | null>(null)
+  const [cmdOpen, setCmdOpen] = useState(false)
 
   const [isDark, setIsDark] = useState(false)
   const edit = useEditMode()
@@ -157,6 +165,18 @@ export default function Home() {
     const dark = saved === 'dark' || (!saved && prefersDark)
     setIsDark(dark)
     if (dark) document.documentElement.classList.add('dark')
+  }, [])
+
+  // Cmd+K / Ctrl+K to open command palette
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setCmdOpen((o) => !o)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
   }, [])
 
   const toggleTheme = () => {
@@ -222,16 +242,7 @@ export default function Home() {
   }, [])
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-flex p-4 rounded-full bg-primary/10 text-primary mb-4 animate-pulse">
-            <Code className="w-8 h-8" />
-          </div>
-          <div className="text-xl gradient-text font-bold">Loading portfolio...</div>
-        </div>
-      </div>
-    )
+    return <PortfolioSkeleton />
   }
 
   const profile = data?.profile
@@ -255,6 +266,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+      <JsonLd profile={profile} projects={projects} socialLinks={socialLinks} />
+      <ReadingProgress />
+
       {/* Background Effects */}
       <div className="fixed inset-0 grid-bg pointer-events-none" />
       <div className="aurora" />
@@ -278,7 +292,7 @@ export default function Home() {
                 <a
                   key={item.id}
                   href={`#${item.id}`}
-                  className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
+                  className={`nav-underline px-3 py-1.5 rounded-md text-sm transition-colors ${
                     activeSection === item.id
                       ? 'text-primary bg-primary/10 font-medium'
                       : 'text-muted-foreground hover:text-primary'
@@ -290,9 +304,25 @@ export default function Home() {
             </div>
 
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCmdOpen(true)}
+                className="hidden md:flex items-center gap-2 h-9 px-3 rounded-md border bg-card text-xs text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+                aria-label="Open command palette"
+                title="Search (Cmd+K)"
+              >
+                <Command className="w-3.5 h-3.5" />
+                <span className="hidden lg:inline">Search</span>
+                <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-muted text-[10px] font-mono">
+                  ⌘K
+                </kbd>
+              </button>
               <div className="hidden sm:flex items-center gap-1.5">
                 <Sun className="w-4 h-4 text-muted-foreground" />
-                <Switch checked={isDark} onCheckedChange={toggleTheme} />
+                <Switch
+                  checked={isDark}
+                  onCheckedChange={toggleTheme}
+                  aria-label="Toggle dark mode"
+                />
                 <Moon className="w-4 h-4 text-muted-foreground" />
               </div>
               <Button
@@ -338,7 +368,11 @@ export default function Home() {
               <div className="flex items-center gap-3 px-3 mt-3">
                 <div className="flex items-center gap-1.5">
                   <Sun className="w-4 h-4" />
-                  <Switch checked={isDark} onCheckedChange={toggleTheme} />
+                  <Switch
+                    checked={isDark}
+                    onCheckedChange={toggleTheme}
+                    aria-label="Toggle dark mode"
+                  />
                   <Moon className="w-4 h-4" />
                 </div>
                 <Button variant="outline" size="sm" onClick={edit.toggleEditMode} className="flex-1">
@@ -514,9 +548,8 @@ export default function Home() {
                 <AddButton entity="project" label="Add Project" fields={FIELD_DEFS.project} onSaved={refresh} />
               </div>
             )}
-            <ProjectsShowcase
-              featured={featuredProjects}
-              others={otherProjects}
+            <ProjectsShowcaseWithFilter
+              projects={projects}
               editMode={edit.editMode}
               onSaved={refresh}
               onOpenLightbox={(imgs, i) => setLightbox({ images: imgs, index: i })}
@@ -552,37 +585,11 @@ export default function Home() {
 
         {/* ============ CONTACT ============ */}
         <section id="contact" className="py-24 px-4 sm:px-6">
-          <div className="max-w-2xl mx-auto">
-            <SectionHeader eyebrow="Get In Touch" title="Let's Connect" icon={Send} subtitle="Have an opportunity, idea, or just want to say hi?" />
+          <div className="max-w-3xl mx-auto">
+            <SectionHeader eyebrow="Get In Touch" title="Let's Connect" icon={Send} subtitle="Have an opportunity, idea, or just want to say hi? Drop me a message." />
             <Card className="glow-card">
-              <CardContent className="p-8 text-center">
-                <a
-                  href={`mailto:${displayEmail}`}
-                  className="inline-flex items-center gap-2 text-lg font-medium hover:text-primary transition-colors mb-3"
-                >
-                  <Mail className="w-5 h-5" />
-                  {displayEmail}
-                </a>
-                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-6">
-                  <MapPin className="w-4 h-4" />
-                  {displayLocation}
-                </div>
-
-                <div className="flex items-center justify-center gap-3 pt-6 border-t">
-                  {socialLinks.map((link) => (
-                    <a
-                      key={link.id}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-3 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:-translate-y-1"
-                      title={link.platform}
-                    >
-                      {getSocialIcon(link.platform)}
-                    </a>
-                  ))}
-                </div>
-
+              <CardContent className="p-6 sm:p-8">
+                <ContactForm email={displayEmail} location={displayLocation} socialLinks={socialLinks} />
                 {edit.editMode && (
                   <div className="mt-6 pt-6 border-t">
                     <AddButton entity="socialLink" label="Add Social Link" fields={FIELD_DEFS.socialLink} onSaved={refresh} />
@@ -615,7 +622,7 @@ export default function Home() {
         </button>
       )}
 
-      {/* Login + Lightbox */}
+      {/* Login + Lightbox + Command Palette */}
       <LoginDialog open={edit.showLogin} onOpenChange={edit.setShowLogin} onLogin={edit.login} />
       {lightbox && (
         <ImageLightbox
@@ -625,6 +632,14 @@ export default function Home() {
           onClose={() => setLightbox(null)}
         />
       )}
+      <CommandPalette
+        open={cmdOpen}
+        onOpenChange={setCmdOpen}
+        sections={NAV_ITEMS}
+        socialLinks={socialLinks}
+        onToggleTheme={toggleTheme}
+        isDark={isDark}
+      />
     </div>
   )
 }
@@ -893,152 +908,6 @@ function ContestRow({ contest, editMode, onSaved }: { contest: Contest; editMode
                 <Calendar className="w-3 h-3" /> {contest.date}
               </span>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
-
-function ProjectsShowcase({ featured, others, editMode, onSaved, onOpenLightbox }: {
-  featured: Project[]
-  others: Project[]
-  editMode: boolean
-  onSaved: () => void
-  onOpenLightbox: (imgs: { url: string; title?: string; subtitle?: string }[], i: number) => void
-}) {
-  const all = [...featured, ...others]
-  if (!all.length) return <p className="text-center text-muted-foreground">No projects added yet.</p>
-
-  return (
-    <div className="space-y-10">
-      {featured.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {featured.map((p, i) => (
-            <Reveal key={p.id} delay={i * 100}>
-              <FeaturedProjectCard project={p} editMode={editMode} onSaved={onSaved} onOpenLightbox={onOpenLightbox} />
-            </Reveal>
-          ))}
-        </div>
-      )}
-
-      {others.length > 0 && (
-        <div>
-          {featured.length > 0 && (
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-5 text-center">More Projects</h3>
-          )}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {others.map((p, i) => (
-              <Reveal key={p.id} delay={(i % 3) * 80}>
-                <ProjectCard project={p} editMode={editMode} onSaved={onSaved} onOpenLightbox={onOpenLightbox} />
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-function FeaturedProjectCard({ project, editMode, onSaved, onOpenLightbox }: {
-  project: Project
-  editMode: boolean
-  onSaved: () => void
-  onOpenLightbox: (imgs: { url: string; title?: string; subtitle?: string }[], i: number) => void
-}) {
-  return (
-    <div className="relative project-card h-full">
-      {editMode && (
-        <div className="absolute top-3 right-3 z-30">
-          <EditActions entity="project" id={project.id} fields={FIELD_DEFS.project} data={project as unknown as Record<string, unknown>} onSaved={onSaved} compact />
-        </div>
-      )}
-      <Card className="glow-card hover-lift group overflow-hidden h-full flex flex-col">
-        {project.imageUrl && (
-          <div className="relative aspect-video overflow-hidden bg-muted cursor-pointer" onClick={() => project.imageUrl && onOpenLightbox([{ url: project.imageUrl, title: project.title, subtitle: project.description }], 0)}>
-            <img src={project.imageUrl} alt={project.title} className="project-img w-full h-full object-cover" loading="lazy" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-60" />
-            <Badge className="absolute top-3 left-3 bg-yellow-500/90 text-black hover:bg-yellow-500">
-              <Star className="w-3 h-3 mr-1 fill-current" /> Featured
-            </Badge>
-            <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-              <h3 className="font-bold text-lg">{project.title}</h3>
-            </div>
-          </div>
-        )}
-        <CardContent className="p-5 flex flex-col flex-1">
-          {!project.imageUrl && <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors">{project.title}</h3>}
-          <p className="text-sm text-muted-foreground leading-relaxed mb-3 line-clamp-3">{project.longDescription || project.description}</p>
-          {project.tags && (
-            <div className="flex flex-wrap gap-1.5 mb-4">
-              {project.tags.split(',').slice(0, 4).map((t, i) => (
-                <Badge key={i} variant="secondary" className="text-xs font-normal">{t.trim()}</Badge>
-              ))}
-            </div>
-          )}
-          <div className="flex gap-3 pt-3 border-t mt-auto">
-            {project.githubUrl && (
-              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
-                <Github className="w-4 h-4" /> Code
-              </a>
-            )}
-            {project.liveUrl && (
-              <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
-                <ExternalLink className="w-4 h-4" /> Live
-              </a>
-            )}
-            {project.imageUrl && (
-              <button onClick={() => onOpenLightbox([{ url: project.imageUrl, title: project.title, subtitle: project.description }], 0)} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors ml-auto">
-                <Eye className="w-4 h-4" /> Preview
-              </button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
-
-function ProjectCard({ project, editMode, onSaved, onOpenLightbox }: {
-  project: Project
-  editMode: boolean
-  onSaved: () => void
-  onOpenLightbox: (imgs: { url: string; title?: string; subtitle?: string }[], i: number) => void
-}) {
-  return (
-    <div className="relative project-card h-full">
-      {editMode && (
-        <div className="absolute top-3 right-3 z-30">
-          <EditActions entity="project" id={project.id} fields={FIELD_DEFS.project} data={project as unknown as Record<string, unknown>} onSaved={onSaved} compact />
-        </div>
-      )}
-      <Card className="glow-card hover-lift group overflow-hidden h-full flex flex-col">
-        {project.imageUrl && (
-          <div className="relative aspect-video overflow-hidden bg-muted cursor-pointer" onClick={() => project.imageUrl && onOpenLightbox([{ url: project.imageUrl, title: project.title }], 0)}>
-            <img src={project.imageUrl} alt={project.title} className="project-img w-full h-full object-cover" loading="lazy" />
-          </div>
-        )}
-        <CardContent className="p-5 flex flex-col flex-1">
-          <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors">{project.title}</h3>
-          <p className="text-sm text-muted-foreground leading-relaxed mb-3 line-clamp-2 flex-1">{project.description}</p>
-          {project.tags && (
-            <div className="flex flex-wrap gap-1.5 mb-3">
-              {project.tags.split(',').slice(0, 3).map((t, i) => (
-                <Badge key={i} variant="secondary" className="text-xs font-normal">{t.trim()}</Badge>
-              ))}
-            </div>
-          )}
-          <div className="flex gap-3 pt-3 border-t mt-auto">
-            {project.githubUrl && (
-              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
-                <Github className="w-4 h-4" /> Code
-              </a>
-            )}
-            {project.liveUrl && (
-              <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
-                <ExternalLink className="w-4 h-4" /> Live
-              </a>
-            )}
           </div>
         </CardContent>
       </Card>

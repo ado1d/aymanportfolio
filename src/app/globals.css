@@ -417,3 +417,116 @@
 /* Hide scrollbar utility */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ============ Smooth focus ring for keyboard users ============ */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ============ Selection styling ============ */
+::selection {
+  background: rgba(124, 58, 237, 0.25);
+  color: inherit;
+}
+.dark ::selection {
+  background: rgba(167, 139, 250, 0.3);
+}
+
+/* ============ Print styles (save portfolio as PDF) ============ */
+@media print {
+  .grid-bg,
+  .aurora,
+  .particles,
+  .particle,
+  .mouse-light,
+  .mouse-light-secondary,
+  nav,
+  .edit-pulse,
+  button[aria-label="Back to top"],
+  button[aria-label="Open command palette"] {
+    display: none !important;
+  }
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .glow-card::before,
+  .glow-card:hover::before {
+    display: none !important;
+  }
+  .glow-card {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+  section {
+    padding: 16px 0 !important;
+    page-break-inside: avoid;
+  }
+  .gradient-text,
+  .gradient-text-static {
+    -webkit-text-fill-color: #7c3aed !important;
+    color: #7c3aed !important;
+  }
+  a {
+    text-decoration: underline;
+    color: #000 !important;
+  }
+  main {
+    padding-top: 0 !important;
+  }
+}
+
+/* ============ Reduced motion ============ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .particle,
+  .aurora::before,
+  .aurora::after {
+    animation: none !important;
+  }
+}
+
+/* ============ Tilt hover for project cards (subtle 3D) ============ */
+.tilt-card {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-style: preserve-3d;
+}
+.tilt-card:hover {
+  transform: perspective(800px) rotateX(2deg) rotateY(-2deg) translateY(-4px);
+}
+
+/* ============ Card image gradient overlay fade ============ */
+.fade-overlay {
+  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+}
+
+/* ============ Animated underline for nav links ============ */
+.nav-underline {
+  position: relative;
+}
+.nav-underline::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -4px;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #7c3aed, #ec4899);
+  border-radius: 2px;
+  transform: translateX(-50%);
+  transition: width 0.3s ease;
+}
+.nav-underline:hover::after {
+  width: 100%;
+}
