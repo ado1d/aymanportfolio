@@ -444,3 +444,47 @@ Unresolved / Next-phase recommendations:
 - Add a dedicated analytics admin page with date-range filtering and CSV export.
 - Consider a blog/writing section.
 - Add a "success" sound when contact form submits or favorites are toggled (requires wiring `play('success')` into those specific handlers).
+
+---
+Task ID: 9
+Agent: webDevReview cron (round 8)
+Task: QA the portfolio and add new features (print resume, contest stats, hero spotlight) + enhanced print styling.
+
+Work Log:
+- Read worklog.md (rounds 1-8 complete); confirmed lint clean, dev server running, all 12 sections rendering.
+- QA via agent-browser: no console/runtime errors, 16 images load, 0 unlabeled buttons, 0 unlabeled inputs, no duplicate IDs, 1 h1, no horizontal overflow (scrollWidth = viewportWidth), 2470 DOM nodes. Edit mode login works, project detail modal opens, FAQ accordion works. Project is stable — no bugs found.
+
+New features implemented this round:
+1. **Enhanced print/PDF resume layout** (feature — improves existing print styles):
+   - Massively expanded the `@media print` stylesheet in `globals.css`: now hides nav, footer, mesh blobs, marquee, cursor, sound button, testimonials, FAQ, contact form, and avatar for a clean resume. Forces light mode variables, compacts section spacing (12px), makes the hero a compact header (24pt name), shows external URLs in parentheses after links, and sets `@page { margin: 1.5cm }`.
+   - Added a "Print" button (Printer icon) to the hero CTAs that calls `window.print()` — users can save the portfolio as a clean PDF resume.
+2. **Contest stats summary cards** (feature — in Contests section):
+   - New `ContestStats` component (`src/components/portfolio/contest-stats.tsx`): extracts aggregate stats from the contest list and renders a row of 5 color-coded stat cards: total contests, best rank (parses numeric rank from strings like "Ranked 47th"), peak rating (parses from "1845 (Specialist)"), unique platforms count, and medal count (🥇🥈🥉). Each card has a colored icon + value + label.
+   - Rendered above the rating chart in the #contests section. Verified: shows "6+ Contests, #1 Best Rank, 2104 Peak Rating, 6 Platforms, 2 Medals".
+3. **Hero spotlight cursor effect** (styling):
+   - New `HeroSpotlight` component (`src/components/portfolio/hero-spotlight.tsx`): a fixed overlay that follows the cursor with a radial gradient (600px circle, purple tint at 0.06 opacity), creating a subtle "spotlight revealing the grid" effect. Disabled on touch devices and when `prefers-reduced-motion`. Added to the background layer.
+
+Styling improvements:
+- Print stylesheet expanded from ~40 lines to ~130 lines with proper resume formatting.
+- Hero spotlight adds a cursor-following ambient glow to the grid background.
+
+QA verification (agent-browser):
+- No errors; 12 sections render; 0 unlabeled inputs.
+- Print button present ("Print") and triggers window.print().
+- Contest stats: 5 cards rendered showing correct aggregate values (6+/1/2104/6/2). VLM confirmed: "5 stat cards in a row displaying Contests, Best Rank, Peak Rating, Platforms, Medals with distinct colored icons. Below these is a Rating Trajectory section".
+- Hero spotlight: component renders (overlay div present); correctly doesn't activate in headless browser (no `pointer: fine`) — desktop-only feature.
+- Dark mode: VLM confirmed "dark theme renders correctly with highly readable white and purple text, all accents clearly visible".
+- Lint passes clean; dev server compiles with no errors.
+
+Stage Summary:
+- 0 bugs (stable); 3 new features added (enhanced print resume, contest stats cards, hero spotlight); print stylesheet massively improved.
+- Lint passes clean. Dev server running on port 3000 with no runtime errors.
+- The portfolio now has a print-to-PDF resume mode, aggregate contest statistics, and a cursor spotlight effect.
+
+Unresolved / Next-phase recommendations:
+- Wire contact form to a real email service (Resend/SendGrid) for delivery notifications.
+- Replace SVG placeholder images with real project/certificate screenshots via edit mode.
+- Internationalization (i18n) for Bengali + English toggle.
+- Add a dedicated analytics admin page with date-range filtering and CSV export.
+- Consider a blog/writing section.
+- Add a "success" sound when contact form submits or favorites are toggled.

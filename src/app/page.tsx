@@ -74,6 +74,9 @@ import { SoundProvider } from '@/components/portfolio/sound-provider'
 import { MeshBlobs } from '@/components/portfolio/mesh-blobs'
 import { FunFactsWidget } from '@/components/portfolio/fun-facts-widget'
 import { MagneticButton } from '@/components/portfolio/magnetic-button'
+import { ContestStats } from '@/components/portfolio/contest-stats'
+import { HeroSpotlight } from '@/components/portfolio/hero-spotlight'
+import { Printer } from 'lucide-react'
 import { downloadVCard } from '@/lib/vcard'
 import { useTypewriter } from '@/hooks/use-typewriter'
 import { useParallax } from '@/hooks/use-parallax'
@@ -390,6 +393,7 @@ export default function Home() {
       {/* Background Effects */}
       <div className="fixed inset-0 grid-bg pointer-events-none" />
       <MeshBlobs />
+      <HeroSpotlight />
       <div className="aurora" />
       <FloatingParticles />
       <div className="mouse-light" style={{ left: mousePosition.x, top: mousePosition.y }} />
@@ -617,6 +621,15 @@ export default function Home() {
                   </a>
                 </Button>
               )}
+              <Button
+                variant="ghost"
+                size="lg"
+                className="hover-lift"
+                onClick={() => window.print()}
+                title="Print or save as PDF"
+              >
+                <Printer className="w-4 h-4 mr-2" /> Print
+              </Button>
             </div>
 
             <div className="mt-6 flex items-center justify-center gap-2 flex-wrap">
@@ -706,6 +719,7 @@ export default function Home() {
                 <AddButton entity="contest" label="Add Contest" fields={FIELD_DEFS.contest} onSaved={refresh} />
               </div>
             )}
+            <ContestStats contests={contests} />
             <div className="mb-10">
               <RatingChart />
             </div>

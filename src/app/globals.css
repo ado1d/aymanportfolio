@@ -434,8 +434,9 @@
   background: rgba(167, 139, 250, 0.3);
 }
 
-/* ============ Print styles (save portfolio as PDF) ============ */
+/* ============ Print styles (save portfolio as PDF resume) ============ */
 @media print {
+  /* Hide non-essential UI */
   .grid-bg,
   .aurora,
   .particles,
@@ -443,39 +444,127 @@
   .mouse-light,
   .mouse-light-secondary,
   nav,
+  footer,
   .edit-pulse,
+  .mesh-blob,
+  .marquee,
+  [class*="z-[55]"],
+  [class*="z-[60]"],
+  [class*="z-[40]"],
   button[aria-label="Back to top"],
-  button[aria-label="Open command palette"] {
+  button[aria-label="Open command palette"],
+  button[aria-label*="sound"],
+  button[aria-label*="Menu"],
+  button[title*="command palette"],
+  #home .animate-bounce,
+  /* Hide sections not relevant to a printed resume */
+  #testimonials,
+  #faq,
+  #contact form,
+  #contact .flex.items-center.justify-center.gap-3 {
     display: none !important;
   }
+
   body {
     background: #ffffff !important;
     color: #000000 !important;
+    font-size: 11pt !important;
   }
+
+  /* Remove glow/border animations */
   .glow-card::before,
   .glow-card:hover::before {
     display: none !important;
   }
+
+  /* Clean card borders for print */
   .glow-card {
-    border: 1px solid #ccc !important;
+    border: 1px solid #ddd !important;
     box-shadow: none !important;
     break-inside: avoid;
-  }
-  section {
-    padding: 16px 0 !important;
     page-break-inside: avoid;
   }
+
+  /* Compact section spacing for print */
+  section {
+    padding: 12px 0 !important;
+    page-break-inside: avoid;
+  }
+
+  /* Hero becomes a compact header */
+  #home {
+    min-height: auto !important;
+    padding: 0 0 16px 0 !important;
+  }
+  #home .text-center > div:first-child,
+  #home .relative.parallax-slow {
+    display: none !important; /* hide avatar in print */
+  }
+  #home h1 {
+    font-size: 24pt !important;
+    margin-bottom: 4px !important;
+  }
+  #home .gradient-text {
+    font-size: 24pt !important;
+  }
+
+  /* Gradient text → solid color for print */
   .gradient-text,
   .gradient-text-static {
     -webkit-text-fill-color: #7c3aed !important;
     color: #7c3aed !important;
+    background: none !important;
   }
+
+  /* Links: show URL in parentheses after link text (for print) */
   a {
     text-decoration: underline;
     color: #000 !important;
   }
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #555;
+  }
+  a[href^="#"] {
+    text-decoration: none !important;
+    color: inherit !important;
+  }
+  a[href^="#"]::after {
+    content: "" !important;
+  }
+  a[href^="mailto"]::after {
+    content: "" !important;
+  }
+
   main {
     padding-top: 0 !important;
+  }
+
+  /* Force light mode variables for print */
+  :root {
+    --background: #ffffff;
+    --foreground: #000000;
+    --card: #ffffff;
+    --border: #ddd;
+    --muted-foreground: #555;
+  }
+
+  /* Hide filter bars and search inputs in projects/FAQ */
+  #projects .sticky,
+  #faq .max-w-2xl.mx-auto > .flex {
+    display: none !important;
+  }
+
+  /* Show all skill bars at full width */
+  .skill-bar-fill {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Page setup */
+  @page {
+    margin: 1.5cm;
   }
 }
 
