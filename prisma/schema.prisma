@@ -175,3 +175,12 @@ model CurrentlyItem {
   order Int    @default(0)
 }
 
+// Anonymous visitor analytics (page views)
+model Visit {
+  id        String   @id @default(cuid())
+  path      String   @default("/")
+  referrer  String?
+  userAgent String?
+  createdAt DateTime @default(now())
+}
+

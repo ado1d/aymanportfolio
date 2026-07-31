@@ -17,6 +17,7 @@ interface ProjectsShowcaseWithFilterProps {
   editMode: boolean
   onSaved: () => void
   onOpenLightbox: (imgs: { url: string; title?: string; subtitle?: string }[], i: number) => void
+  onOpenDetail?: (project: Project) => void
 }
 
 export function ProjectsShowcaseWithFilter({
@@ -24,6 +25,7 @@ export function ProjectsShowcaseWithFilter({
   editMode,
   onSaved,
   onOpenLightbox,
+  onOpenDetail,
 }: ProjectsShowcaseWithFilterProps) {
   const [activeTag, setActiveTag] = useState<string>('All')
   const [search, setSearch] = useState('')
@@ -134,7 +136,7 @@ export function ProjectsShowcaseWithFilter({
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {featured.map((p, i) => (
                 <Reveal key={p.id} delay={i * 100}>
-                  <FeaturedProjectCard project={p} editMode={editMode} onSaved={onSaved} onOpenLightbox={onOpenLightbox} />
+                  <FeaturedProjectCard project={p} editMode={editMode} onSaved={onSaved} onOpenLightbox={onOpenLightbox} onOpenDetail={onOpenDetail} />
                 </Reveal>
               ))}
             </div>
@@ -150,7 +152,7 @@ export function ProjectsShowcaseWithFilter({
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {others.map((p, i) => (
                   <Reveal key={p.id} delay={(i % 3) * 80}>
-                    <ProjectCard project={p} editMode={editMode} onSaved={onSaved} onOpenLightbox={onOpenLightbox} />
+                    <ProjectCard project={p} editMode={editMode} onSaved={onSaved} onOpenLightbox={onOpenLightbox} onOpenDetail={onOpenDetail} />
                   </Reveal>
                 ))}
               </div>
@@ -167,11 +169,13 @@ function FeaturedProjectCard({
   editMode,
   onSaved,
   onOpenLightbox,
+  onOpenDetail,
 }: {
   project: Project
   editMode: boolean
   onSaved: () => void
   onOpenLightbox: (imgs: { url: string; title?: string; subtitle?: string }[], i: number) => void
+  onOpenDetail?: (project: Project) => void
 }) {
   return (
     <div className="relative project-card h-full">
@@ -208,7 +212,15 @@ function FeaturedProjectCard({
         )}
         <CardContent className="p-5 flex flex-col flex-1">
           {!project.imageUrl && (
-            <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors">{project.title}</h3>
+            <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors">
+              {onOpenDetail ? (
+                <button onClick={() => onOpenDetail(project)} className="text-left hover:underline">
+                  {project.title}
+                </button>
+              ) : (
+                project.title
+              )}
+            </h3>
           )}
           <p className="text-sm text-muted-foreground leading-relaxed mb-3 line-clamp-3">
             {project.longDescription || project.description}
@@ -248,9 +260,17 @@ function FeaturedProjectCard({
                 onClick={() =>
                   onOpenLightbox([{ url: project.imageUrl, title: project.title, subtitle: project.description }], 0)
                 }
-                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors ml-auto"
+                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
               >
                 <Eye className="w-4 h-4" /> Preview
+              </button>
+            )}
+            {onOpenDetail && (
+              <button
+                onClick={() => onOpenDetail(project)}
+                className={`inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors ${project.imageUrl ? '' : 'ml-auto'}`}
+              >
+                <Star className="w-4 h-4" /> Details
               </button>
             )}
           </div>
@@ -265,11 +285,13 @@ function ProjectCard({
   editMode,
   onSaved,
   onOpenLightbox,
+  onOpenDetail,
 }: {
   project: Project
   editMode: boolean
   onSaved: () => void
   onOpenLightbox: (imgs: { url: string; title?: string; subtitle?: string }[], i: number) => void
+  onOpenDetail?: (project: Project) => void
 }) {
   return (
     <div className="relative project-card h-full">
@@ -295,7 +317,15 @@ function ProjectCard({
           </div>
         )}
         <CardContent className="p-5 flex flex-col flex-1">
-          <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors">{project.title}</h3>
+          <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors">
+            {onOpenDetail ? (
+              <button onClick={() => onOpenDetail(project)} className="text-left hover:underline">
+                {project.title}
+              </button>
+            ) : (
+              project.title
+            )}
+          </h3>
           <p className="text-sm text-muted-foreground leading-relaxed mb-3 line-clamp-2 flex-1">{project.description}</p>
           {project.tags && (
             <div className="flex flex-wrap gap-1.5 mb-3">
@@ -326,6 +356,14 @@ function ProjectCard({
               >
                 <ExternalLink className="w-4 h-4" /> Live
               </a>
+            )}
+            {onOpenDetail && (
+              <button
+                onClick={() => onOpenDetail(project)}
+                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors ml-auto"
+              >
+                <Star className="w-4 h-4" /> Details
+              </button>
             )}
           </div>
         </CardContent>

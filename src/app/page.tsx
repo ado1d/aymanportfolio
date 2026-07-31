@@ -37,6 +37,7 @@ import {
   Command,
   Inbox,
   Quote,
+  UserPlus,
 } from 'lucide-react'
 import { getSocialIcon, getPlatformIcon } from '@/components/portfolio/icons'
 import { useScrollReveal, useCountUp } from '@/hooks/use-scroll-reveal'
@@ -60,6 +61,9 @@ import { SkillsWithTabs } from '@/components/portfolio/skills-with-tabs'
 import { RatingChart } from '@/components/portfolio/rating-chart'
 import { ActivityHeatmap } from '@/components/portfolio/activity-heatmap'
 import { KonamiEasterEgg } from '@/components/portfolio/konami-easter-egg'
+import { VisitorBadge } from '@/components/portfolio/visitor-badge'
+import { ProjectDetailModal } from '@/components/portfolio/project-detail-modal'
+import { downloadVCard } from '@/lib/vcard'
 import { useTypewriter } from '@/hooks/use-typewriter'
 import type {
   PortfolioData,
@@ -168,6 +172,7 @@ export default function Home() {
   const [cmdOpen, setCmdOpen] = useState(false)
   const [inboxOpen, setInboxOpen] = useState(false)
   const [shortcutHelpOpen, setShortcutHelpOpen] = useState(false)
+  const [detailProject, setDetailProject] = useState<Project | null>(null)
   const projectSearchRef = useRef<HTMLInputElement | null>(null)
 
   // Typing animation for the hero rotating roles
@@ -566,6 +571,15 @@ export default function Home() {
                   <Eye className="w-4 h-4 mr-2" /> View Projects
                 </a>
               </Button>
+              <Button
+                variant="ghost"
+                size="lg"
+                className="hover-lift"
+                onClick={() => downloadVCard(profile, socialLinks)}
+                title="Download contact as vCard"
+              >
+                <UserPlus className="w-4 h-4 mr-2" /> Save Contact
+              </Button>
               {profile?.resumeUrl && (
                 <Button variant="ghost" size="lg" className="hover-lift" asChild>
                   <a href={profile.resumeUrl} target="_blank" rel="noopener noreferrer">
@@ -573,6 +587,10 @@ export default function Home() {
                   </a>
                 </Button>
               )}
+            </div>
+
+            <div className="mt-6">
+              <VisitorBadge />
             </div>
 
             <div className="mt-16 animate-bounce">
@@ -600,6 +618,7 @@ export default function Home() {
               <CurrentlyWidget currently={currently} editMode={edit.editMode} onSaved={refresh} />
               <ActivityHeatmap />
             </div>
+            {edit.editMode && <VisitorBadge detailed />}
           </div>
         </section>
 
@@ -672,6 +691,7 @@ export default function Home() {
               editMode={edit.editMode}
               onSaved={refresh}
               onOpenLightbox={(imgs, i) => setLightbox({ images: imgs, index: i })}
+              onOpenDetail={(p) => setDetailProject(p)}
             />
           </div>
         </section>
@@ -769,6 +789,15 @@ export default function Home() {
       />
       <AdminInbox open={inboxOpen} onOpenChange={setInboxOpen} authed={edit.authed} />
       <ShortcutHelp open={shortcutHelpOpen} onOpenChange={setShortcutHelpOpen} />
+      <ProjectDetailModal
+        project={detailProject}
+        open={!!detailProject}
+        onOpenChange={(o) => !o && setDetailProject(null)}
+        onOpenLightbox={(url) => {
+          setLightbox({ images: [{ url, title: detailProject?.title, subtitle: detailProject?.description }], index: 0 })
+          setDetailProject(null)
+        }}
+      />
     </div>
     </KonamiEasterEgg>
   )

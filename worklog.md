@@ -220,3 +220,58 @@ Unresolved / Next-phase recommendations:
 - Consider a blog/writing section.
 - Add a visitor analytics dashboard (page views, unique visitors) using the existing SQLite DB.
 - Internationalization (i18n) for Bengali + English toggle.
+
+---
+Task ID: 5
+Agent: webDevReview cron (round 4)
+Task: QA the portfolio, fix bugs, and add new features (visitor analytics, project detail modal, vCard download, 404 page) + styling.
+
+Work Log:
+- Read worklog.md (rounds 1-4 complete); confirmed lint clean, dev server running, all 11 sections rendering.
+- QA via agent-browser: no console/runtime errors, 16 images load, 0 unlabeled buttons, 0 unlabeled inputs, no duplicate IDs, 1 h1, main landmark present, html lang="en", mobile responsive, edit mode login works, project lightbox opens, command palette opens via ⌘K, skill tabs filter, testimonials carousel works, rating chart renders, activity heatmap renders, Konami easter egg triggers.
+- The "Fast Refresh runtime error" in the prior log was a transient HMR issue that self-resolved — no action needed. Project is stable.
+- No bugs found during QA this round — proceeded to new features.
+
+New features implemented this round:
+1. **Visitor analytics tracking + dashboard** (feature — addresses an unresolved item from round 4):
+   - New `Visit` Prisma model (path, referrer, userAgent, createdAt). Pushed with `db:push`.
+   - New API: `POST /api/analytics/track` (fire-and-forget visit logging, never fails the user request) and `GET /api/analytics/stats` (returns total, today, 7-day daily breakdown, top referrers when authed).
+   - New `VisitorBadge` component (`src/components/portfolio/visitor-badge.tsx`): renders a compact "👁 N visits" badge in the hero (public), and a full analytics dashboard card in edit mode with an animated count-up total, a 7-day bar chart with hover tooltips, today's count, and top referrer.
+   - Auto-tracks each visit on mount (path + referrer).
+2. **Project detail modal** (feature):
+   - New `ProjectDetailModal` component (`src/components/portfolio/project-detail-modal.tsx`): a full-screen dialog with the project cover image (click to enlarge in lightbox), featured badge, full long description, tech-stack badges, and Code/Live/View-Image action buttons.
+   - Project titles and new "Details" buttons in both featured and regular project cards now open this modal (via `onOpenDetail` prop threaded through `ProjectsShowcaseWithFilter`).
+3. **vCard download** (feature):
+   - New `downloadVCard` utility (`src/lib/vcard.ts`): generates a vCard 3.0 file (.vcf) with name, title, email, phone, location, about note, resume URL, and social links — triggers a browser download.
+   - New "Save Contact" button (UserPlus icon) in the hero CTAs next to Resume.
+4. **Custom 404 not-found page** (feature):
+   - New `src/app/not-found.tsx`: a polished 404 page with a giant gradient "404" (with a pulsing ghost layer behind), "Page not found" heading, helpful copy, and "Back Home" + "Browse Projects" buttons. Uses the same grid-bg + aurora background as the main site.
+5. **Route loading state** (feature):
+   - New `src/app/loading.tsx`: reuses the `PortfolioSkeleton` component for Next.js route-level loading.
+
+Schema/API changes:
+- Added `Visit` model to `prisma/schema.prisma`; pushed with `db:push`.
+- New routes: `src/app/api/analytics/{track,stats}/route.ts`.
+- Triggered a full Next.js server restart (touch next.config.ts) so the dev server picked up the regenerated Prisma client.
+
+QA verification (agent-browser):
+- No errors; 11 sections render; visitor badge shows live count ("2 visits" → incremented after reload).
+- "Save Contact" vCard button present and triggers download.
+- Project "Details" buttons (3 featured + 3 regular) open the detail modal with full long description, tech stack ("Next.js, Go, Redis, Docker, WebSocket"), and Code/Live/View-Image buttons.
+- 404 page (`/nonexistent`): VLM confirmed "large 404 number with pink-to-purple gradient, Page not found heading, Back Home button".
+- Analytics dashboard (edit mode): VLM confirmed "Visitor Analytics card with 7-day bar chart, total visit count, today's visits".
+- All API calls return 200 (analytics track/stats, admin auth, portfolio).
+- Lint passes clean; dev server compiles with no errors.
+
+Stage Summary:
+- 0 bugs (stable); 5 new features added (visitor analytics + dashboard, project detail modal, vCard download, 404 page, route loading); 
+- Lint passes clean. Dev server running on port 3000 with no runtime errors.
+- The portfolio now has anonymous visitor analytics, rich project detail views, downloadable contact info, and a polished error page.
+
+Unresolved / Next-phase recommendations:
+- Wire contact form to a real email service (Resend/SendGrid) for delivery notifications.
+- Add per-section Open Graph images for link previews.
+- Replace SVG placeholder images with real project/certificate screenshots via edit mode.
+- Consider a blog/writing section.
+- Internationalization (i18n) for Bengali + English toggle.
+- Add a visitor analytics admin page (vs. the current inline card) with date-range filtering and export.
