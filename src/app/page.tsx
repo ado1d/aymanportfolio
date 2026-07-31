@@ -38,6 +38,7 @@ import {
   Inbox,
   Quote,
   UserPlus,
+  HelpCircle,
 } from 'lucide-react'
 import { getSocialIcon, getPlatformIcon } from '@/components/portfolio/icons'
 import { useScrollReveal, useCountUp } from '@/hooks/use-scroll-reveal'
@@ -63,8 +64,11 @@ import { ActivityHeatmap } from '@/components/portfolio/activity-heatmap'
 import { KonamiEasterEgg } from '@/components/portfolio/konami-easter-egg'
 import { VisitorBadge } from '@/components/portfolio/visitor-badge'
 import { ProjectDetailModal } from '@/components/portfolio/project-detail-modal'
+import { FaqSection } from '@/components/portfolio/faq-section'
+import { FavoritesCount } from '@/components/portfolio/favorite-toggle'
 import { downloadVCard } from '@/lib/vcard'
 import { useTypewriter } from '@/hooks/use-typewriter'
+import { useParallax } from '@/hooks/use-parallax'
 import type {
   PortfolioData,
   Project,
@@ -85,6 +89,7 @@ const NAV_ITEMS = [
   { label: 'Projects', id: 'projects' },
   { label: 'Certificates', id: 'certificates' },
   { label: 'Testimonials', id: 'testimonials' },
+  { label: 'FAQ', id: 'faq' },
   { label: 'Contact', id: 'contact' },
 ]
 
@@ -186,6 +191,7 @@ export default function Home() {
     ],
     { typeSpeed: 80, deleteSpeed: 40, pauseEnd: 1600 }
   )
+  const parallax = useParallax(600)
 
   const [isDark, setIsDark] = useState(false)
   const edit = useEditMode()
@@ -355,6 +361,7 @@ export default function Home() {
   const socialLinks = data?.socialLinks || []
   const testimonials = data?.testimonials || []
   const currently = data?.currently || {}
+  const faqs = data?.faqs || []
 
   const displayName = profile?.name || 'Ayman'
   const displayTitle = profile?.title || 'Computer Science Student'
@@ -502,8 +509,8 @@ export default function Home() {
         <section id="home" className="min-h-[90vh] flex items-center justify-center px-4 sm:px-6 pt-8">
           <div className="text-center max-w-4xl">
             <div className="flex justify-center mb-8">
-              <div className="relative">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-primary via-pink-500 to-cyan-500 blur-2xl opacity-40 animate-pulse" />
+              <div className="relative parallax-slow" style={{ transform: `translateY(${parallax * 0.15}px)` }}>
+                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-primary via-pink-500 to-cyan-500 blur-2xl opacity-40 animate-pulse parallax-fast" style={{ transform: `translateY(${parallax * 0.3}px) scale(${1 + parallax * 0.0005})` }} />
                 {profile?.avatarUrl ? (
                   <img
                     src={profile.avatarUrl}
@@ -589,8 +596,9 @@ export default function Home() {
               )}
             </div>
 
-            <div className="mt-6">
+            <div className="mt-6 flex items-center justify-center gap-2 flex-wrap">
               <VisitorBadge />
+              <FavoritesCount />
             </div>
 
             <div className="mt-16 animate-bounce">
@@ -727,6 +735,14 @@ export default function Home() {
           <div className="max-w-4xl mx-auto">
             <SectionHeader eyebrow="Kind Words" title="Testimonials" icon={Quote} subtitle="What mentors, teammates, and professors say" />
             <Testimonials testimonials={testimonials} editMode={edit.editMode} onSaved={refresh} />
+          </div>
+        </section>
+
+        {/* ============ FAQ ============ */}
+        <section id="faq" className="py-24 px-4 sm:px-6 bg-muted/20">
+          <div className="max-w-4xl mx-auto">
+            <SectionHeader eyebrow="Questions & Answers" title="FAQ" icon={HelpCircle} subtitle="Things people often ask me" />
+            <FaqSection faqs={faqs} editMode={edit.editMode} onSaved={refresh} />
           </div>
         </section>
 

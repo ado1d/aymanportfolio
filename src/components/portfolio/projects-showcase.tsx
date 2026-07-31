@@ -10,6 +10,7 @@ import { FIELD_DEFS } from './field-defs'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge as UIBadge } from '@/components/ui/badge'
 import { Github, ExternalLink, Star, Eye } from 'lucide-react'
+import { FavoriteToggle } from './favorite-toggle'
 import type { Project } from '@/lib/types'
 
 interface ProjectsShowcaseWithFilterProps {
@@ -273,6 +274,7 @@ function FeaturedProjectCard({
                 <Star className="w-4 h-4" /> Details
               </button>
             )}
+            <FavoriteToggle projectId={project.id} projectTitle={project.title} />
           </div>
         </CardContent>
       </Card>
@@ -365,6 +367,7 @@ function ProjectCard({
                 <Star className="w-4 h-4" /> Details
               </button>
             )}
+            <FavoriteToggle projectId={project.id} projectTitle={project.title} />
           </div>
         </CardContent>
       </Card>

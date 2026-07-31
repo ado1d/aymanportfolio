@@ -98,6 +98,12 @@ export const FIELD_DEFS: Record<string, FieldDef[]> = {
     { key: 'label', label: 'Label', type: 'text', required: true, full: true },
     { key: 'order', label: 'Order', type: 'number' },
   ],
+  faq: [
+    { key: 'question', label: 'Question', type: 'text', required: true, full: true },
+    { key: 'answer', label: 'Answer', type: 'textarea', full: true, required: true },
+    { key: 'category', label: 'Category', type: 'text', placeholder: 'General, Technical, Opportunities...' },
+    { key: 'order', label: 'Order', type: 'number' },
+  ],
 }
 
 export const ENTITY_LABELS: Record<string, string> = {
@@ -112,4 +118,5 @@ export const ENTITY_LABELS: Record<string, string> = {
   socialLink: 'Social Link',
   testimonial: 'Testimonial',
   currentlyItem: 'Currently Item',
+  faq: 'FAQ',
 }

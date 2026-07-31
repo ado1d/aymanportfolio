@@ -275,3 +275,65 @@ Unresolved / Next-phase recommendations:
 - Consider a blog/writing section.
 - Internationalization (i18n) for Bengali + English toggle.
 - Add a visitor analytics admin page (vs. the current inline card) with date-range filtering and export.
+
+---
+Task ID: 6
+Agent: webDevReview cron (round 5)
+Task: QA the portfolio, fix bugs (og:image, FAQ API destructuring), and add new features (FAQ section, project favorites, OG image, parallax hero) + styling.
+
+Work Log:
+- Read worklog.md (rounds 1-5 complete); confirmed lint clean, dev server running, all 11 sections rendering.
+- QA via agent-browser: no console/runtime errors, 16 images load, 0 unlabeled buttons, 0 unlabeled inputs, no duplicate IDs, 1 h1, main landmark present, og:title + og:type + twitter:card present, JSON-LD present. Edit mode works, project lightbox works, testimonials carousel works.
+- Found 1 SEO bug: `og:image` meta tag was missing (no social preview image). Fixed by generating an OG image and adding it to metadata.
+- Found 1 runtime bug during development: after adding the `Faq` model, the portfolio API returned 500 ("faqs is not defined") because I added `db.faq.findMany()` to the Promise.all array but forgot to add `faqs` to the destructuring list. Fixed.
+
+New features implemented this round:
+1. **Open Graph social preview image** (SEO — fixes the og:image bug):
+   - New `scripts/gen-og-image.ts` generates a 1200×630 SVG (`public/og-image.svg`) with: dark gradient background, grid pattern, glow blobs, avatar "A" circle, "Available for opportunities" badge, "Ayman" name, gradient title, tagline, 4 stat counts (4+/6+/6+/5+), and 5 tech badges (C++, Python, Next.js, Codeforces, React).
+   - Updated `src/app/layout.tsx` metadata: added `metadataBase`, `openGraph.images`, `twitter.images`, and `robots` directives.
+2. **FAQ section** (new feature):
+   - New `Faq` Prisma model (question, answer, category, order). Seeded 6 realistic FAQs across categories (Opportunities, Competitive Programming, Technical, Hackathons, Community, Learning).
+   - New `FaqSection` component (`src/components/portfolio/faq-section.tsx`): accordion with smooth expand/collapse, search box (filters by question/answer text), category filter pills, category badges, and edit-mode add/edit/delete support.
+   - Added to NAV_ITEMS as `#faq` between Testimonials and Contact.
+3. **Project favorites/bookmarks** (new feature):
+   - New `useFavorites` hook (`src/hooks/use-favorites.ts`): uses `useSyncExternalStore` for correct SSR hydration + cross-tab sync via the `storage` event. Persists favorited project IDs to localStorage.
+   - New `FavoriteToggle` component (heart button) added to every project card footer — click to bookmark; toast confirmation.
+   - New `FavoritesCount` badge in the hero (next to the visitor badge) showing the total saved count.
+4. **Parallax hero** (styling):
+   - New `useParallax` hook (`src/hooks/use-parallax.ts`): returns a scroll-based offset (capped at 600px) using rAF + passive scroll listener.
+   - Applied to the hero avatar container (translates up at 0.15× scroll) and its glow blob (0.3× scroll + scale), creating depth on scroll.
+
+Schema/API changes:
+- Added `Faq` model to `prisma/schema.prisma`; pushed with `db:push`.
+- Added `faq` to the admin entity config (`[entity]/route.ts` + `[entity]/[id]/route.ts`) and field definitions.
+- Updated `/api/portfolio` to return `faqs` (fixed the destructuring bug).
+- Updated `src/lib/types.ts` with `Faq` interface.
+- Seeded via `prisma/seed-faq.ts` (6 FAQs).
+- Triggered a full Next.js server restart (touch next.config.ts).
+
+Styling improvements (`src/app/globals.css`):
+- `.parallax-slow` / `.parallax-fast` (transform transitions for parallax).
+- `@keyframes section-enter` + `.section-enter` (scroll-triggered entrance).
+- `@keyframes heart-pulse` + `.heart-pulse` (favorite toggle feedback).
+- `.faq-expand` (smooth FAQ accordion transition).
+- `@keyframes action-glow` + `.action-glow` (pulsing glow for CTAs).
+
+QA verification (agent-browser):
+- 12 sections now render (added #faq); og:image meta tag present ("https://ayman.dev/og-image.svg").
+- 0 unlabeled inputs; portfolio API returns 200 with all data.
+- FAQ: 6 items, accordion expands/collapses, search "codeforces" filters to 2 matches, category pills filter correctly. VLM confirmed: "expandable question cards with category badges, search box, category filter pills, one answer expanded".
+- Favorites: 6 heart buttons on project cards; clicking one shows "1 saved" badge in hero.
+- Parallax: hero avatar transform changes with scroll (translateY applied).
+- Lint passes clean; dev server compiles with no errors.
+
+Stage Summary:
+- 2 bugs fixed (og:image SEO, FAQ API destructuring); 4 new features added (OG image, FAQ section, project favorites, parallax hero); 5 new CSS animations.
+- Lint passes clean. Dev server running on port 3000 with no runtime errors.
+- The portfolio now has social-preview-ready OG images, a searchable FAQ, bookmarkable projects, and a depth parallax hero.
+
+Unresolved / Next-phase recommendations:
+- Wire contact form to a real email service (Resend/SendGrid) for delivery notifications.
+- Replace SVG placeholder images with real project/certificate screenshots via edit mode.
+- Internationalization (i18n) for Bengali + English toggle.
+- Add a dedicated analytics admin page with date-range filtering and CSV export.
+- Consider a blog/writing section.

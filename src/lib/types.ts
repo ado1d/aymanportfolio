@@ -112,6 +112,14 @@ export interface Testimonial {
 
 export type CurrentlyData = Record<string, string[]>
 
+export interface Faq {
+  id: string
+  question: string
+  answer: string
+  category: string
+  order: number
+}
+
 export interface PortfolioData {
   profile: Profile | null
   skills: Skills
@@ -124,4 +132,5 @@ export interface PortfolioData {
   socialLinks: SocialLink[]
   testimonials: Testimonial[]
   currently: CurrentlyData
+  faqs: Faq[]
 }

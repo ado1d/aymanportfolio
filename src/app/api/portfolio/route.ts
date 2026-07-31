@@ -15,6 +15,7 @@ export async function GET() {
       socialLinks,
       testimonials,
       currentlyItems,
+      faqs,
     ] = await Promise.all([
       db.profile.findFirst(),
       db.skill.findMany({ orderBy: [{ category: 'asc' }, { order: 'asc' }] }),
@@ -27,6 +28,7 @@ export async function GET() {
       db.socialLink.findMany({ orderBy: { order: 'asc' } }),
       db.testimonial.findMany({ orderBy: { order: 'asc' } }),
       db.currentlyItem.findMany({ orderBy: { order: 'asc' } }),
+      db.faq.findMany({ orderBy: { order: 'asc' } }),
     ])
 
     const groupedSkills = skills.reduce((acc, skill) => {
@@ -54,6 +56,7 @@ export async function GET() {
       socialLinks,
       testimonials,
       currently: groupedCurrently,
+      faqs,
     })
   } catch (error) {
     console.error('Error fetching portfolio:', error)

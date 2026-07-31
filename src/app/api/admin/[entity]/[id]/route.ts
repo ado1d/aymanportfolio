@@ -14,6 +14,7 @@ const ENTITY_CONFIG: Record<string, { model: keyof typeof db }> = {
   socialLink: { model: 'socialLink' },
   testimonial: { model: 'testimonial' },
   currentlyItem: { model: 'currentlyItem' },
+  faq: { model: 'faq' },
 }
 
 export async function PUT(
