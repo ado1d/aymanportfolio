@@ -3,8 +3,9 @@
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Github, ExternalLink, X, Calendar, Tag, Star } from 'lucide-react'
+import { Github, ExternalLink, X, Tag, Star } from 'lucide-react'
 import { ShareButtons } from './share-buttons'
+import { ProjectGallery } from './project-gallery'
 import type { Project } from '@/lib/types'
 
 interface ProjectDetailModalProps {
@@ -24,35 +25,15 @@ export function ProjectDetailModal({ project, open, onOpenChange, onOpenLightbox
       <DialogContent className="max-w-2xl max-h-[90vh] p-0 gap-0 overflow-hidden">
         <DialogTitle className="sr-only">{project.title}</DialogTitle>
 
-        {/* Cover image */}
-        {project.imageUrl && (
-          <div
-            className="relative aspect-[2/1] overflow-hidden bg-muted cursor-pointer group"
-            onClick={() => onOpenLightbox(project.imageUrl!)}
-          >
-            <img
-              src={project.imageUrl}
-              alt={project.title}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-            {project.featured && (
-              <Badge className="absolute top-3 left-3 bg-yellow-500/90 text-black hover:bg-yellow-500">
-                <Star className="w-3 h-3 mr-1 fill-current" /> Featured
-              </Badge>
-            )}
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                onOpenChange(false)
-              }}
-              className="absolute top-3 right-3 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
-              aria-label="Close"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        )}
+        {/* Gallery carousel (cover + gallery images) */}
+        <ProjectGallery
+          title={project.title}
+          imageUrl={project.imageUrl}
+          gallery={project.gallery}
+          featured={project.featured}
+          onOpenLightbox={onOpenLightbox}
+          onClose={() => onOpenChange(false)}
+        />
 
         <div className="p-6 overflow-y-auto max-h-[55vh]">
           {!project.imageUrl && (

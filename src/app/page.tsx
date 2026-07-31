@@ -78,6 +78,7 @@ import { ContestStats } from '@/components/portfolio/contest-stats'
 import { HeroSpotlight } from '@/components/portfolio/hero-spotlight'
 import { SkillsRadar } from '@/components/portfolio/skills-radar'
 import { SectionDivider } from '@/components/portfolio/section-divider'
+import { VisitorLocationWidget } from '@/components/portfolio/visitor-location-widget'
 import { Printer } from 'lucide-react'
 import { downloadVCard } from '@/lib/vcard'
 import { useTypewriter } from '@/hooks/use-typewriter'
@@ -670,7 +671,10 @@ export default function Home() {
               <CurrentlyWidget currently={currently} editMode={edit.editMode} onSaved={refresh} />
               <ActivityHeatmap />
             </div>
-            <FunFactsWidget />
+            <div className="grid md:grid-cols-2 gap-6">
+              <FunFactsWidget />
+              <VisitorLocationWidget />
+            </div>
             {edit.editMode && <VisitorBadge detailed />}
           </div>
         </section>

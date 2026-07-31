@@ -770,3 +770,47 @@
 .sound-on-indicator {
   animation: sound-on-pulse 1.5s ease-in-out infinite;
 }
+
+/* ============ Gradient border on hover (animated) ============ */
+.gradient-border-hover {
+  position: relative;
+  isolation: isolate;
+}
+.gradient-border-hover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(135deg, #7c3aed, #ec4899, #06b6d4);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+.gradient-border-hover:hover::after {
+  opacity: 1;
+}
+
+/* ============ Image gallery fade transition ============ */
+@keyframes gallery-fade {
+  from { opacity: 0; transform: scale(1.02); }
+  to { opacity: 1; transform: scale(1); }
+}
+.gallery-fade {
+  animation: gallery-fade 0.4s ease-out;
+}
+
+/* ============ Pulse ring for live indicators ============ */
+@keyframes live-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+  70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+.live-pulse {
+  animation: live-pulse 2s ease-in-out infinite;
+}

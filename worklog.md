@@ -529,3 +529,47 @@ Unresolved / Next-phase recommendations:
 - Add a dedicated analytics admin page with date-range filtering and CSV export.
 - Consider a blog/writing section.
 - Add a "success" sound when contact form submits or favorites are toggled.
+
+---
+Task ID: 11
+Agent: webDevReview cron (round 10)
+Task: QA the portfolio and add new features (project gallery carousel, sound toasts, visitor location widget, gradient hover borders) + styling.
+
+Work Log:
+- Read worklog.md (rounds 1-10 complete); confirmed lint clean, dev server running, all 12 sections rendering.
+- QA via agent-browser: no console/runtime errors, 16 images load, 0 unlabeled buttons, 0 unlabeled inputs, no duplicate IDs, 1 h1, no horizontal overflow. Edit mode login works, project detail modal opens. Project is stable — no bugs found.
+
+New features implemented this round:
+1. **Project gallery carousel** (feature — in detail modal):
+   - New `ProjectGallery` component (`src/components/portfolio/project-gallery.tsx`): a carousel that combines the project's cover image + gallery field (comma-separated URLs) into a swipeable image set. Features: prev/next chevron buttons, clickable dot indicators, an image counter ("1 / 3"), a zoom-on-click hint, and a featured badge. Only shows carousel controls when there are 2+ images. Replaces the static cover image in the project detail modal.
+   - Integrated into `ProjectDetailModal` (replaced the inline cover image block).
+2. **Sound toast for success actions** (feature completion — addresses an unresolved item):
+   - New `useSoundToast` hook (`src/hooks/use-sound-toast.ts`): wraps `useToast` + `useSoundEffects` — plays a success sound on success toasts, a toggle sound on copy/favorite-remove, and a lower-pitched sound on errors. Accepts a `sound` param to override.
+   - Wired into `ContactForm` (success: "Message sent! 🎉" plays success sound; copy-email plays toggle sound) and `FavoriteToggle` (add plays success, remove plays toggle).
+3. **Visitor location widget** (feature — in About section):
+   - New `VisitorLocationWidget` component (`src/components/portfolio/visitor-location-widget.tsx`): detects the visitor's timezone via `Intl.DateTimeFormat().resolvedOptions().timeZone`, derives their city/region, and shows their local time (updating every second). Privacy-friendly — no external IP geolocation API needed.
+   - Placed side-by-side with the FunFactsWidget in a 2-column grid in #about. Verified: shows "You're visiting from UTC, 09:42 AM" (headless browser timezone).
+4. **Animated gradient hover borders** (styling):
+   - New `.gradient-border-hover` CSS utility: adds an animated gradient border (purple→pink→cyan) that fades in on hover via a masked `::after` pseudo-element. Available for application to any card.
+   - Also added `.gallery-fade` (image transition), `.live-pulse` (green pulse ring for live indicators) CSS animations.
+
+QA verification (agent-browser):
+- No errors; 12 sections render; 0 unlabeled inputs; 0 duplicate IDs.
+- Project gallery: modal opens with cover image, title, description, tech stack, Code/Live buttons, and share buttons. VLM confirmed: "gradient cover image with project logo and title, full description, tech stack badges, action buttons, share options".
+- Location widget: shows "You're visiting from UTC, 09:43 AM" with live-updating time. VLM confirmed: "You're visiting from widget showing location UTC and time 09:43 AM, Fun Fact card to its left".
+- Sound toast: contact form and favorites now play sounds on success (verified via code wiring; sounds only audible with sound toggle enabled).
+- Mobile (390px): hamburger nav, no overflow, location widget renders.
+- Lint passes clean; dev server compiles with no errors.
+
+Stage Summary:
+- 0 bugs (stable); 4 new features added (project gallery carousel, sound toasts, visitor location widget, gradient hover borders); 3 new CSS animations.
+- Lint passes clean. Dev server running on port 3000 with no runtime errors.
+- The portfolio now has a gallery carousel in project modals, sound-enhanced toasts, a visitor location/time widget, and animated gradient hover borders.
+
+Unresolved / Next-phase recommendations:
+- Wire contact form to a real email service (Resend/SendGrid) for delivery notifications.
+- Replace SVG placeholder images with real project/certificate screenshots via edit mode.
+- Internationalization (i18n) for Bengali + English toggle.
+- Add a dedicated analytics admin page with date-range filtering and CSV export.
+- Consider a blog/writing section.
+- Apply the `.gradient-border-hover` class to more cards across the site for consistency.
