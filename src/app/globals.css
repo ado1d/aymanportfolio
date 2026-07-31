@@ -660,3 +660,24 @@
 .action-glow {
   animation: action-glow 3s ease-in-out infinite;
 }
+
+/* ============ Marquee mask fade (for tech scroller) ============ */
+.mask-fade {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+/* ============ Magnetic button hover lift ============ */
+.magnetic-btn {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+/* ============ Sound toggle pulse ============ */
+@keyframes sound-on-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.sound-on-indicator {
+  animation: sound-on-pulse 1.5s ease-in-out infinite;
+}

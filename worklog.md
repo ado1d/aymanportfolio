@@ -337,3 +337,60 @@ Unresolved / Next-phase recommendations:
 - Internationalization (i18n) for Bengali + English toggle.
 - Add a dedicated analytics admin page with date-range filtering and CSV export.
 - Consider a blog/writing section.
+
+---
+Task ID: 7
+Agent: webDevReview cron (round 6)
+Task: QA the portfolio and add new features (share buttons, tech marquee, cursor follower, sound effects, scroll progress ring) + styling.
+
+Work Log:
+- Read worklog.md (rounds 1-6 complete); confirmed lint clean, dev server running, all 12 sections rendering.
+- QA via agent-browser: no console/runtime errors, 16 images load, 0 unlabeled buttons, 0 unlabeled inputs, no duplicate IDs, 1 h1, no broken hash links, viewport meta present, lang="en". Edit mode login works, project detail modal opens, FAQ accordion works, favorites toggle works. Project is stable — no bugs found.
+
+New features implemented this round:
+1. **Share buttons on project detail modal** (feature):
+   - New `ShareButtons` component (`src/components/portfolio/share-buttons.tsx`): copy-link + Twitter/X + LinkedIn + Facebook + native Web Share API (mobile). Resolves the share URL lazily at click-time (no state/effects needed). Toast confirmation on copy.
+   - Integrated into the project detail modal footer — every project is now shareable to social platforms.
+2. **Tech stack marquee** (styling — in hero):
+   - New `TechMarquee` component (`src/components/portfolio/tech-marquee.tsx`): a horizontally-scrolling, seamlessly-looping marquee of 16 tech badges (C++, Python, TypeScript, Next.js, React, Node.js, Tailwind, Prisma, PostgreSQL, Redis, Docker, Git, Codeforces, Linux, TensorFlow, WebAssembly) with emoji glyphs. Uses the existing `.marquee` CSS with a new `.mask-fade` edge gradient.
+3. **Custom cursor follower** (styling):
+   - New `CursorFollower` component (`src/components/portfolio/cursor-follower.tsx`): two layers — a small precise dot (instant) + a larger gradient ring (spring-eased trailing at 0.15 lerp). Uses `mix-blend-difference` for visibility on any background. Disabled on touch devices and when `prefers-reduced-motion`. Implemented with `useSyncExternalStore` for the mounted flag (lint-clean).
+4. **Sound effects toggle** (fun feature):
+   - New `useSoundEffects` hook (`src/hooks/use-sound-effects.ts`): synthesizes subtle UI sounds via the Web Audio API (OscillatorNode + GainNode) — no audio files needed. Profiles for click/hover/success/toggle with pitch sweeps. Preference persisted to localStorage via `useSyncExternalStore` (cross-tab sync).
+   - A volume toggle button (Volume2/VolumeX icon) in the nav, with a pulsing indicator when enabled. Off by default (user opt-in).
+5. **Scroll progress ring** (feature/styling — replaces plain back-to-top):
+   - New `ScrollProgressButton` component (`src/components/portfolio/scroll-progress-button.tsx`): a circular SVG ring showing overall scroll percentage with a gradient fill, doubling as a back-to-top button. The ring fills as you scroll; tooltip shows "N% scrolled". Appears after 400px scroll.
+   - Removed the old plain back-to-top button and its unused `showTop` state + `ChevronUp` import.
+
+Styling improvements (`src/app/globals.css`):
+- `.mask-fade` (marquee edge gradient mask).
+- `.magnetic-btn` (transition for magnetic button effect).
+- `@keyframes sound-on-pulse` + `.sound-on-indicator` (pulsing indicator for enabled sound).
+
+Lint fixes during development:
+- `useSoundEffects`: refactored from useState-in-effect to `useSyncExternalStore` (localStorage-backed external store) for the sound-enabled preference.
+- `ShareButtons`: removed useState+useEffect for shareUrl; resolved lazily at click-time instead.
+- `CursorFollower`: replaced the mounted useState-in-effect with `useSyncExternalStore`; cleaned up expression-statement warnings.
+
+QA verification (agent-browser):
+- No errors; 12 sections render; 0 unlabeled inputs.
+- Tech marquee: 2 tracks (seamless loop) with 16 tech badges. VLM confirmed: "horizontally scrolling marquee of tech badges below the hero CTAs".
+- Sound toggle: present in nav, aria-pressed toggles on click. VLM confirmed: "sound/volume toggle icon in the nav".
+- Share buttons: project detail modal has 5 share buttons (copy/Twitter/LinkedIn/Facebook/native). Verified `hasShare: true, shareBtnCount: 5`.
+- Scroll progress ring: visible after scroll, title shows "13% scrolled". VLM confirmed: "circular scroll-progress ring with gradient fill and back-to-top arrow".
+- Cursor follower: 2 elements rendered (dot + ring), opacity-0 until mouse move.
+- Mobile (390px): hamburger nav, no overflow, sound toggle hidden (sm:inline-flex), cursor follower inactive on touch.
+- Lint passes clean; dev server compiles with no errors.
+
+Stage Summary:
+- 0 bugs (stable); 5 new features added (share buttons, tech marquee, cursor follower, sound effects, scroll progress ring); 3 new CSS utilities.
+- Lint passes clean. Dev server running on port 3000 with no runtime errors.
+- The portfolio now has social sharing, an animated tech marquee, a custom cursor, optional UI sound effects, and a scroll-progress ring.
+
+Unresolved / Next-phase recommendations:
+- Wire contact form to a real email service (Resend/SendGrid) for delivery notifications.
+- Replace SVG placeholder images with real project/certificate screenshots via edit mode.
+- Internationalization (i18n) for Bengali + English toggle.
+- Add a dedicated analytics admin page with date-range filtering and CSV export.
+- Consider a blog/writing section.
+- Wire the sound `play()` function into actual button click handlers across the app (currently the toggle + hook exist; connecting to all CTAs is the next step).

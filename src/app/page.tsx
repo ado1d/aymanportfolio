@@ -27,7 +27,6 @@ import {
   Pencil,
   Eye,
   ShieldCheck,
-  ChevronUp,
   Zap,
   Target,
   Medal,
@@ -39,6 +38,8 @@ import {
   Quote,
   UserPlus,
   HelpCircle,
+  Volume2,
+  VolumeX,
 } from 'lucide-react'
 import { getSocialIcon, getPlatformIcon } from '@/components/portfolio/icons'
 import { useScrollReveal, useCountUp } from '@/hooks/use-scroll-reveal'
@@ -66,9 +67,13 @@ import { VisitorBadge } from '@/components/portfolio/visitor-badge'
 import { ProjectDetailModal } from '@/components/portfolio/project-detail-modal'
 import { FaqSection } from '@/components/portfolio/faq-section'
 import { FavoritesCount } from '@/components/portfolio/favorite-toggle'
+import { TechMarquee } from '@/components/portfolio/tech-marquee'
+import { CursorFollower } from '@/components/portfolio/cursor-follower'
+import { ScrollProgressButton } from '@/components/portfolio/scroll-progress-button'
 import { downloadVCard } from '@/lib/vcard'
 import { useTypewriter } from '@/hooks/use-typewriter'
 import { useParallax } from '@/hooks/use-parallax'
+import { useSoundEffects } from '@/hooks/use-sound-effects'
 import type {
   PortfolioData,
   Project,
@@ -171,7 +176,6 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [showTop, setShowTop] = useState(false)
   const [activeSection, setActiveSection] = useState('')
   const [lightbox, setLightbox] = useState<LightboxState | null>(null)
   const [cmdOpen, setCmdOpen] = useState(false)
@@ -192,6 +196,7 @@ export default function Home() {
     { typeSpeed: 80, deleteSpeed: 40, pauseEnd: 1600 }
   )
   const parallax = useParallax(600)
+  const sound = useSoundEffects()
 
   const [isDark, setIsDark] = useState(false)
   const edit = useEditMode()
@@ -299,7 +304,6 @@ export default function Home() {
   useEffect(() => {
     const onMove = (e: MouseEvent) => setMousePosition({ x: e.clientX, y: e.clientY })
     const onScroll = () => {
-      setShowTop(window.scrollY > 600)
       const sections = NAV_ITEMS.map((n) => document.getElementById(n.id)).filter(Boolean) as HTMLElement[]
       const scrollY = window.scrollY + 120
       for (let i = sections.length - 1; i >= 0; i--) {
@@ -434,6 +438,19 @@ export default function Home() {
                 />
                 <Moon className="w-4 h-4 text-muted-foreground" />
               </div>
+              <button
+                onClick={sound.toggle}
+                className="hidden sm:inline-flex p-2 rounded-md hover:bg-muted transition-colors"
+                aria-label={sound.enabled ? 'Mute sound effects' : 'Enable sound effects'}
+                aria-pressed={sound.enabled}
+                title={sound.enabled ? 'Sound on — click to mute' : 'Sound off — click to enable'}
+              >
+                {sound.enabled ? (
+                  <Volume2 className="w-4 h-4 text-primary sound-on-indicator" />
+                ) : (
+                  <VolumeX className="w-4 h-4 text-muted-foreground" />
+                )}
+              </button>
               <Button
                 variant={edit.editMode ? 'default' : 'outline'}
                 size="sm"
@@ -601,7 +618,11 @@ export default function Home() {
               <FavoritesCount />
             </div>
 
-            <div className="mt-16 animate-bounce">
+            <div className="mt-12 w-full">
+              <TechMarquee />
+            </div>
+
+            <div className="mt-8 animate-bounce">
               <ArrowRight className="w-5 h-5 mx-auto rotate-90 text-muted-foreground" />
             </div>
           </div>
@@ -774,16 +795,11 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Back to top */}
-      {showTop && (
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed bottom-6 right-6 z-40 p-3 rounded-full bg-primary text-primary-foreground shadow-lg hover:scale-110 transition-transform"
-          aria-label="Back to top"
-        >
-          <ChevronUp className="w-5 h-5" />
-        </button>
-      )}
+      {/* Scroll progress ring / back-to-top */}
+      <ScrollProgressButton />
+
+      {/* Custom cursor follower (desktop only) */}
+      <CursorFollower />
 
       {/* Login + Lightbox + Command Palette */}
       <LoginDialog open={edit.showLogin} onOpenChange={edit.setShowLogin} onLogin={edit.login} />

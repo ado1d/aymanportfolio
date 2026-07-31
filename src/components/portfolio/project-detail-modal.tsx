@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Github, ExternalLink, X, Calendar, Tag, Star } from 'lucide-react'
+import { ShareButtons } from './share-buttons'
 import type { Project } from '@/lib/types'
 
 interface ProjectDetailModalProps {
@@ -108,6 +109,10 @@ export function ProjectDetailModal({ project, open, onOpenChange, onOpenLightbox
                 <Star className="w-4 h-4 mr-2" /> View Full Image
               </Button>
             )}
+          </div>
+
+          <div className="mt-4 pt-4 border-t">
+            <ShareButtons title={project.title} />
           </div>
         </div>
       </DialogContent>
