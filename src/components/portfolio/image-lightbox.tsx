@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react'
 
 interface LightboxImage {
@@ -39,7 +39,8 @@ export function ImageLightbox({ images, open, startIndex, onClose }: ImageLightb
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-5xl p-0 overflow-hidden bg-black/95 border-white/10">
+      <DialogContent className="max-w-5xl p-0 overflow-hidden bg-black/95 border-white/10" showCloseButton={false} aria-describedby={undefined}>
+        <DialogTitle className="sr-only">Image viewer</DialogTitle>
         <div className="relative w-full h-[80vh] flex items-center justify-center">
           <button
             onClick={onClose}
