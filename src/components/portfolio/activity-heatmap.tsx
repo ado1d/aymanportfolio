@@ -7,6 +7,7 @@ import { Reveal } from './reveal'
 interface HeatmapDay {
   date: string
   count: number
+  level: number // 0-4, GitHub's contribution level
 }
 
 interface GitHubData {
@@ -21,8 +22,9 @@ interface GitHubData {
     htmlUrl: string
   }
   heatmap: HeatmapDay[]
+  totalDays: number
+  activeDays: number
   totalContributions: number
-  eventTypes: Record<string, number>
   topRepos: {
     name: string
     description: string | null
@@ -37,16 +39,17 @@ interface GitHubData {
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const DAYS = ['Mon', 'Wed', 'Fri']
 
-const LEVELS = [
-  { max: 0, color: 'var(--muted)', opacity: 0.18 },
-  { max: 1, color: '#7c3aed', opacity: 0.4 },
-  { max: 3, color: '#7c3aed', opacity: 0.65 },
-  { max: 5, color: '#7c3aed', opacity: 0.85 },
-  { max: 99, color: '#7c3aed', opacity: 1 },
+// GitHub uses 5 levels (0-4). Map each to a color + opacity.
+const LEVEL_COLORS = [
+  { color: 'var(--muted)', opacity: 0.15 }, // level 0 — no contributions
+  { color: '#7c3aed', opacity: 0.35 },      // level 1 — low
+  { color: '#7c3aed', opacity: 0.6 },       // level 2 — medium-low
+  { color: '#7c3aed', opacity: 0.85 },      // level 3 — medium-high
+  { color: '#7c3aed', opacity: 1 },         // level 4 — high
 ]
 
-function levelFor(count: number) {
-  return LEVELS.find((l) => count <= l.max) || LEVELS[LEVELS.length - 1]
+function levelFor(level: number) {
+  return LEVEL_COLORS[level] || LEVEL_COLORS[0]
 }
 
 export function ActivityHeatmap() {
@@ -66,13 +69,13 @@ export function ActivityHeatmap() {
   const { weekChunks, monthLabels, maxStreak, total } = useMemo(() => {
     if (!data) return { weekChunks: [] as HeatmapDay[][], monthLabels: [], maxStreak: 0, total: 0 }
     const days = data.heatmap
-    const total = days.reduce((s, d) => s + d.count, 0)
+    const total = days.reduce((s, d) => s + d.level, 0)
 
-    // Longest streak
+    // Longest streak (consecutive days with level > 0)
     let streak = 0
     let best = 0
     for (const d of days) {
-      if (d.count > 0) {
+      if (d.level > 0) {
         streak++
         if (streak > best) best = streak
       } else {
@@ -134,7 +137,7 @@ export function ActivityHeatmap() {
                 </a>
               </h3>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {data.profile.publicRepos} repos · {data.profile.followers} followers · {total} contributions
+                {data.profile.publicRepos} repos · {data.activeDays} active days · last 12 months
               </p>
             </div>
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 text-xs font-semibold">
@@ -175,21 +178,22 @@ export function ActivityHeatmap() {
                       {Array.from({ length: 7 }).map((_, di) => {
                         const day = week[di]
                         if (!day) return <div key={di} className="w-[11px] h-[11px] rounded-[2px]" />
-                        const level = levelFor(day.count)
+                        const levelColor = levelFor(day.level)
                         const dateStr = new Date(day.date).toLocaleDateString(undefined, {
                           weekday: 'short',
                           month: 'short',
                           day: 'numeric',
                         })
+                        const contribText = day.level === 0 ? 'No contributions' : `${day.level} contribution level`
                         return (
                           <div
                             key={di}
                             className="w-[11px] h-[11px] rounded-[2px] transition-transform hover:scale-150 hover:z-10 relative"
                             style={{
-                              backgroundColor: level.color,
-                              opacity: day.count === 0 ? 0.18 : level.opacity,
+                              backgroundColor: levelColor.color,
+                              opacity: levelColor.opacity,
                             }}
-                            title={`${dateStr}: ${day.count} contribution${day.count !== 1 ? 's' : ''}`}
+                            title={`${dateStr}: ${contribText}`}
                           />
                         )
                       })}
@@ -201,11 +205,11 @@ export function ActivityHeatmap() {
               {/* Legend */}
               <div className="flex items-center justify-end gap-1.5 mt-3 text-[10px] text-muted-foreground">
                 <span>Less</span>
-                {LEVELS.map((l, i) => (
+                {LEVEL_COLORS.map((l, i) => (
                   <div
                     key={i}
                     className="w-[11px] h-[11px] rounded-[2px]"
-                    style={{ backgroundColor: l.color, opacity: i === 0 ? 0.18 : l.opacity }}
+                    style={{ backgroundColor: l.color, opacity: l.opacity }}
                   />
                 ))}
                 <span>More</span>

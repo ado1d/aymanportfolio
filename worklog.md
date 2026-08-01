@@ -625,3 +625,27 @@ Stage Summary:
 - 4 user-requested changes fully implemented: real Codeforces graph, real GitHub activity, tech logos (no percentages), re-triggering scroll reveal.
 - Also updated seed data with real profile info (SUST, real name, real links).
 - Lint passes clean. Dev server running on port 3000 with no runtime errors.
+
+---
+Task ID: 13
+Agent: Main (Z.ai Code) — user-requested fix
+Task: GitHub activity heatmap should show last 1 year contribution map (was only showing ~90 days from events API).
+
+Work Log:
+- Root cause: The GitHub Events API (`/users/{name}/events/public`) only returns the last ~90 days and is capped at 300 events. This made the heatmap sparse (only 68 contributions visible).
+- Solution: Scrape the full-year contribution calendar directly from GitHub's profile page (`github.com/users/{name}/contributions`), which returns an HTML table with `data-date` and `data-level` (0-4) for every day of the past year.
+
+Changes:
+- Updated `src/app/api/github/route.ts`: added a 4th parallel fetch to `https://github.com/users/ado1d/contributions`, parse the HTML with regex to extract 371 `{date, level}` pairs. Falls back to the events-based approach if scraping fails.
+- Updated `src/components/portfolio/activity-heatmap.tsx`:
+  - `HeatmapDay` interface now includes `level` (0-4, GitHub's contribution level).
+  - Replaced the count-based `LEVELS` array with `LEVEL_COLORS` (5 entries, one per GitHub level) — uses the real `data-level` attribute from GitHub's HTML.
+  - Cell rendering now uses `day.level` for coloring instead of `day.count`.
+  - Stats now show "49 active days · last 12 months" instead of a raw contribution count.
+  - Streak calculation uses `level > 0` instead of `count > 0`.
+  - Legend uses the 5 `LEVEL_COLORS`.
+
+Verification:
+- API returns 371 days: 322 inactive (level 0), 32 low (1), 9 medium-low (2), 6 medium-high (3), 2 high (4). 49 active days.
+- VLM confirmed: "full year (12 months) of data with colored squares, month labels across the top, 49 active days".
+- Lint passes clean; no console errors.
