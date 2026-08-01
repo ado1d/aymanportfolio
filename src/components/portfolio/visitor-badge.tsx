@@ -37,20 +37,21 @@ export function VisitorBadge({ detailed = false }: VisitorBadgeProps) {
   if (!stats) return null
 
   if (!detailed) {
-    // Compact badge for the hero — uses real Google Analytics logo
+    // Compact badge for the hero
     return (
       <span
         className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-card/80 backdrop-blur border text-xs text-muted-foreground"
         title={`${stats.total} total visits · ${stats.today} today`}
       >
-        {/* Real Google Analytics logo */}
-        <img
-          src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
-          alt="Analytics"
-          className="w-3.5 h-3.5"
-          loading="lazy"
-          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-        />
+        {/* Analytics chart icon */}
+        <svg className="w-3.5 h-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 3v18h18" />
+          <path d="M7 14l4-4 4 3 5-6" />
+          <circle cx="7" cy="14" r="1.5" fill="currentColor" />
+          <circle cx="11" cy="10" r="1.5" fill="currentColor" />
+          <circle cx="15" cy="13" r="1.5" fill="currentColor" />
+          <circle cx="20" cy="7" r="1.5" fill="currentColor" />
+        </svg>
         <span className="font-semibold text-foreground tabular-nums">{total.toLocaleString()}</span>
         <span className="opacity-70">visits</span>
       </span>
