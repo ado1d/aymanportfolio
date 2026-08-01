@@ -53,10 +53,14 @@ export function FavoritesCount({ className = '' }: { className?: string }) {
       className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-500/10 text-pink-600 dark:text-pink-400 text-xs font-medium border border-pink-500/20 ${className}`}
       title={`${count} favorited project${count !== 1 ? 's' : ''}`}
     >
-      {/* Bookmark icon — like saving/bookmarking */}
-      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-      </svg>
+      {/* Real GitHub logo */}
+      <img
+        src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
+        alt="Saved"
+        className="w-3.5 h-3.5 dark:invert"
+        loading="lazy"
+        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+      />
       <span className="font-semibold tabular-nums">{count}</span>
       <span className="opacity-70">saved</span>
     </span>
