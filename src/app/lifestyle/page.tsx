@@ -24,6 +24,7 @@ interface Photo {
   category: string
   claps: number
   order: number
+  gallery?: string | null
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -244,46 +245,18 @@ export default function LifestylePage() {
         <section className="px-4 sm:px-6 pb-24">
           <div className="max-w-6xl mx-auto columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
             {filtered.map((photo, i) => (
-              <div key={photo.id}
-                className="break-inside-avoid relative group rounded-2xl overflow-hidden border bg-card hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-                style={{ transform: `rotate(${(i % 3 - 1) * 0.5}deg)` }}
-              >
-                {/* Edit controls */}
-                {editMode && (
-                  <div className="absolute top-2 right-2 z-30 flex gap-1">
-                    <button onClick={() => handleEdit(photo)} className="p-1.5 rounded-lg bg-card/90 border hover:border-primary" aria-label="Edit"><Pencil className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => deletePhoto(photo.id)} className="p-1.5 rounded-lg bg-card/90 border hover:border-destructive hover:text-destructive" aria-label="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
-                  </div>
-                )}
-
-                {/* Image */}
-                <div className="relative cursor-pointer overflow-hidden" onClick={() => !editMode && setLightbox(i)}>
-                  <img src={photo.imageUrl} alt={photo.caption} className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
-                  <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-semibold border ${CATEGORY_COLORS[photo.category] || 'bg-muted text-muted-foreground border-border'}`}>{photo.category}</span>
-                </div>
-
-                {/* Caption + clap */}
-                <div className="p-4">
-                  <p className="text-sm text-foreground/90 leading-relaxed mb-3">{photo.caption}</p>
-                  <div className="flex items-center justify-between">
-                    <button onClick={() => clap(photo.id)} disabled={clapping.has(photo.id)}
-                      className={`relative inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all overflow-visible ${
-                        clapping.has(photo.id) ? 'bg-primary text-primary-foreground scale-110' : 'bg-muted hover:bg-primary/10 hover:text-primary'
-                      }`}>
-                      <ClapIcon className="w-4 h-4" filled={clapping.has(photo.id)} />
-                      <span className="tabular-nums">{photo.claps}</span>
-                      {/* Clap burst animation */}
-                      {clapBursts[photo.id] > 0 && (
-                        <span key={clapBursts[photo.id]} className="absolute -top-2 left-1/2 -translate-x-1/2 text-primary font-bold text-lg" style={{ animation: 'clap-burst 0.6s ease-out forwards' }}>
-                          +1
-                        </span>
-                      )}
-                    </button>
-                    <span className="text-[10px] text-muted-foreground">{new Date(photo.createdAt || Date.now()).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
-                  </div>
-                </div>
-              </div>
+              <PhotoCard
+                key={photo.id}
+                photo={photo}
+                index={i}
+                editMode={editMode}
+                onEdit={() => handleEdit(photo)}
+                onDelete={() => deletePhoto(photo.id)}
+                onOpenLightbox={() => !editMode && setLightbox(i)}
+                onClap={() => clap(photo.id)}
+                clapping={clapping.has(photo.id)}
+                clapBursts={clapBursts[photo.id] || 0}
+              />
             ))}
           </div>
 
@@ -303,27 +276,17 @@ export default function LifestylePage() {
         </div>
       </footer>
 
-      {/* Lightbox */}
+      {/* Lightbox — shows all images for the selected photo */}
       {lightbox !== null && filtered[lightbox] && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setLightbox(null)}>
-          <button className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 z-20" onClick={(e) => { e.stopPropagation(); setLightbox(null) }} aria-label="Close"><X className="w-6 h-6" /></button>
-          {filtered.length > 1 && <>
-            <button className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 z-20" onClick={(e) => { e.stopPropagation(); prevPhoto() }} aria-label="Previous"><ChevronLeft className="w-6 h-6" /></button>
-            <button className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 z-20" onClick={(e) => { e.stopPropagation(); nextPhoto() }} aria-label="Next"><ChevronRight className="w-6 h-6" /></button>
-          </>}
-          <div className="max-w-3xl w-full" onClick={e => e.stopPropagation()}>
-            <img src={filtered[lightbox].imageUrl} alt={filtered[lightbox].caption} className="w-full max-h-[70vh] object-contain rounded-lg" />
-            <div className="mt-4 text-center">
-              <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-semibold mb-2 border ${CATEGORY_COLORS[filtered[lightbox].category] || 'bg-muted text-muted-foreground border-border'}`}>{filtered[lightbox].category}</span>
-              <p className="text-white/90 text-sm sm:text-base mb-3">{filtered[lightbox].caption}</p>
-              <button onClick={() => clap(filtered[lightbox].id)} disabled={clapping.has(filtered[lightbox].id)}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${clapping.has(filtered[lightbox].id) ? 'bg-primary text-primary-foreground scale-110' : 'bg-white/10 text-white hover:bg-primary/20'}`}>
-                <ClapIcon className="w-4 h-4" filled={clapping.has(filtered[lightbox].id)} />
-                <span className="tabular-nums">{filtered[lightbox].claps}</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        <LightboxView
+          photo={filtered[lightbox]}
+          onClose={() => setLightbox(null)}
+          onPrev={prevPhoto}
+          onNext={nextPhoto}
+          hasMultiple={filtered.length > 1}
+          onClap={() => clap(filtered[lightbox].id)}
+          clapping={clapping.has(filtered[lightbox].id)}
+        />
       )}
 
       {/* Login dialog */}
@@ -349,21 +312,226 @@ export default function LifestylePage() {
   )
 }
 
+/** Get all images for a photo (cover + gallery) */
+function getAllImages(photo: Photo): string[] {
+  const all = [photo.imageUrl]
+  if (photo.gallery) {
+    photo.gallery.split(',').map(u => u.trim()).filter(Boolean).forEach(u => {
+      if (u !== photo.imageUrl) all.push(u)
+    })
+  }
+  return all
+}
+
+/** Photo card with multi-image carousel */
+function PhotoCard({ photo, index, editMode, onEdit, onDelete, onOpenLightbox, onClap, clapping, clapBursts }: {
+  photo: Photo; index: number; editMode: boolean;
+  onEdit: () => void; onDelete: () => void; onOpenLightbox: () => void;
+  onClap: () => void; clapping: boolean; clapBursts: number
+}) {
+  const [imgIndex, setImgIndex] = useState(0)
+  const images = getAllImages(photo)
+  const hasMultiple = images.length > 1
+
+  const nextImg = (e: React.MouseEvent) => { e.stopPropagation(); setImgIndex(i => (i + 1) % images.length) }
+  const prevImg = (e: React.MouseEvent) => { e.stopPropagation(); setImgIndex(i => (i - 1 + images.length) % images.length) }
+
+  return (
+    <div
+      className="break-inside-avoid relative group rounded-2xl overflow-hidden border bg-card hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+      style={{ transform: `rotate(${(index % 3 - 1) * 0.5}deg)` }}
+    >
+      {/* Edit controls */}
+      {editMode && (
+        <div className="absolute top-2 right-2 z-30 flex gap-1">
+          <button onClick={onEdit} className="p-1.5 rounded-lg bg-card/90 border hover:border-primary" aria-label="Edit"><Pencil className="w-3.5 h-3.5" /></button>
+          <button onClick={onDelete} className="p-1.5 rounded-lg bg-card/90 border hover:border-destructive hover:text-destructive" aria-label="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
+        </div>
+      )}
+
+      {/* Image carousel */}
+      <div className="relative cursor-pointer overflow-hidden" onClick={onOpenLightbox}>
+        <img
+          key={imgIndex}
+          src={images[imgIndex]}
+          alt={photo.caption}
+          className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105 gallery-fade"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
+        <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-semibold border ${CATEGORY_COLORS[photo.category] || 'bg-muted text-muted-foreground border-border'}`}>{photo.category}</span>
+
+        {/* Multi-image indicators */}
+        {hasMultiple && (
+          <>
+            {/* Image counter badge */}
+            <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-black/60 text-white text-[10px] font-medium flex items-center gap-1">
+              <Camera className="w-2.5 h-2.5" /> {imgIndex + 1}/{images.length}
+            </span>
+
+            {/* Carousel arrows */}
+            <button onClick={prevImg} className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/50 text-white hover:bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity z-10" aria-label="Previous image">
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button onClick={nextImg} className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/50 text-white hover:bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity z-10" aria-label="Next image">
+              <ChevronRight className="w-4 h-4" />
+            </button>
+
+            {/* Dots */}
+            <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+              {images.map((_, di) => (
+                <button
+                  key={di}
+                  onClick={(e) => { e.stopPropagation(); setImgIndex(di) }}
+                  className={`h-1.5 rounded-full transition-all ${di === imgIndex ? 'w-4 bg-white' : 'w-1.5 bg-white/40 hover:bg-white/70'}`}
+                  aria-label={`Image ${di + 1}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Caption + clap */}
+      <div className="p-4">
+        <p className="text-sm text-foreground/90 leading-relaxed mb-3">{photo.caption}</p>
+        <div className="flex items-center justify-between">
+          <button onClick={onClap} disabled={clapping}
+            className={`relative inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all overflow-visible ${
+              clapping ? 'bg-primary text-primary-foreground scale-110' : 'bg-muted hover:bg-primary/10 hover:text-primary'
+            }`}>
+            <ClapIcon className="w-4 h-4" filled={clapping} />
+            <span className="tabular-nums">{photo.claps}</span>
+            {clapBursts > 0 && (
+              <span key={clapBursts} className="absolute -top-2 left-1/2 -translate-x-1/2 text-primary font-bold text-lg" style={{ animation: 'clap-burst 0.6s ease-out forwards' }}>
+                +1
+              </span>
+            )}
+          </button>
+          <span className="text-[10px] text-muted-foreground">{new Date(photo.createdAt || Date.now()).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/** Full-screen lightbox with multi-image carousel */
+function LightboxView({ photo, onClose, onPrev, onNext, hasMultiple, onClap, clapping }: {
+  photo: Photo; onClose: () => void; onPrev: () => void; onNext: () => void;
+  hasMultiple: boolean; onClap: () => void; clapping: boolean
+}) {
+  const [imgIndex, setImgIndex] = useState(0)
+  const images = getAllImages(photo)
+  const hasGallery = images.length > 1
+
+  // Reset to first image when photo changes (adjust during render)
+  const [lastPhotoId, setLastPhotoId] = useState<string | null>(null)
+  if (photo.id !== lastPhotoId) {
+    setLastPhotoId(photo.id)
+    if (imgIndex !== 0) setImgIndex(0)
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
+      <button className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 z-20" onClick={(e) => { e.stopPropagation(); onClose() }} aria-label="Close"><X className="w-6 h-6" /></button>
+
+      {/* Photo-level navigation (between different photos) */}
+      {hasMultiple && <>
+        <button className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 z-20" onClick={(e) => { e.stopPropagation(); onPrev() }} aria-label="Previous photo"><ChevronLeft className="w-6 h-6" /></button>
+        <button className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 z-20" onClick={(e) => { e.stopPropagation(); onNext() }} aria-label="Next photo"><ChevronRight className="w-6 h-6" /></button>
+      </>}
+
+      <div className="max-w-3xl w-full" onClick={e => e.stopPropagation()}>
+        {/* Image with gallery carousel */}
+        <div className="relative">
+          <img key={imgIndex} src={images[imgIndex]} alt={photo.caption} className="w-full max-h-[65vh] object-contain rounded-lg gallery-fade" />
+
+          {/* Gallery-level navigation (between images of same photo) */}
+          {hasGallery && (
+            <>
+              <button onClick={(e) => { e.stopPropagation(); setImgIndex(i => (i - 1 + images.length) % images.length) }} className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 text-white hover:bg-white/30 z-10" aria-label="Previous image">
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button onClick={(e) => { e.stopPropagation(); setImgIndex(i => (i + 1) % images.length) }} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 text-white hover:bg-white/30 z-10" aria-label="Next image">
+                <ChevronRight className="w-5 h-5" />
+              </button>
+
+              {/* Thumbnail strip */}
+              <div className="flex justify-center gap-2 mt-3">
+                {images.map((img, di) => (
+                  <button
+                    key={di}
+                    onClick={(e) => { e.stopPropagation(); setImgIndex(di) }}
+                    className={`w-12 h-12 rounded-lg overflow-hidden border-2 transition-all ${di === imgIndex ? 'border-primary scale-110' : 'border-white/20 opacity-50 hover:opacity-80'}`}
+                  >
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Caption + clap */}
+        <div className="mt-4 text-center">
+          <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-semibold mb-2 border ${CATEGORY_COLORS[photo.category] || 'bg-muted text-muted-foreground border-border'}`}>{photo.category}</span>
+          {hasGallery && <span className="ml-2 text-[10px] text-white/50">{imgIndex + 1} / {images.length}</span>}
+          <p className="text-white/90 text-sm sm:text-base mb-3">{photo.caption}</p>
+          <button onClick={onClap} disabled={clapping}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${clapping ? 'bg-primary text-primary-foreground scale-110' : 'bg-white/10 text-white hover:bg-primary/20'}`}>
+            <ClapIcon className="w-4 h-4" filled={clapping} />
+            <span className="tabular-nums">{photo.claps}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function PhotoEditDialog({ open, onOpenChange, photo, onSave, uploading, setUploading }: {
   open: boolean; onOpenChange: (o: boolean) => void; photo: Photo | null;
   onSave: (data: Record<string, unknown>) => void; uploading: boolean; setUploading: (b: boolean) => void
 }) {
   // Initialize form from photo when it changes (adjust-during-render pattern)
-  const [form, setForm] = useState({ imageUrl: '', caption: '', category: 'Life', order: 0 })
+  const [form, setForm] = useState({ imageUrl: '', gallery: '', caption: '', category: 'Life', order: 0 })
   const [lastPhotoId, setLastPhotoId] = useState<string | null>(null)
   const currentPhotoId = photo?.id || null
   if (open && currentPhotoId !== lastPhotoId) {
     setLastPhotoId(currentPhotoId)
     setForm({
       imageUrl: photo?.imageUrl || '',
+      gallery: photo?.gallery || '',
       caption: photo?.caption || '',
       category: photo?.category || 'Life',
       order: photo?.order || 0,
+    })
+  }
+
+  const handleGalleryUpload = async (file: File) => {
+    setUploading(true)
+    const url = await uploadImage(file)
+    setUploading(false)
+    if (url) {
+      setForm(f => ({
+        ...f,
+        gallery: f.gallery ? `${f.gallery},${url}` : url,
+      }))
+    }
+  }
+
+  const addGalleryUrl = (url: string) => {
+    if (!url) return
+    setForm(f => ({
+      ...f,
+      gallery: f.gallery ? `${f.gallery},${url}` : url,
+    }))
+  }
+
+  const removeGalleryImage = (idx: number) => {
+    setForm(f => {
+      const images = f.gallery ? f.gallery.split(',').map(s => s.trim()).filter(Boolean) : []
+      images.splice(idx, 1)
+      return { ...f, gallery: images.join(',') }
     })
   }
 
@@ -401,6 +569,34 @@ function PhotoEditDialog({ open, onOpenChange, photo, onSave, uploading, setUplo
             <Label className="mb-1.5 block text-sm font-medium">Caption</Label>
             <Textarea value={form.caption} onChange={e => setForm(f => ({ ...f, caption: e.target.value }))} rows={2} placeholder="What's happening in this photo?" />
           </div>
+
+          {/* Gallery images */}
+          <div>
+            <Label className="mb-1.5 block text-sm font-medium">Gallery Images (optional)</Label>
+            <p className="text-xs text-muted-foreground mb-2">Add more photos to this moment — they'll show as a carousel.</p>
+            {/* Existing gallery images */}
+            {form.gallery && form.gallery.split(',').filter(Boolean).length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {form.gallery.split(',').map(s => s.trim()).filter(Boolean).map((img, idx) => (
+                  <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden border group">
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <button
+                      onClick={() => removeGalleryImage(idx)}
+                      className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity"
+                      aria-label="Remove"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <label className="flex items-center justify-center gap-2 w-full h-9 rounded-lg border border-dashed cursor-pointer hover:bg-muted/50 text-sm text-muted-foreground">
+              {uploading ? <><Spinner className="w-4 h-4 animate-spin" /> Uploading...</> : <><Upload className="w-4 h-4" /> Add gallery image</>}
+              <input type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleGalleryUpload(f) }} />
+            </label>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label className="mb-1.5 block text-sm font-medium">Category</Label>

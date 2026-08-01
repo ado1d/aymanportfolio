@@ -198,7 +198,8 @@ model Faq {
 // Lifestyle photo gallery — life activities, events, memories
 model LifestylePhoto {
   id        String   @id @default(cuid())
-  imageUrl  String
+  imageUrl  String                    // cover image
+  gallery   String?                   // comma-separated additional image URLs
   caption   String
   category  String   @default("Life")  // Life, Travel, Events, Friends, Achievement
   claps     Int      @default(0)
