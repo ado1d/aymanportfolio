@@ -22,7 +22,7 @@ export function ProjectDetailModal({ project, open, onOpenChange, onOpenLightbox
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] p-0 gap-0 overflow-hidden">
+      <DialogContent className="max-w-2xl max-h-[90vh] p-0 gap-0 overflow-hidden" showCloseButton={false} aria-describedby={undefined}>
         <DialogTitle className="sr-only">{project.title}</DialogTitle>
 
         {/* Gallery carousel (cover + gallery images) */}

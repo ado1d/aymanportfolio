@@ -87,7 +87,7 @@ export function AdminInbox({ open, onOpenChange, authed }: AdminInboxProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[85vh] p-0 gap-0 overflow-hidden">
+      <DialogContent className="max-w-3xl max-h-[85vh] p-0 gap-0 overflow-hidden" showCloseButton={false} aria-describedby={undefined}>
         <DialogTitle className="sr-only">Message inbox</DialogTitle>
         <div className="flex items-center justify-between px-5 py-4 border-b">
           <div className="flex items-center gap-2">

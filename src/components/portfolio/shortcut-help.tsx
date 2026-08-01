@@ -35,7 +35,7 @@ export function ShortcutHelp({ open, onOpenChange }: ShortcutHelpProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden">
+      <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden" showCloseButton={false} aria-describedby={undefined}>
         <DialogTitle className="sr-only">Keyboard shortcuts</DialogTitle>
         <div className="flex items-center gap-2 px-5 py-4 border-b">
           <Keyboard className="w-5 h-5 text-primary" />

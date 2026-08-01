@@ -37,7 +37,7 @@ export function LoginDialog({ open, onOpenChange, onLogin }: LoginDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-w-sm" aria-describedby={undefined}>
         <DialogHeader>
           <div className="mx-auto mb-2 p-3 rounded-full bg-primary/10 text-primary">
             <ShieldCheck className="w-6 h-6" />
