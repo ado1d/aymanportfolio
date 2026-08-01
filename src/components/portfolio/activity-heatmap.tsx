@@ -17,21 +17,41 @@ interface GitHubData {
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const DAYS = ['Mon', 'Wed', 'Fri']
-const LEVEL_COLORS = [
-  { color: 'var(--muted)', opacity: 0.15 },
-  { color: '#7c3aed', opacity: 0.35 },
-  { color: '#7c3aed', opacity: 0.6 },
-  { color: '#7c3aed', opacity: 0.85 },
-  { color: '#7c3aed', opacity: 1 },
+// GitHub's exact contribution graph colors
+// Light mode: #ebedf0, #9be9a8, #40c463, #30a14e, #216e39
+// Dark mode:  #161b22, #0e4429, #006d32, #26a641, #39d353
+const GITHUB_COLORS = [
+  '#ebedf0', // 0 — no contributions
+  '#9be9a8', // 1 — low
+  '#40c463', // 2 — medium-low
+  '#30a14e', // 3 — medium-high
+  '#216e39', // 4 — high
 ]
-function levelFor(level: number) { return LEVEL_COLORS[level] || LEVEL_COLORS[0] }
+const GITHUB_COLORS_DARK = [
+  '#161b22',
+  '#0e4429',
+  '#006d32',
+  '#26a641',
+  '#39d353',
+]
+function getColor(level: number, isDark: boolean) {
+  const colors = isDark ? GITHUB_COLORS_DARK : GITHUB_COLORS
+  return colors[level] || colors[0]
+}
 
 export function ActivityHeatmap() {
   const [data, setData] = useState<GitHubData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isDark, setIsDark] = useState(false)
 
   useEffect(() => {
     fetch('/api/github').then(r => r.json()).then(d => { if (!d.error) setData(d) }).catch(() => {}).finally(() => setLoading(false))
+    // Detect dark mode
+    const checkDark = () => setIsDark(document.documentElement.classList.contains('dark'))
+    checkDark()
+    const observer = new MutationObserver(checkDark)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+    return () => observer.disconnect()
   }, [])
 
   const { weekChunks, monthLabels, maxStreak } = useMemo(() => {
@@ -60,7 +80,7 @@ export function ActivityHeatmap() {
                 <GitBranch className="w-4 h-4 text-primary" /> GitHub Activity
                 <a href={data.profile.htmlUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors"><ExternalLink className="w-3.5 h-3.5" /></a>
               </h3>
-              <p className="text-xs text-muted-foreground mt-0.5">{data.profile.publicRepos} repos · {data.activeDays} active days · last 12 months</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{data.totalContributions} contributions · {data.profile.publicRepos} repos · last 12 months</p>
             </div>
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 text-xs font-semibold"><Flame className="w-3.5 h-3.5" />{maxStreak}-day streak</div>
           </div>
@@ -79,9 +99,9 @@ export function ActivityHeatmap() {
                       {Array.from({ length: 7 }).map((_, di) => {
                         const day = week[di]
                         if (!day) return <div key={di} className="w-[11px] h-[11px] rounded-[2px]" />
-                        const lc = levelFor(day.level)
+                        const color = getColor(day.level, isDark)
                         const dateStr = new Date(day.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })
-                        return <div key={di} className="w-[11px] h-[11px] rounded-[2px] transition-transform hover:scale-150 hover:z-10 relative" style={{ backgroundColor: lc.color, opacity: lc.opacity }} title={`${dateStr}: ${day.level === 0 ? 'No contributions' : `${day.level} contribution level`}`} />
+                        return <div key={di} className="w-[11px] h-[11px] rounded-[2px] transition-transform hover:scale-150 hover:z-10 relative" style={{ backgroundColor: color }} title={`${dateStr}: ${day.level === 0 ? 'No contributions' : 'Active'}`} />
                       })}
                     </div>
                   ))}
@@ -89,7 +109,7 @@ export function ActivityHeatmap() {
               </div>
               <div className="flex items-center justify-end gap-1.5 mt-3 text-[10px] text-muted-foreground">
                 <span>Less</span>
-                {LEVEL_COLORS.map((l, i) => <div key={i} className="w-[11px] h-[11px] rounded-[2px]" style={{ backgroundColor: l.color, opacity: l.opacity }} />)}
+                {(isDark ? GITHUB_COLORS_DARK : GITHUB_COLORS).map((c, i) => <div key={i} className="w-[11px] h-[11px] rounded-[2px]" style={{ backgroundColor: c }} />)}
                 <span>More</span>
               </div>
             </div>
