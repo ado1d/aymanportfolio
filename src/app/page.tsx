@@ -71,18 +71,15 @@ import { TechMarquee } from '@/components/portfolio/tech-marquee'
 import { CursorFollower } from '@/components/portfolio/cursor-follower'
 import { ScrollProgressButton } from '@/components/portfolio/scroll-progress-button'
 import { SoundProvider } from '@/components/portfolio/sound-provider'
-import { MeshBlobs } from '@/components/portfolio/mesh-blobs'
 import { FunFactsWidget } from '@/components/portfolio/fun-facts-widget'
 import { MagneticButton } from '@/components/portfolio/magnetic-button'
 import { ContestStats } from '@/components/portfolio/contest-stats'
-import { HeroSpotlight } from '@/components/portfolio/hero-spotlight'
-import { SkillsRadar } from '@/components/portfolio/skills-radar'
 import { SectionDivider } from '@/components/portfolio/section-divider'
 import { VisitorLocationWidget } from '@/components/portfolio/visitor-location-widget'
+import { SignatureLogo } from '@/components/portfolio/signature-logo'
 import { Printer } from 'lucide-react'
 import { downloadVCard } from '@/lib/vcard'
 import { useTypewriter } from '@/hooks/use-typewriter'
-import { useParallax } from '@/hooks/use-parallax'
 import { useSoundEffects } from '@/hooks/use-sound-effects'
 import type {
   PortfolioData,
@@ -113,24 +110,6 @@ interface LightboxState {
   index: number
 }
 
-function FloatingParticles() {
-  return (
-    <div className="particles" aria-hidden>
-      {[...Array(18)].map((_, i) => (
-        <div
-          key={i}
-          className="particle"
-          style={{
-            left: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 15}s`,
-            animationDuration: `${15 + Math.random() * 10}s`,
-          }}
-        />
-      ))}
-    </div>
-  )
-}
-
 function SectionHeader({
   eyebrow,
   title,
@@ -143,40 +122,39 @@ function SectionHeader({
   icon?: React.ElementType
 }) {
   return (
-    <Reveal className="text-center mb-14">
+    <Reveal className="text-center mb-10 sm:mb-14">
       {eyebrow && (
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-3 uppercase tracking-wider">
           {Icon && <Icon className="w-3.5 h-3.5" />}
           {eyebrow}
         </div>
       )}
-      <h2 className="text-3xl md:text-4xl font-bold mb-3">
+      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">
         <span className="gradient-text">{title}</span>
       </h2>
       <div className="section-line" />
-      {subtitle && <p className="text-muted-foreground mt-4 max-w-xl mx-auto">{subtitle}</p>}
+      {subtitle && <p className="text-muted-foreground mt-4 max-w-xl mx-auto text-sm sm:text-base px-2">{subtitle}</p>}
     </Reveal>
   )
 }
 
 function StatCard({ icon: Icon, value, label, suffix, delay = 0 }: { icon: React.ElementType; value: number; label: string; suffix?: string; delay?: number }) {
   const { ref, visible } = useScrollReveal()
-  // Count up on mount (robust regardless of scroll position); the card reveal still respects scroll.
-  const count = useCountUp(value, true, 1600)
+  const count = useCountUp(value, visible, 1600)
   return (
     <div
       ref={ref}
-      className="glow-card hover-lift p-5 text-center reveal"
+      className="glow-card hover-lift p-3 sm:p-5 text-center reveal"
       style={visible ? { transitionDelay: `${delay}ms`, opacity: 1, transform: 'translateY(0)' } : { transitionDelay: `${delay}ms` }}
     >
-      <div className="inline-flex p-2.5 rounded-xl bg-primary/10 text-primary mb-3">
-        <Icon className="w-5 h-5" />
+      <div className="inline-flex p-2 sm:p-2.5 rounded-xl bg-primary/10 text-primary mb-2 sm:mb-3">
+        <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
       </div>
-      <div className="text-3xl font-bold gradient-text-static">
+      <div className="text-2xl sm:text-3xl font-bold gradient-text-static">
         {count}
         {suffix}
       </div>
-      <div className="text-xs text-muted-foreground mt-1 uppercase tracking-wide">{label}</div>
+      <div className="text-[10px] sm:text-xs text-muted-foreground mt-1 uppercase tracking-wide">{label}</div>
     </div>
   )
 }
@@ -185,7 +163,6 @@ export default function Home() {
   const [data, setData] = useState<PortfolioData | null>(null)
   const [loading, setLoading] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [activeSection, setActiveSection] = useState('')
   const [lightbox, setLightbox] = useState<LightboxState | null>(null)
   const [cmdOpen, setCmdOpen] = useState(false)
@@ -193,6 +170,7 @@ export default function Home() {
   const [shortcutHelpOpen, setShortcutHelpOpen] = useState(false)
   const [detailProject, setDetailProject] = useState<Project | null>(null)
   const projectSearchRef = useRef<HTMLInputElement | null>(null)
+  const mouseLightRef = useRef<HTMLDivElement>(null)
 
   // Typing animation for the hero rotating roles
   const typedRole = useTypewriter(
@@ -205,7 +183,6 @@ export default function Home() {
     ],
     { typeSpeed: 80, deleteSpeed: 40, pauseEnd: 1600 }
   )
-  const parallax = useParallax(600)
   const sound = useSoundEffects()
 
   const [isDark, setIsDark] = useState(false)
@@ -312,7 +289,12 @@ export default function Home() {
   }
 
   useEffect(() => {
-    const onMove = (e: MouseEvent) => setMousePosition({ x: e.clientX, y: e.clientY })
+    // Mouse light follows cursor via direct DOM manipulation (no re-renders).
+    const onMove = (e: MouseEvent) => {
+      if (mouseLightRef.current) {
+        mouseLightRef.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`
+      }
+    }
     const onScroll = () => {
       const sections = NAV_ITEMS.map((n) => document.getElementById(n.id)).filter(Boolean) as HTMLElement[]
       const scrollY = window.scrollY + 120
@@ -323,8 +305,8 @@ export default function Home() {
         }
       }
     }
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('scroll', onScroll)
+    window.addEventListener('mousemove', onMove, { passive: true })
+    window.addEventListener('scroll', onScroll, { passive: true })
     return () => {
       window.removeEventListener('mousemove', onMove)
       window.removeEventListener('scroll', onScroll)
@@ -393,24 +375,17 @@ export default function Home() {
       <JsonLd profile={profile} projects={projects} socialLinks={socialLinks} />
       <ReadingProgress />
 
-      {/* Background Effects */}
+      {/* Background Effects (kept lightweight for smoothness) */}
       <div className="fixed inset-0 grid-bg pointer-events-none" />
-      <MeshBlobs />
-      <HeroSpotlight />
       <div className="aurora" />
-      <FloatingParticles />
-      <div className="mouse-light" style={{ left: mousePosition.x, top: mousePosition.y }} />
-      <div className="mouse-light-secondary" style={{ left: mousePosition.x, top: mousePosition.y }} />
+      <div ref={mouseLightRef} className="mouse-light" />
 
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass border-b">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
-            <a href="#home" className="text-xl font-bold gradient-text flex items-center gap-2">
-              <span className="inline-flex w-8 h-8 items-center justify-center rounded-lg bg-primary/10 text-primary text-sm">
-                {firstName[0]}
-              </span>
-              {firstName}
+            <a href="#home" className="flex items-center gap-2 group">
+              <SignatureLogo className="h-7 sm:h-8 w-auto transition-transform group-hover:scale-105" />
             </a>
 
             <div className="hidden lg:flex items-center gap-1">
@@ -418,10 +393,10 @@ export default function Home() {
                 <a
                   key={item.id}
                   href={`#${item.id}`}
-                  className={`nav-underline px-3 py-1.5 rounded-md text-sm transition-colors ${
+                  className={`nav-underline px-3 py-1.5 rounded-md text-sm font-medium ${
                     activeSection === item.id
-                      ? 'text-primary bg-primary/10 font-medium'
-                      : 'text-muted-foreground hover:text-primary'
+                      ? 'text-primary bg-primary/10'
+                      : 'text-foreground/70'
                   }`}
                 >
                   {item.label}
@@ -536,24 +511,23 @@ export default function Home() {
 
       <main className="flex-1 relative z-10 pt-16">
         {/* ============ HERO ============ */}
-        <section id="home" className="min-h-[90vh] flex items-center justify-center px-4 sm:px-6 pt-8">
+        <section id="home" className="min-h-[88vh] flex items-center justify-center px-4 sm:px-6 pt-20 pb-12">
           <div className="text-center max-w-4xl">
-            <div className="flex justify-center mb-8">
-              <div className="relative parallax-slow" style={{ transform: `translateY(${parallax * 0.15}px)` }}>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-primary via-pink-500 to-cyan-500 blur-2xl opacity-40 animate-pulse parallax-fast" style={{ transform: `translateY(${parallax * 0.3}px) scale(${1 + parallax * 0.0005})` }} />
+            <div className="flex justify-center mb-6 sm:mb-8">
+              <div className="relative">
                 {profile?.avatarUrl ? (
                   <img
                     src={profile.avatarUrl}
                     alt={displayName}
-                    className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover ring-4 ring-background shadow-2xl"
+                    className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full object-cover ring-4 ring-background shadow-2xl"
                   />
                 ) : (
-                  <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-tr from-primary via-pink-500 to-cyan-500 flex items-center justify-center text-5xl font-bold text-white ring-4 ring-background shadow-2xl">
+                  <div className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full bg-gradient-to-tr from-primary via-pink-500 to-cyan-500 flex items-center justify-center text-4xl sm:text-5xl font-bold text-white ring-4 ring-background shadow-2xl">
                     {firstName[0]}
                   </div>
                 )}
                 {profile?.available && (
-                  <span className="absolute bottom-2 right-2 w-5 h-5 rounded-full bg-green-500 border-4 border-background" />
+                  <span className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-green-500 border-4 border-background" />
                 )}
               </div>
             </div>
@@ -565,31 +539,31 @@ export default function Home() {
               </span>
             )}
 
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-4">
+            <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-3 sm:mb-4">
               Hi, I&apos;m <span className="gradient-text">{firstName}</span>
             </h1>
 
-            <div className="flex items-center justify-center gap-2 mb-3 h-9">
-              <span className="text-lg sm:text-xl md:text-2xl text-muted-foreground">I&apos;m a</span>
-              <span className="text-lg sm:text-xl md:text-2xl font-semibold gradient-text-static inline-flex items-center">
+            <div className="flex items-center justify-center gap-2 mb-3 h-7 sm:h-9 flex-wrap">
+              <span className="text-base sm:text-xl md:text-2xl text-muted-foreground">I&apos;m a</span>
+              <span className="text-base sm:text-xl md:text-2xl font-semibold gradient-text-static inline-flex items-center">
                 {typedRole}
-                <span className="inline-block w-0.5 h-6 sm:h-7 ml-1 bg-primary animate-blink" aria-hidden />
+                <span className="inline-block w-0.5 h-5 sm:h-7 ml-1 bg-primary animate-blink" aria-hidden />
               </span>
             </div>
             {profile?.tagline && (
-              <p className="text-base text-muted-foreground/80 italic mb-8 max-w-xl mx-auto">
+              <p className="text-sm sm:text-base text-muted-foreground/80 italic mb-6 sm:mb-8 max-w-xl mx-auto px-2">
                 &ldquo;{profile.tagline}&rdquo;
               </p>
             )}
 
-            <div className="flex items-center justify-center gap-3 mb-8">
+            <div className="flex items-center justify-center gap-2 sm:gap-3 mb-6 sm:mb-8 flex-wrap">
               {socialLinks.map((link) => (
                 <a
                   key={link.id}
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-3 rounded-full bg-card border hover:border-primary hover:text-primary hover:-translate-y-1 transition-all duration-300"
+                  className="p-2 sm:p-3 rounded-full bg-card border hover:border-primary hover:text-primary hover:-translate-y-1 transition-all duration-300"
                   title={link.platform}
                 >
                   {getSocialIcon(link.platform)}
@@ -597,41 +571,46 @@ export default function Home() {
               ))}
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <MagneticButton size="lg" className="hover-lift" asChild>
+            {/* Primary CTAs */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 px-4">
+              <MagneticButton size="lg" className="hover-lift w-full sm:w-auto" asChild>
                 <a href="#contact">
                   <Send className="w-4 h-4 mr-2" /> Let&apos;s Connect
                 </a>
               </MagneticButton>
-              <MagneticButton variant="outline" size="lg" className="hover-lift" asChild>
+              <MagneticButton variant="outline" size="lg" className="hover-lift w-full sm:w-auto" asChild>
                 <a href="#projects">
                   <Eye className="w-4 h-4 mr-2" /> View Projects
                 </a>
               </MagneticButton>
-              <MagneticButton
+            </div>
+
+            {/* Secondary CTAs */}
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
+              <Button
                 variant="ghost"
-                size="lg"
+                size="sm"
                 className="hover-lift"
                 onClick={() => downloadVCard(profile, socialLinks)}
                 title="Download contact as vCard"
               >
-                <UserPlus className="w-4 h-4 mr-2" /> Save Contact
-              </MagneticButton>
+                <UserPlus className="w-3.5 h-3.5 mr-1.5" /> Save Contact
+              </Button>
               {profile?.resumeUrl && (
-                <Button variant="ghost" size="lg" className="hover-lift" asChild>
+                <Button variant="ghost" size="sm" className="hover-lift" asChild>
                   <a href={profile.resumeUrl} target="_blank" rel="noopener noreferrer">
-                    <FileText className="w-4 h-4 mr-2" /> Resume
+                    <FileText className="w-3.5 h-3.5 mr-1.5" /> Resume
                   </a>
                 </Button>
               )}
               <Button
                 variant="ghost"
-                size="lg"
+                size="sm"
                 className="hover-lift"
                 onClick={() => window.print()}
                 title="Print or save as PDF"
               >
-                <Printer className="w-4 h-4 mr-2" /> Print
+                <Printer className="w-3.5 h-3.5 mr-1.5" /> Print
               </Button>
             </div>
 
@@ -640,7 +619,7 @@ export default function Home() {
               <FavoritesCount />
             </div>
 
-            <div className="mt-12 w-full">
+            <div className="mt-8 sm:mt-12 w-full">
               <TechMarquee />
             </div>
 
@@ -651,8 +630,8 @@ export default function Home() {
         </section>
 
         {/* ============ STATS STRIP ============ */}
-        <section className="py-12 px-4 sm:px-6">
-          <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
+        <section className="py-8 sm:py-12 px-4 sm:px-6">
+          <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             <StatCard icon={Trophy} value={hackathons.length} suffix="+" label="Hackathons" delay={0} />
             <StatCard icon={Target} value={contests.length} suffix="+" label="Contests" delay={100} />
             <StatCard icon={Rocket} value={projects.length} suffix="+" label="Projects" delay={200} />
@@ -663,7 +642,7 @@ export default function Home() {
         <SectionDivider />
 
         {/* ============ ABOUT ============ */}
-        <section id="about" className="py-24 px-4 sm:px-6">
+        <section id="about" className="py-16 sm:py-24 px-4 sm:px-6">
           <div className="max-w-4xl mx-auto space-y-8">
             <SectionHeader eyebrow="Who I am" title="About Me" icon={Sparkles} />
             <AboutBlock profile={profile} editMode={edit.editMode} onSaved={refresh} />
@@ -680,7 +659,7 @@ export default function Home() {
         </section>
 
         {/* ============ SKILLS ============ */}
-        <section id="skills" className="py-24 px-4 sm:px-6 bg-muted/20">
+        <section id="skills" className="py-16 sm:py-24 px-4 sm:px-6 bg-muted/20">
           <div className="max-w-5xl mx-auto">
             <SectionHeader eyebrow="Tech Stack" title="Skills & Tools" icon={Code} subtitle="Technologies I use to bring ideas to life" />
             {edit.editMode && (
@@ -688,19 +667,12 @@ export default function Home() {
                 <AddButton entity="skill" label="Add Skill" fields={FIELD_DEFS.skill} onSaved={refresh} />
               </div>
             )}
-            <div className="grid lg:grid-cols-3 gap-6 mb-8">
-              <div className="lg:col-span-2">
-                <SkillsWithTabs skills={skills} editMode={edit.editMode} onSaved={refresh} />
-              </div>
-              <div className="lg:col-span-1">
-                <SkillsRadar skills={skills} />
-              </div>
-            </div>
+            <SkillsWithTabs skills={skills} editMode={edit.editMode} onSaved={refresh} />
           </div>
         </section>
 
         {/* ============ EDUCATION ============ */}
-        <section id="education" className="py-24 px-4 sm:px-6">
+        <section id="education" className="py-16 sm:py-24 px-4 sm:px-6">
           <div className="max-w-4xl mx-auto">
             <SectionHeader eyebrow="Academic Journey" title="Education" icon={GraduationCap} subtitle="Where I built my foundations" />
             {edit.editMode && (
@@ -713,7 +685,7 @@ export default function Home() {
         </section>
 
         {/* ============ HACKATHONS ============ */}
-        <section id="hackathons" className="py-24 px-4 sm:px-6 bg-muted/20">
+        <section id="hackathons" className="py-16 sm:py-24 px-4 sm:px-6 bg-muted/20">
           <div className="max-w-6xl mx-auto">
             <SectionHeader eyebrow="Building Under Pressure" title="Hackathons" icon={Trophy} subtitle="Where ideas meet deadlines — and I thrive" />
             {edit.editMode && (
@@ -726,7 +698,7 @@ export default function Home() {
         </section>
 
         {/* ============ CONTESTS ============ */}
-        <section id="contests" className="py-24 px-4 sm:px-6">
+        <section id="contests" className="py-16 sm:py-24 px-4 sm:px-6">
           <div className="max-w-5xl mx-auto">
             <SectionHeader eyebrow="Competitive Programming" title="Contests & Rankings" icon={Target} subtitle="Algorithms are my sport" />
             {edit.editMode && (
@@ -743,7 +715,7 @@ export default function Home() {
         </section>
 
         {/* ============ PROJECTS ============ */}
-        <section id="projects" className="py-24 px-4 sm:px-6 bg-muted/20">
+        <section id="projects" className="py-16 sm:py-24 px-4 sm:px-6 bg-muted/20">
           <div className="max-w-6xl mx-auto">
             <SectionHeader eyebrow="Things I've Built" title="Projects" icon={Rocket} subtitle="From competitive programming tools to full-stack apps" />
             {edit.editMode && (
@@ -762,7 +734,7 @@ export default function Home() {
         </section>
 
         {/* ============ CERTIFICATES ============ */}
-        <section id="certificates" className="py-24 px-4 sm:px-6">
+        <section id="certificates" className="py-16 sm:py-24 px-4 sm:px-6">
           <div className="max-w-6xl mx-auto">
             <SectionHeader eyebrow="Lifelong Learning" title="Certificates" icon={Award} subtitle="Verified credentials & specializations" />
             {edit.editMode && (
@@ -775,7 +747,7 @@ export default function Home() {
         </section>
 
         {/* ============ ACHIEVEMENTS ============ */}
-        <section id="achievements" className="py-24 px-4 sm:px-6 bg-muted/20">
+        <section id="achievements" className="py-16 sm:py-24 px-4 sm:px-6 bg-muted/20">
           <div className="max-w-5xl mx-auto">
             <SectionHeader eyebrow="Highlights" title="Achievements" icon={Medal} subtitle="Milestones along the way" />
             {edit.editMode && (
@@ -790,7 +762,7 @@ export default function Home() {
         <SectionDivider flip />
 
         {/* ============ TESTIMONIALS ============ */}
-        <section id="testimonials" className="py-24 px-4 sm:px-6">
+        <section id="testimonials" className="py-16 sm:py-24 px-4 sm:px-6">
           <div className="max-w-4xl mx-auto">
             <SectionHeader eyebrow="Kind Words" title="Testimonials" icon={Quote} subtitle="What mentors, teammates, and professors say" />
             <Testimonials testimonials={testimonials} editMode={edit.editMode} onSaved={refresh} />
@@ -798,7 +770,7 @@ export default function Home() {
         </section>
 
         {/* ============ FAQ ============ */}
-        <section id="faq" className="py-24 px-4 sm:px-6 bg-muted/20">
+        <section id="faq" className="py-16 sm:py-24 px-4 sm:px-6 bg-muted/20">
           <div className="max-w-4xl mx-auto">
             <SectionHeader eyebrow="Questions & Answers" title="FAQ" icon={HelpCircle} subtitle="Things people often ask me" />
             <FaqSection faqs={faqs} editMode={edit.editMode} onSaved={refresh} />
@@ -806,7 +778,7 @@ export default function Home() {
         </section>
 
         {/* ============ CONTACT ============ */}
-        <section id="contact" className="py-24 px-4 sm:px-6">
+        <section id="contact" className="py-16 sm:py-24 px-4 sm:px-6">
           <div className="max-w-3xl mx-auto">
             <SectionHeader eyebrow="Get In Touch" title="Let's Connect" icon={Send} subtitle="Have an opportunity, idea, or just want to say hi? Drop me a message." />
             <Card className="glow-card">

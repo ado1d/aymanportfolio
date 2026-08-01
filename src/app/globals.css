@@ -45,23 +45,23 @@
 
 :root {
   --radius: 0.75rem;
-  --background: #ffffff;
-  --foreground: #0f0a1a;
+  --background: #fafaff;
+  --foreground: #1a1230;
   --card: #ffffff;
-  --card-foreground: #0f0a1a;
+  --card-foreground: #1a1230;
   --popover: #ffffff;
-  --popover-foreground: #0f0a1a;
+  --popover-foreground: #1a1230;
   --primary: #7c3aed;
   --primary-foreground: #ffffff;
-  --secondary: #f5f3ff;
-  --secondary-foreground: #0f0a1a;
-  --muted: #f5f3ff;
-  --muted-foreground: #6b7280;
+  --secondary: #f3effe;
+  --secondary-foreground: #1a1230;
+  --muted: #f0ecfa;
+  --muted-foreground: #5b5470;
   --accent: #fdf2f8;
-  --accent-foreground: #0f0a1a;
+  --accent-foreground: #1a1230;
   --destructive: #ef4444;
-  --border: #ede9fe;
-  --input: #ede9fe;
+  --border: #e2dbf3;
+  --input: #e2dbf3;
   --ring: #7c3aed;
   --chart-1: #7c3aed;
   --chart-2: #10b981;
@@ -69,12 +69,12 @@
   --chart-4: #ec4899;
   --chart-5: #06b6d4;
   --sidebar: #fafaff;
-  --sidebar-foreground: #0f0a1a;
+  --sidebar-foreground: #1a1230;
   --sidebar-primary: #7c3aed;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f5f3ff;
-  --sidebar-accent-foreground: #0f0a1a;
-  --sidebar-border: #ede9fe;
+  --sidebar-accent: #f3effe;
+  --sidebar-accent-foreground: #1a1230;
+  --sidebar-border: #e2dbf3;
   --sidebar-ring: #7c3aed;
 }
 
@@ -200,41 +200,29 @@
   100% { transform: translateY(-10vh) scale(1); opacity: 0; }
 }
 
-/* Mouse-following light */
+/* Mouse-following light (GPU-accelerated via transform) */
 .mouse-light {
   position: fixed;
-  width: 500px;
-  height: 500px;
+  top: 0;
+  left: 0;
+  width: 400px;
+  height: 400px;
   border-radius: 50%;
   pointer-events: none;
-  background: radial-gradient(circle, rgba(124, 58, 237, 0.12) 0%, rgba(124, 58, 237, 0.03) 40%, transparent 70%);
-  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, rgba(124, 58, 237, 0.02) 40%, transparent 70%);
   z-index: 1;
-  transition: left 0.15s ease-out, top 0.15s ease-out;
+  will-change: transform;
 }
-.mouse-light-secondary {
-  position: fixed;
-  width: 250px;
-  height: 250px;
-  border-radius: 50%;
-  pointer-events: none;
-  background: radial-gradient(circle, rgba(236, 72, 153, 0.1) 0%, rgba(236, 72, 153, 0.02) 40%, transparent 70%);
-  transform: translate(-50%, -50%);
-  z-index: 1;
-  transition: left 0.25s ease-out, top 0.25s ease-out;
-  filter: blur(10px);
-}
-.dark .mouse-light { background: radial-gradient(circle, rgba(167, 139, 250, 0.16) 0%, rgba(167, 139, 250, 0.05) 40%, transparent 70%); }
-.dark .mouse-light-secondary { background: radial-gradient(circle, rgba(244, 114, 182, 0.14) 0%, rgba(244, 114, 182, 0.04) 40%, transparent 70%); }
+.dark .mouse-light { background: radial-gradient(circle, rgba(167, 139, 250, 0.12) 0%, rgba(167, 139, 250, 0.04) 40%, transparent 70%); }
 
 /* ============ Glass Effect ============ */
 .glass {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
 }
 .dark .glass {
-  background: rgba(15, 10, 26, 0.7);
+  background: rgba(10, 7, 18, 0.92);
 }
 
 /* ============ Gradient Text ============ */
@@ -603,21 +591,30 @@
 /* ============ Animated underline for nav links ============ */
 .nav-underline {
   position: relative;
+  transition: color 0.2s ease, background-color 0.2s ease;
 }
 .nav-underline::after {
   content: '';
   position: absolute;
   left: 50%;
-  bottom: -4px;
+  bottom: 2px;
   width: 0;
   height: 2px;
   background: linear-gradient(90deg, #7c3aed, #ec4899);
   border-radius: 2px;
   transform: translateX(-50%);
-  transition: width 0.3s ease;
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav-underline:hover {
+  color: #7c3aed;
+  background-color: rgba(124, 58, 237, 0.08);
 }
 .nav-underline:hover::after {
-  width: 100%;
+  width: 60%;
+}
+.dark .nav-underline:hover {
+  color: #a78bfa;
+  background-color: rgba(167, 139, 250, 0.1);
 }
 
 /* ============ Blinking cursor for typewriter ============ */
