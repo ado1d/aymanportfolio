@@ -195,3 +195,15 @@ model Faq {
   updatedAt DateTime @updatedAt
 }
 
+// Lifestyle photo gallery — life activities, events, memories
+model LifestylePhoto {
+  id        String   @id @default(cuid())
+  imageUrl  String
+  caption   String
+  category  String   @default("Life")  // Life, Travel, Events, Friends, Achievement
+  claps     Int      @default(0)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+

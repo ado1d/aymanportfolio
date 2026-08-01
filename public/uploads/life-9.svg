@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="g8" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    <pattern id="p8" width="30" height="30" patternUnits="userSpaceOnUse">
+      <circle cx="15" cy="15" r="1" fill="rgba(255,255,255,0.1)"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="600" fill="url(#g8)"/>
+  <rect width="800" height="600" fill="url(#p8)"/>
+  <text x="400" y="270" font-size="80" text-anchor="middle" dominant-baseline="central">🛰️</text>
+  <text x="400" y="360" font-family="system-ui,sans-serif" font-size="28" font-weight="700" fill="white" text-anchor="middle">NASA Space Apps</text>
+  <text x="400" y="395" font-family="system-ui,sans-serif" font-size="16" fill="rgba(255,255,255,0.7)" text-anchor="middle">48h sprint</text>
+</svg>
