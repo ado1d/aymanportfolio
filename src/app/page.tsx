@@ -668,12 +668,10 @@ export default function Home() {
             <AboutBlock profile={profile} editMode={edit.editMode} onSaved={refresh} />
             <div className="grid md:grid-cols-2 gap-6">
               <CurrentlyWidget currently={currently} editMode={edit.editMode} onSaved={refresh} />
-              <ActivityHeatmap />
-            </div>
-            <div className="grid md:grid-cols-2 gap-6">
-              <FunFactsWidget />
               <VisitorLocationWidget />
             </div>
+            <ActivityHeatmap />
+            <FunFactsWidget />
             {edit.editMode && <VisitorBadge detailed />}
           </div>
         </section>
