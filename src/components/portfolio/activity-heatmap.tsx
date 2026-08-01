@@ -61,9 +61,24 @@ export function ActivityHeatmap() {
     for (const d of days) { if (d.level > 0) { streak++; if (streak > best) best = streak } else streak = 0 }
     const chunks: HeatmapDay[][] = []
     for (let i = 0; i < days.length; i += 7) chunks.push(days.slice(i, i + 7))
+
+    // Build month labels — only show a label if there's enough space (every ~4 weeks)
+    // to avoid overlap. This matches GitHub's approach.
     const labels: { week: number; label: string }[] = []
     let lastMonth = -1
-    days.forEach((d, i) => { if (i % 7 === 0) { const m = new Date(d.date).getMonth(); if (m !== lastMonth) { labels.push({ week: Math.floor(i / 7), label: MONTHS[m] }); lastMonth = m } } })
+    let lastLabelWeek = -10 // ensure minimum gap between labels
+    days.forEach((d, i) => {
+      if (i % 7 === 0) {
+        const week = Math.floor(i / 7)
+        const m = new Date(d.date).getMonth()
+        // Show label when month changes AND at least 3 weeks since last label
+        if (m !== lastMonth && week - lastLabelWeek >= 3) {
+          labels.push({ week, label: MONTHS[m] })
+          lastMonth = m
+          lastLabelWeek = week
+        }
+      }
+    })
     return { weekChunks: chunks, monthLabels: labels, maxStreak: best }
   }, [data])
 
@@ -86,8 +101,21 @@ export function ActivityHeatmap() {
           </div>
           <div className="overflow-x-auto no-scrollbar">
             <div className="inline-block min-w-full">
-              <div className="flex pl-7 mb-1" style={{ gap: '3px' }}>
-                {weekChunks.map((_, wi) => { const label = monthLabels.find(m => m.week === wi); return <div key={wi} className="text-[9px] text-muted-foreground w-[11px] flex-shrink-0">{label ? label.label : ''}</div> })}
+              {/* Month labels — positioned to align with the grid below */}
+              <div className="relative h-4 mb-1 ml-7">
+                {monthLabels.map((m, i) => {
+                  // Calculate the left position: each week is 11px cell + 3px gap = 14px
+                  const left = m.week * 14
+                  return (
+                    <span
+                      key={i}
+                      className="absolute text-[10px] text-muted-foreground font-medium whitespace-nowrap"
+                      style={{ left: `${left}px`, top: 0 }}
+                    >
+                      {m.label}
+                    </span>
+                  )
+                })}
               </div>
               <div className="flex">
                 <div className="flex flex-col mr-1 justify-between py-0.5">
