@@ -109,3 +109,49 @@ The `next.config.ts` has `images.remotePatterns` configured for:
 - Enter the password (default: `ayman69`)
 - You can now add/edit/delete all content (projects, skills, contests, etc.)
 - Uploaded images are stored in `/public/uploads/` (note: these are ephemeral on Vercel — for persistent uploads, use Vercel Blob or S3)
+
+## Step 4: Set Up Cloudinary (Free Image Storage)
+
+Image uploads need persistent storage on Vercel (the local filesystem is ephemeral). **Cloudinary** is free (25 GB storage + 25 GB bandwidth/month, no credit card needed).
+
+### Create a Cloudinary Account
+
+1. Go to [cloudinary.com](https://cloudinary.com) and sign up (free, no credit card)
+2. Go to your **Dashboard** (top-right → Console)
+3. Note down these 3 values:
+   - **Cloud Name** — displayed on the dashboard
+   - **API Key** — under "Account Details"
+   - **API Secret** — under "Account Details" (click to reveal)
+
+### Add Environment Variables to Vercel
+
+In Vercel Dashboard → Settings → Environment Variables, add:
+
+| Name | Value |
+|------|-------|
+| `CLOUDINARY_CLOUD_NAME` | your-cloud-name |
+| `CLOUDINARY_API_KEY` | your-api-key |
+| `CLOUDINARY_API_SECRET` | your-api-secret |
+
+Also add them to your local `.env` file for testing.
+
+### That's it!
+
+Once these env vars are set:
+- All image uploads (project covers, certificate images, hackathon images, avatars) are stored in Cloudinary
+- Images are automatically optimized (quality + format)
+- Uploads persist across Vercel deployments
+- The local filesystem fallback only activates if Cloudinary is not configured
+
+### How it works
+
+- When you upload an image in edit mode, it's sent to `/api/upload`
+- The API uploads it to Cloudinary's `portfolio/` folder
+- Cloudinary returns a permanent URL (e.g. `https://res.cloudinary.com/your-cloud/image/upload/v123/portfolio/abc.png`)
+- That URL is stored in the database and displayed on the portfolio
+
+### Free tier limits
+
+- **25 GB** storage (thousands of images)
+- **25 GB** monthly bandwidth
+- No credit card required
