@@ -6,6 +6,50 @@ import { EditActions } from './edit-controls'
 import { FIELD_DEFS } from './field-defs'
 import type { Skills, SkillItem } from '@/lib/types'
 
+// Map skill names to devicon icon names (colored SVGs via jsdelivr CDN)
+// CDN: https://cdn.jsdelivr.net/gh/devicons/devicon/icons/{name}/{name}-original.svg
+const TECH_LOGOS: Record<string, string> = {
+  // Languages
+  'C++': 'cplusplus',
+  'Python': 'python',
+  'JavaScript': 'javascript',
+  'TypeScript': 'typescript',
+  'Java': 'java',
+  'SQL': 'mysql',
+  // Web
+  'React / Next.js': 'nextjs',
+  'Next.js': 'nextjs',
+  'React': 'react',
+  'Node.js / Express': 'nodejs',
+  'Node.js': 'nodejs',
+  'Express': 'nodejs',
+  'Tailwind CSS': 'tailwindcss',
+  'Prisma / PostgreSQL': 'postgresql',
+  'Prisma': 'prisma',
+  'PostgreSQL': 'postgresql',
+  'Socket.io': 'socketio',
+  'Vue.js': 'vuejs',
+  // Tools
+  'Git & GitHub': 'git',
+  'Git': 'git',
+  'GitHub': 'github',
+  'Docker': 'docker',
+  'Linux / Bash': 'linux',
+  'Linux': 'linux',
+  'Bash': 'bash',
+  'Figma': 'figma',
+  // AI/ML
+  'TensorFlow': 'tensorflow',
+  'scikit-learn': 'scikitlearn',
+  'PyTorch': 'pytorch',
+}
+
+function getLogoUrl(name: string): string | null {
+  const slug = TECH_LOGOS[name]
+  if (!slug) return null
+  return `https://cdn.jsdelivr.net/gh/devicons/devicon/icons/${slug}/${slug}-original.svg`
+}
+
 interface SkillsWithTabsProps {
   skills: Skills
   editMode: boolean
@@ -17,7 +61,6 @@ export function SkillsWithTabs({ skills, editMode, onSaved }: SkillsWithTabsProp
   const [active, setActive] = useState('All')
 
   const allCategories = useMemo(() => ['All', ...categories], [categories])
-
   const visibleCategories = active === 'All' ? categories : [active]
 
   if (!categories.length) {
@@ -48,18 +91,18 @@ export function SkillsWithTabs({ skills, editMode, onSaved }: SkillsWithTabsProp
         ))}
       </Reveal>
 
-      {/* Skill bars grouped by visible category */}
-      <div className="space-y-8">
+      {/* Tech logos grid */}
+      <div className="space-y-6">
         {visibleCategories.map((cat, ci) => (
           <Reveal key={cat} delay={ci * 60}>
             <div>
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                 {cat}
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="flex flex-wrap gap-3">
                 {skills[cat]?.map((s, si) => (
-                  <SkillBar key={si} skill={s} editMode={editMode} onSaved={onSaved} />
+                  <TechLogo key={si} skill={s} editMode={editMode} onSaved={onSaved} />
                 ))}
               </div>
             </div>
@@ -70,36 +113,34 @@ export function SkillsWithTabs({ skills, editMode, onSaved }: SkillsWithTabsProp
   )
 }
 
-function SkillBar({ skill, editMode, onSaved }: { skill: SkillItem; editMode: boolean; onSaved: () => void }) {
-  // Tooltip text based on proficiency level
-  const levelLabel =
-    skill.level >= 90 ? 'Expert' : skill.level >= 75 ? 'Advanced' : skill.level >= 60 ? 'Intermediate' : 'Familiar'
+function TechLogo({ skill, editMode, onSaved }: { skill: SkillItem; editMode: boolean; onSaved: () => void }) {
+  const [imgError, setImgError] = useState(false)
+  const logoUrl = getLogoUrl(skill.name)
 
   return (
     <div className="relative group">
       {editMode && (
-        <div className="absolute top-2 right-2 z-20">
+        <div className="absolute top-1 right-1 z-20">
           <EditActions entity="skill" id={skill.id} fields={FIELD_DEFS.skill} data={skill as unknown as Record<string, unknown>} onSaved={onSaved} compact />
         </div>
       )}
-      <div
-        className="skill-tooltip-wrap relative p-4 rounded-xl border bg-card hover:border-primary/40 transition-colors cursor-default"
-        tabIndex={0}
-      >
-        <div className="flex items-center justify-between mb-2">
-          <span className="font-medium text-sm">{skill.name}</span>
-          <span className="text-xs text-muted-foreground">{skill.level}%</span>
+      <div className="flex flex-col items-center gap-2 p-4 rounded-xl border bg-card hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 w-[100px]">
+        <div className="w-10 h-10 flex items-center justify-center">
+          {logoUrl && !imgError ? (
+            <img
+              src={logoUrl}
+              alt={skill.name}
+              className="w-8 h-8 object-contain"
+              loading="lazy"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-pink-500 flex items-center justify-center text-white font-bold text-sm">
+              {skill.name.charAt(0)}
+            </div>
+          )}
         </div>
-        <div className="h-2 rounded-full bg-muted overflow-hidden">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-primary to-pink-500 transition-all duration-1000 ease-out"
-            style={{ width: `${skill.level}%` }}
-          />
-        </div>
-        {/* Hover/focus tooltip */}
-        <div className="skill-tooltip">
-          {levelLabel} · {skill.level}%
-        </div>
+        <span className="text-xs font-medium text-center leading-tight">{skill.name}</span>
       </div>
     </div>
   )

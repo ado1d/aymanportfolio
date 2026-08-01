@@ -10,10 +10,9 @@ export function useScrollReveal<T extends HTMLElement = HTMLDivElement>() {
     if (!el) return
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true)
-          observer.unobserve(entry.target)
-        }
+        // Toggle visibility based on intersection — re-triggers every time
+        // the element enters/leaves the viewport (not just the first time).
+        setVisible(entry.isIntersecting)
       },
       { threshold: 0.1, rootMargin: '0px 0px -20px 0px' }
     )

@@ -76,7 +76,6 @@ import { FunFactsWidget } from '@/components/portfolio/fun-facts-widget'
 import { MagneticButton } from '@/components/portfolio/magnetic-button'
 import { ContestStats } from '@/components/portfolio/contest-stats'
 import { HeroSpotlight } from '@/components/portfolio/hero-spotlight'
-import { SkillsRadar } from '@/components/portfolio/skills-radar'
 import { SectionDivider } from '@/components/portfolio/section-divider'
 import { VisitorLocationWidget } from '@/components/portfolio/visitor-location-widget'
 import { Printer } from 'lucide-react'
@@ -161,8 +160,8 @@ function SectionHeader({
 
 function StatCard({ icon: Icon, value, label, suffix, delay = 0 }: { icon: React.ElementType; value: number; label: string; suffix?: string; delay?: number }) {
   const { ref, visible } = useScrollReveal()
-  // Count up on mount (robust regardless of scroll position); the card reveal still respects scroll.
-  const count = useCountUp(value, true, 1600)
+  // Count up re-triggers each time the card enters the viewport.
+  const count = useCountUp(value, visible, 1600)
   return (
     <div
       ref={ref}
@@ -688,14 +687,7 @@ export default function Home() {
                 <AddButton entity="skill" label="Add Skill" fields={FIELD_DEFS.skill} onSaved={refresh} />
               </div>
             )}
-            <div className="grid lg:grid-cols-3 gap-6 mb-8">
-              <div className="lg:col-span-2">
-                <SkillsWithTabs skills={skills} editMode={edit.editMode} onSaved={refresh} />
-              </div>
-              <div className="lg:col-span-1">
-                <SkillsRadar skills={skills} />
-              </div>
-            </div>
+            <SkillsWithTabs skills={skills} editMode={edit.editMode} onSaved={refresh} />
           </div>
         </section>
 

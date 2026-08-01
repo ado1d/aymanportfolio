@@ -15,14 +15,14 @@ async function main() {
   // Profile
   await db.profile.create({
     data: {
-      name: 'Ayman',
-      title: 'Final-Year CS Student · Competitive Programmer · Full-Stack Builder',
+      name: 'Ayman Chowdhury',
+      title: 'CS Undergraduate · Competitive Programmer · Full-Stack Builder',
       tagline: 'Turning algorithms into products, one problem at a time.',
       about:
-        "I'm a final-year Computer Science undergraduate with a deep love for problem solving and building things that ship. I spend my time grinding competitive programming contests on Codeforces, hacking through 24-hour hackathons, and shipping side projects with modern web stacks. I'm currently looking for opportunities where I can blend algorithmic rigor with real-world product engineering.",
+        "I'm a Computer Science undergraduate at Shahjalal University of Science and Technology (SUST) with a deep love for problem solving and building things that ship. I spend my time grinding competitive programming contests on Codeforces, hacking through hackathons, and shipping side projects with modern web stacks. I'm currently looking for opportunities where I can blend algorithmic rigor with real-world product engineering.",
       email: 'ayman.dev@gmail.com',
       phone: '+880 1XXX-XXXXXX',
-      location: 'Dhaka, Bangladesh',
+      location: 'Noakhali, Bangladesh',
       avatarUrl: '/uploads/avatar.svg',
       resumeUrl: '#',
       available: true,
@@ -60,10 +60,10 @@ async function main() {
   // Education
   await db.education.create({
     data: {
-      institution: 'Bangladesh University of Engineering & Technology',
+      institution: 'Shahjalal University of Science & Technology (SUST)',
       degree: 'B.Sc. in Computer Science & Engineering',
       field: 'Computer Science',
-      period: '2021 — 2025 (Expected)',
+      period: '2022 — 2026 (Expected)',
       description:
         'Studying core CS — algorithms, operating systems, databases, networking, and software engineering. Active member of the BUET CSE Competitive Programming Club.',
       gpa: '3.78 / 4.00',
@@ -371,7 +371,7 @@ async function main() {
   const socials = [
     { platform: 'GitHub', url: 'https://github.com/ado1d', icon: 'github', order: 0 },
     { platform: 'LinkedIn', url: '#', icon: 'linkedin', order: 1 },
-    { platform: 'Codeforces', url: '#', icon: 'codeforces', order: 2 },
+    { platform: 'Codeforces', url: 'https://codeforces.com/profile/adold_op', icon: 'codeforces', order: 2 },
     { platform: 'Facebook', url: '#', icon: 'facebook', order: 3 },
     { platform: 'Email', url: 'mailto:ayman.dev@gmail.com', icon: 'mail', order: 4 },
   ]
