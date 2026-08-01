@@ -811,3 +811,9 @@
 .live-pulse {
   animation: live-pulse 2s ease-in-out infinite;
 }
+
+/* ============ Clap burst animation ============ */
+@keyframes clap-burst {
+  0% { opacity: 1; transform: translate(-50%, 0) scale(0.8); }
+  100% { opacity: 0; transform: translate(-50%, -30px) scale(1.5); }
+}

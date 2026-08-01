@@ -15,6 +15,7 @@ const ENTITY_CONFIG: Record<string, { model: keyof typeof db }> = {
   testimonial: { model: 'testimonial' },
   currentlyItem: { model: 'currentlyItem' },
   faq: { model: 'faq' },
+  lifestylePhoto: { model: 'lifestylePhoto' },
 }
 
 export async function GET(

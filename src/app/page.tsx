@@ -105,6 +105,11 @@ const NAV_ITEMS = [
   { label: 'Contact', id: 'contact' },
 ]
 
+const NAV_LINKS = [
+  ...NAV_ITEMS.map(item => ({ ...item, external: false })),
+  { label: 'Lifestyle', id: 'lifestyle', external: true },
+]
+
 interface LightboxState {
   images: { url: string; title?: string; subtitle?: string }[]
   index: number
@@ -389,12 +394,12 @@ export default function Home() {
             </a>
 
             <div className="hidden lg:flex items-center gap-1">
-              {NAV_ITEMS.map((item) => (
+              {NAV_LINKS.map((item) => (
                 <a
                   key={item.id}
-                  href={`#${item.id}`}
+                  href={item.external ? `/${item.id}` : `#${item.id}`}
                   className={`nav-underline px-3 py-1.5 rounded-md text-sm font-medium ${
-                    activeSection === item.id
+                    !item.external && activeSection === item.id
                       ? 'text-primary bg-primary/10'
                       : 'text-foreground/70'
                   }`}
@@ -478,12 +483,12 @@ export default function Home() {
 
           {mobileMenuOpen && (
             <div className="lg:hidden py-4 border-t">
-              {NAV_ITEMS.map((item) => (
+              {NAV_LINKS.map((item) => (
                 <a
                   key={item.id}
-                  href={`#${item.id}`}
+                  href={item.external ? `/${item.id}` : `#${item.id}`}
                   className={`block w-full text-left px-3 py-2 rounded-md text-sm ${
-                    activeSection === item.id ? 'text-primary bg-primary/10' : 'text-muted-foreground'
+                    !item.external && activeSection === item.id ? 'text-primary bg-primary/10' : 'text-muted-foreground'
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
