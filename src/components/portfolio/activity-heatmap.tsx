@@ -62,6 +62,7 @@ function getColor(level: number, isDark: boolean) {
 export function ActivityHeatmap() {
   const [data, setData] = useState<GitHubData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isDark, setIsDark] = useState(false)
 
   useEffect(() => {
     fetch('/api/github')
@@ -71,6 +72,27 @@ export function ActivityHeatmap() {
       })
       .catch(() => {})
       .finally(() => setLoading(false))
+  }, [])
+
+  useEffect(() => {
+    const updateTheme = () => {
+      const root = document.documentElement
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      setIsDark(root.classList.contains('dark') || prefersDark)
+    }
+
+    updateTheme()
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    mediaQuery.addEventListener?.('change', updateTheme)
+
+    const observer = new MutationObserver(() => updateTheme())
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+
+    return () => {
+      mediaQuery.removeEventListener?.('change', updateTheme)
+      observer.disconnect()
+    }
   }, [])
 
   const { weekChunks, monthLabels, maxStreak, total } = useMemo(() => {
