@@ -71,11 +71,9 @@ import { TechMarquee } from '@/components/portfolio/tech-marquee'
 import { CursorFollower } from '@/components/portfolio/cursor-follower'
 import { ScrollProgressButton } from '@/components/portfolio/scroll-progress-button'
 import { SoundProvider } from '@/components/portfolio/sound-provider'
-import { MeshBlobs } from '@/components/portfolio/mesh-blobs'
 import { FunFactsWidget } from '@/components/portfolio/fun-facts-widget'
 import { MagneticButton } from '@/components/portfolio/magnetic-button'
 import { ContestStats } from '@/components/portfolio/contest-stats'
-import { HeroSpotlight } from '@/components/portfolio/hero-spotlight'
 import { SectionDivider } from '@/components/portfolio/section-divider'
 import { VisitorLocationWidget } from '@/components/portfolio/visitor-location-widget'
 import { Printer, Camera } from 'lucide-react'
@@ -115,24 +113,6 @@ const NAV_LINKS = [
 interface LightboxState {
   images: { url: string; title?: string; subtitle?: string }[]
   index: number
-}
-
-function FloatingParticles() {
-  return (
-    <div className="particles" aria-hidden>
-      {[...Array(18)].map((_, i) => (
-        <div
-          key={i}
-          className="particle"
-          style={{
-            left: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 15}s`,
-            animationDuration: `${15 + Math.random() * 10}s`,
-          }}
-        />
-      ))}
-    </div>
-  )
 }
 
 function SectionHeader({
@@ -189,8 +169,8 @@ export default function Home() {
   const [data, setData] = useState<PortfolioData | null>(null)
   const [loading, setLoading] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [activeSection, setActiveSection] = useState('')
+  const mouseLightRef = useRef<HTMLDivElement>(null)
   const [lightbox, setLightbox] = useState<LightboxState | null>(null)
   const [cmdOpen, setCmdOpen] = useState(false)
   const [inboxOpen, setInboxOpen] = useState(false)
@@ -316,7 +296,12 @@ export default function Home() {
   }
 
   useEffect(() => {
-    const onMove = (e: MouseEvent) => setMousePosition({ x: e.clientX, y: e.clientY })
+    // Mouse light follows cursor via direct DOM manipulation (no re-renders)
+    const onMove = (e: MouseEvent) => {
+      if (mouseLightRef.current) {
+        mouseLightRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`
+      }
+    }
     const onScroll = () => {
       const sections = NAV_ITEMS.map((n) => document.getElementById(n.id)).filter(Boolean) as HTMLElement[]
       const scrollY = window.scrollY + 120
@@ -327,7 +312,7 @@ export default function Home() {
         }
       }
     }
-    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mousemove', onMove, { passive: true })
     window.addEventListener('scroll', onScroll)
     return () => {
       window.removeEventListener('mousemove', onMove)
@@ -398,14 +383,10 @@ export default function Home() {
       <JsonLd profile={profile} projects={projects} socialLinks={socialLinks} />
       <ReadingProgress />
 
-      {/* Background Effects */}
+      {/* Background Effects (kept lightweight for smoothness) */}
       <div className="fixed inset-0 grid-bg pointer-events-none" />
-      <MeshBlobs />
-      <HeroSpotlight />
       <div className="aurora" />
-      <FloatingParticles />
-      <div className="mouse-light" style={{ left: mousePosition.x, top: mousePosition.y }} />
-      <div className="mouse-light-secondary" style={{ left: mousePosition.x, top: mousePosition.y }} />
+      <div ref={mouseLightRef} className="mouse-light" />
 
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass border-b">
@@ -602,41 +583,46 @@ export default function Home() {
               ))}
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <MagneticButton size="lg" className="hover-lift" asChild>
+            {/* Primary CTAs — stack vertically on mobile */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 px-4">
+              <MagneticButton size="lg" className="hover-lift w-full sm:w-auto" asChild>
                 <a href="#contact">
                   <Send className="w-4 h-4 mr-2" /> Let&apos;s Connect
                 </a>
               </MagneticButton>
-              <MagneticButton variant="outline" size="lg" className="hover-lift" asChild>
+              <MagneticButton variant="outline" size="lg" className="hover-lift w-full sm:w-auto" asChild>
                 <a href="#projects">
                   <Eye className="w-4 h-4 mr-2" /> View Projects
                 </a>
               </MagneticButton>
-              <MagneticButton
+            </div>
+
+            {/* Secondary CTAs — wrap on mobile */}
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
+              <Button
                 variant="ghost"
-                size="lg"
+                size="sm"
                 className="hover-lift"
                 onClick={() => downloadVCard(profile, socialLinks)}
                 title="Download contact as vCard"
               >
-                <UserPlus className="w-4 h-4 mr-2" /> Save Contact
-              </MagneticButton>
+                <UserPlus className="w-3.5 h-3.5 mr-1.5" /> Save Contact
+              </Button>
               {profile?.resumeUrl && (
-                <Button variant="ghost" size="lg" className="hover-lift" asChild>
+                <Button variant="ghost" size="sm" className="hover-lift" asChild>
                   <a href={profile.resumeUrl} target="_blank" rel="noopener noreferrer">
-                    <FileText className="w-4 h-4 mr-2" /> Resume
+                    <FileText className="w-3.5 h-3.5 mr-1.5" /> Resume
                   </a>
                 </Button>
               )}
               <Button
                 variant="ghost"
-                size="lg"
+                size="sm"
                 className="hover-lift"
                 onClick={() => window.print()}
                 title="Print or save as PDF"
               >
-                <Printer className="w-4 h-4 mr-2" /> Print
+                <Printer className="w-3.5 h-3.5 mr-1.5" /> Print
               </Button>
             </div>
 

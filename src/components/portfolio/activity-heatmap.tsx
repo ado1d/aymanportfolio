@@ -89,15 +89,19 @@ export function ActivityHeatmap() {
       chunks.push(days.slice(i, i + 7))
     }
 
-    // Month labels
+    // Month labels — only show a label if there's enough space (every ~4 weeks)
+    // to avoid overlap. This matches GitHub's approach.
     const labels: { week: number; label: string }[] = []
     let lastMonth = -1
+    let lastLabelWeek = -10
     days.forEach((d, i) => {
       if (i % 7 === 0) {
+        const week = Math.floor(i / 7)
         const m = new Date(d.date).getMonth()
-        if (m !== lastMonth) {
-          labels.push({ week: Math.floor(i / 7), label: MONTHS[m] })
+        if (m !== lastMonth && week - lastLabelWeek >= 3) {
+          labels.push({ week, label: MONTHS[m] })
           lastMonth = m
+          lastLabelWeek = week
         }
       }
     })
@@ -137,7 +141,7 @@ export function ActivityHeatmap() {
                 </a>
               </h3>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {data.profile.publicRepos} repos · {data.activeDays} active days · last 12 months
+                {data.totalContributions} contributions · {data.profile.publicRepos} repos · last 12 months
               </p>
             </div>
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 text-xs font-semibold">
@@ -149,14 +153,18 @@ export function ActivityHeatmap() {
           {/* Contribution heatmap */}
           <div className="overflow-x-auto no-scrollbar">
             <div className="inline-block min-w-full">
-              {/* Month labels */}
-              <div className="flex pl-7 mb-1" style={{ gap: '3px' }}>
-                {weekChunks.map((_, wi) => {
-                  const label = monthLabels.find((m) => m.week === wi)
+              {/* Month labels — positioned absolutely to avoid overlap */}
+              <div className="relative h-4 mb-1 ml-7">
+                {monthLabels.map((m, i) => {
+                  const left = m.week * 14 // each week = 11px cell + 3px gap = 14px
                   return (
-                    <div key={wi} className="text-[9px] text-muted-foreground w-[11px] flex-shrink-0">
-                      {label ? label.label : ''}
-                    </div>
+                    <span
+                      key={i}
+                      className="absolute text-[10px] text-muted-foreground font-medium whitespace-nowrap"
+                      style={{ left: `${left}px`, top: 0 }}
+                    >
+                      {m.label}
+                    </span>
                   )
                 })}
               </div>
