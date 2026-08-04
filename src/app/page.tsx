@@ -61,6 +61,7 @@ import { CurrentlyWidget } from '@/components/portfolio/currently-widget'
 import { ShortcutHelp } from '@/components/portfolio/shortcut-help'
 import { SkillsWithTabs } from '@/components/portfolio/skills-with-tabs'
 import { RatingChart } from '@/components/portfolio/rating-chart'
+import { ProblemRatingsChart } from '@/components/portfolio/problem-ratings-chart'
 import { ActivityHeatmap } from '@/components/portfolio/activity-heatmap'
 import { KonamiEasterEgg } from '@/components/portfolio/konami-easter-egg'
 import { VisitorBadge } from '@/components/portfolio/visitor-badge'
@@ -717,8 +718,11 @@ export default function Home() {
               </div>
             )}
             <ContestStats contests={contests} />
-            <div className="mb-10">
+            <div className="mb-6">
               <RatingChart />
+            </div>
+            <div className="mb-10">
+              <ProblemRatingsChart />
             </div>
             <ContestList contests={contests} editMode={edit.editMode} onSaved={refresh} />
           </div>
