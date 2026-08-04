@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 
-// In-memory cache (1 hour)
+// In-memory cache (15 min)
 let cache: { data: unknown; ts: number } | null = null
-const CACHE_TTL = 60 * 60 * 1000
+const CACHE_TTL = 15 * 60 * 1000 // 15 minutes — updates frequently
 
 const USERNAME = 'ado1d'
 

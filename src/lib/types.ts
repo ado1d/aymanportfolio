@@ -110,7 +110,11 @@ export interface Testimonial {
   order: number
 }
 
-export type CurrentlyData = Record<string, string[]>
+export interface CurrentlyItem {
+  id: string
+  label: string
+}
+export type CurrentlyData = Record<string, CurrentlyItem[]>
 
 export interface Faq {
   id: string
@@ -133,4 +137,12 @@ export interface PortfolioData {
   testimonials: Testimonial[]
   currently: CurrentlyData
   faqs: Faq[]
+  funFacts: FunFact[]
+}
+
+export interface FunFact {
+  id: string
+  icon: string
+  text: string
+  order: number
 }

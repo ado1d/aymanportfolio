@@ -1,10 +1,12 @@
 'use client'
 
 import { Card, CardContent } from '@/components/ui/card'
-import { BookOpen, Hammer, Lightbulb, Music, Plus } from 'lucide-react'
+import { BookOpen, Hammer, Lightbulb, Music, Plus, Trash2 } from 'lucide-react'
 import { Reveal } from './reveal'
 import { AddButton } from './edit-controls'
+import { deleteEntity } from './use-edit-mode'
 import { FIELD_DEFS } from './field-defs'
+import { useToast } from '@/hooks/use-toast'
 import type { CurrentlyData } from '@/lib/types'
 
 interface CurrentlyWidgetProps {
@@ -22,7 +24,19 @@ const TYPE_CONFIG: Record<string, { icon: React.ElementType; label: string; colo
 
 export function CurrentlyWidget({ currently, editMode, onSaved }: CurrentlyWidgetProps) {
   const types = Object.keys(currently)
+  const { toast } = useToast()
+
   if (!types.length && !editMode) return null
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteEntity('currentlyItem', id)
+      toast({ title: 'Deleted' })
+      onSaved()
+    } catch {
+      toast({ title: 'Delete failed', variant: 'destructive' })
+    }
+  }
 
   return (
     <Reveal>
@@ -56,9 +70,18 @@ export function CurrentlyWidget({ currently, editMode, onSaved }: CurrentlyWidge
                   </div>
                   <ul className="space-y-1.5">
                     {items.map((item, i) => (
-                      <li key={i} className="text-sm text-foreground/80 flex items-start gap-2">
+                      <li key={item.id || i} className="text-sm text-foreground/80 flex items-start gap-2 group/item">
                         <span className="text-muted-foreground mt-0.5">→</span>
-                        <span>{item}</span>
+                        <span className="flex-1">{item.label}</span>
+                        {editMode && (
+                          <button
+                            onClick={() => handleDelete(item.id)}
+                            className="opacity-0 group-hover/item:opacity-100 p-0.5 rounded text-muted-foreground hover:text-destructive transition-all"
+                            aria-label="Delete"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        )}
                       </li>
                     ))}
                   </ul>

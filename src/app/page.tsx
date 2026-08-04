@@ -375,6 +375,7 @@ export default function Home() {
   const testimonials = data?.testimonials || []
   const currently = data?.currently || {}
   const faqs = data?.faqs || []
+  const funFacts = data?.funFacts || []
 
   const displayName = profile?.name || 'Ayman'
   const displayTitle = profile?.title || 'Computer Science Student'
@@ -671,7 +672,7 @@ export default function Home() {
               <VisitorLocationWidget />
             </div>
             <ActivityHeatmap />
-            <FunFactsWidget />
+            <FunFactsWidget funFacts={funFacts} editMode={edit.editMode} onSaved={refresh} />
             {edit.editMode && <VisitorBadge detailed />}
           </div>
         </section>

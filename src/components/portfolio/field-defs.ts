@@ -104,6 +104,11 @@ export const FIELD_DEFS: Record<string, FieldDef[]> = {
     { key: 'category', label: 'Category', type: 'text', placeholder: 'General, Technical, Opportunities...' },
     { key: 'order', label: 'Order', type: 'number' },
   ],
+  funFact: [
+    { key: 'icon', label: 'Icon (emoji)', type: 'text', placeholder: '⚡ 🚀 💻 🐛' },
+    { key: 'text', label: 'Fact', type: 'textarea', full: true, required: true },
+    { key: 'order', label: 'Order', type: 'number' },
+  ],
 }
 
 export const ENTITY_LABELS: Record<string, string> = {
@@ -119,4 +124,6 @@ export const ENTITY_LABELS: Record<string, string> = {
   testimonial: 'Testimonial',
   currentlyItem: 'Currently Item',
   faq: 'FAQ',
+  lifestylePhoto: 'Photo',
+  funFact: 'Fun Fact',
 }

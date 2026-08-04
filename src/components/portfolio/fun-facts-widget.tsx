@@ -1,44 +1,60 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Sparkles, Shuffle } from 'lucide-react'
+import { Sparkles, Shuffle, Plus, Trash2 } from 'lucide-react'
 import { Reveal } from './reveal'
+import { AddButton } from './edit-controls'
+import { deleteEntity } from './use-edit-mode'
+import { FIELD_DEFS } from './field-defs'
+import { useToast } from '@/hooks/use-toast'
+import type { FunFact } from '@/lib/types'
 
-const FUN_FACTS = [
-  { icon: '⚡', text: 'I once solved a Codeforces problem in 47 seconds during a live contest.' },
-  { icon: '☕', text: 'My hackathon fuel of choice is cold brew + lo-fi synthwave at 2 AM.' },
-  { icon: '🎯', text: 'I\'ve written more C++ than English essays in the last 3 years.' },
-  { icon: '🐛', text: 'My longest debugging session was 14 hours — it was a single off-by-one error.' },
-  { icon: '🏆', text: 'I won my first hackathon wearing the same hoodie I\'m wearing now.' },
-  { icon: '📚', text: 'I\'ve read "Designing Data-Intensive Applications" cover to cover — twice.' },
-  { icon: '🧮', text: 'Dynamic programming is my favorite algorithm paradigm. Fight me.' },
-  { icon: '🌍', text: 'I want to visit every country that has a competitive programming scene.' },
-  { icon: '🎹', text: 'I debug faster when listening to video game soundtracks.' },
-  { icon: '🚀', text: 'My dream is to build a tool used by 1 million developers.' },
-]
+interface FunFactsWidgetProps {
+  funFacts: FunFact[]
+  editMode: boolean
+  onSaved: () => void
+}
 
-/** A card that rotates through fun facts every few seconds, with manual shuffle. */
-export function FunFactsWidget() {
+export function FunFactsWidget({ funFacts, editMode, onSaved }: FunFactsWidgetProps) {
   const [index, setIndex] = useState(0)
   const [paused, setPaused] = useState(false)
+  const { toast } = useToast()
 
   useEffect(() => {
-    if (paused) return
+    if (paused || funFacts.length <= 1) return
     const interval = setInterval(() => {
-      setIndex((i) => (i + 1) % FUN_FACTS.length)
+      setIndex((i) => (i + 1) % funFacts.length)
     }, 5000)
     return () => clearInterval(interval)
-  }, [paused])
+  }, [paused, funFacts.length])
+
+  // Reset index if out of bounds
+  if (index >= funFacts.length) {
+    if (funFacts.length > 0) setIndex(0)
+  }
 
   const shuffle = () => {
+    if (funFacts.length <= 1) return
     let next = index
     while (next === index) {
-      next = Math.floor(Math.random() * FUN_FACTS.length)
+      next = Math.floor(Math.random() * funFacts.length)
     }
     setIndex(next)
   }
 
-  const fact = FUN_FACTS[index]
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteEntity('funFact', id)
+      toast({ title: 'Fun fact deleted' })
+      onSaved()
+    } catch {
+      toast({ title: 'Delete failed', variant: 'destructive' })
+    }
+  }
+
+  if (!funFacts.length && !editMode) return null
+
+  const fact = funFacts[index] || funFacts[0]
 
   return (
     <Reveal>
@@ -53,31 +69,55 @@ export function FunFactsWidget() {
               <Sparkles className="w-4 h-4 text-primary" />
               Fun Fact
             </h3>
-            <button
-              onClick={shuffle}
-              className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-primary"
-              aria-label="Shuffle fun fact"
-              title="Show another fact"
-            >
-              <Shuffle className="w-3.5 h-3.5" />
-            </button>
+            <div className="flex items-center gap-1">
+              {editMode && (
+                <AddButton entity="funFact" label="Add" fields={FIELD_DEFS.funFact} onSaved={onSaved} />
+              )}
+              {funFacts.length > 1 && (
+                <button
+                  onClick={shuffle}
+                  className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-primary"
+                  aria-label="Shuffle fun fact"
+                  title="Show another fact"
+                >
+                  <Shuffle className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
           </div>
-          <div key={index} className="flex items-start gap-3 quote-fade">
-            <span className="text-2xl flex-shrink-0">{fact.icon}</span>
-            <p className="text-sm leading-relaxed text-foreground/90">{fact.text}</p>
-          </div>
-          <div className="flex gap-1.5 mt-4">
-            {FUN_FACTS.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setIndex(i)}
-                className={`h-1 rounded-full transition-all ${
-                  i === index ? 'w-6 bg-primary' : 'w-1 bg-muted-foreground/30 hover:bg-muted-foreground/50'
-                }`}
-                aria-label={`Go to fact ${i + 1}`}
-              />
-            ))}
-          </div>
+
+          {fact ? (
+            <div key={fact.id} className="flex items-start gap-3 quote-fade group/fact">
+              <span className="text-2xl flex-shrink-0">{fact.icon}</span>
+              <p className="text-sm leading-relaxed text-foreground/90 flex-1">{fact.text}</p>
+              {editMode && (
+                <button
+                  onClick={() => handleDelete(fact.id)}
+                  className="opacity-0 group-hover/fact:opacity-100 p-0.5 rounded text-muted-foreground hover:text-destructive transition-all flex-shrink-0"
+                  aria-label="Delete"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No fun facts yet.</p>
+          )}
+
+          {funFacts.length > 1 && (
+            <div className="flex gap-1.5 mt-4">
+              {funFacts.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setIndex(i)}
+                  className={`h-1 rounded-full transition-all ${
+                    i === index ? 'w-6 bg-primary' : 'w-1 bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                  }`}
+                  aria-label={`Go to fact ${i + 1}`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </Reveal>

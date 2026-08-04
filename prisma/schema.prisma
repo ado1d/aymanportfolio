@@ -196,3 +196,13 @@ model Faq {
   updatedAt DateTime @updatedAt
 }
 
+
+// Fun facts — rotating interesting facts about Ayman
+model FunFact {
+  id        String   @id @default(cuid())
+  icon      String   @default("✨")
+  text      String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
