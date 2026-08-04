@@ -112,26 +112,29 @@ export function ActivityHeatmap() {
       }
     }
 
-    // Build week chunks (7 days each)
+    // Build week chunks (7 days each). With the API now returning days in
+    // chronological order, each slice of 7 is exactly one Sun-Sat week.
     const chunks: HeatmapDay[][] = []
     for (let i = 0; i < days.length; i += 7) {
       chunks.push(days.slice(i, i + 7))
     }
 
-    // Month labels — only show a label if there's enough space (every ~4 weeks)
-    // to avoid overlap. This matches GitHub's approach.
+    // Month labels — emit a label on the first week whose Sunday falls in a
+    // new month. To avoid visual overlap when two month boundaries land close
+    // together (e.g. Feb has only 28 days), skip a label if it would be within
+    // 2 weeks of the previous one. With ~53 weeks and 12 months this still
+    // produces a label for every visible month.
     const labels: { week: number; label: string }[] = []
     let lastMonth = -1
     let lastLabelWeek = -10
     days.forEach((d, i) => {
-      if (i % 7 === 0) {
-        const week = Math.floor(i / 7)
-        const m = new Date(d.date).getMonth()
-        if (m !== lastMonth && week - lastLabelWeek >= 3) {
-          labels.push({ week, label: MONTHS[m] })
-          lastMonth = m
-          lastLabelWeek = week
-        }
+      if (i % 7 !== 0) return
+      const week = Math.floor(i / 7)
+      const m = new Date(d.date).getMonth()
+      if (m !== lastMonth && week - lastLabelWeek >= 2) {
+        labels.push({ week, label: MONTHS[m] })
+        lastMonth = m
+        lastLabelWeek = week
       }
     })
 

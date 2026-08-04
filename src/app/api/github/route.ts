@@ -52,35 +52,50 @@ export async function GET() {
       const totalMatch = html.match(/(\d+)\s*contributions?\s*in\s*the\s*last\s*year/i)
       if (totalMatch) totalContributions = parseInt(totalMatch[1], 10)
 
-      // Extract all td elements with data-date + data-level
-      const dayRegex = /data-date="([^"]+)"[^>]*data-level="(\d+)"/g
-      let match
-      const days: { date: string; level: number }[] = []
+      // GitHub lays out the contribution grid as a 7-row × N-week table.
+      // DOM order is: all Sundays (week 0..N), then all Mondays (week 0..N), etc.
+      // The cell id encodes the coordinate: id="contribution-day-component-{dayOfWeek}-{week}".
+      // We capture that coordinate so we can sort the days chronologically afterwards.
+      const dayRegex = /data-date="([^"]+)"[^>]*id="contribution-day-component-(\d+)-(\d+)"[^>]*data-level="(\d+)"/g
+      let match: RegExpExecArray | null
+      const dayMap = new Map<string, { date: string; level: number; dayOfWeek: number; week: number; count: number }>()
       while ((match = dayRegex.exec(html)) !== null) {
-        days.push({ date: match[1], level: parseInt(match[2], 10) })
-      }
-
-      // Extract tooltips to get real contribution counts
-      // Tooltips look like: "5 contributions on November 16th." or "No contributions on August 3rd."
-      const tooltipRegex = /tool-tip[^>]*for="[^"]*contribution[^"]*"[^>]*>(.*?)<\/tool-tip>/gs
-      const tooltips: string[] = []
-      let tMatch
-      while ((tMatch = tooltipRegex.exec(html)) !== null) {
-        const text = tMatch[1].trim()
-        if (text.includes('No contributions')) {
-          tooltips.push('0')
-        } else {
-          const countMatch = text.match(/(\d+)/)
-          tooltips.push(countMatch ? countMatch[1] : '0')
+        const [, date, dowStr, weekStr, levelStr] = match
+        const key = `${dowStr}-${weekStr}`
+        if (!dayMap.has(key)) {
+          dayMap.set(key, {
+            date,
+            dayOfWeek: parseInt(dowStr, 10),
+            week: parseInt(weekStr, 10),
+            level: parseInt(levelStr, 10),
+            count: 0,
+          })
         }
       }
 
-      // Combine days + counts
-      heatmap = days.map((day, i) => ({
-        date: day.date,
-        level: day.level,
-        count: i < tooltips.length ? parseInt(tooltips[i], 10) : 0,
-      }))
+      // Tooltips look like: "5 contributions on November 16th." or "No contributions on August 3rd."
+      // Each tooltip's `for` attribute points back to the day-component id, so we use that
+      // to associate the real count with the right day (instead of relying on DOM order).
+      const tooltipRegex = /tool-tip[^>]*for="contribution-day-component-(\d+)-(\d+)"[^>]*>([\s\S]*?)<\/tool-tip>/g
+      let tMatch: RegExpExecArray | null
+      while ((tMatch = tooltipRegex.exec(html)) !== null) {
+        const [, dowStr, weekStr, content] = tMatch
+        const key = `${dowStr}-${weekStr}`
+        const day = dayMap.get(key)
+        if (!day) continue
+        const text = content.trim()
+        if (text.includes('No contributions')) {
+          day.count = 0
+        } else {
+          const countMatch = text.match(/(\d[\d,]*)/)
+          day.count = countMatch ? parseInt(countMatch[1].replace(/,/g, ''), 10) : 0
+        }
+      }
+
+      // Sort by ISO date string (lexicographic === chronological for ISO dates).
+      heatmap = Array.from(dayMap.values())
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .map(({ date, level, count }) => ({ date, level, count }))
     }
 
     // Parse repos
