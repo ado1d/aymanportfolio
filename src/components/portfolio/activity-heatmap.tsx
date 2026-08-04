@@ -39,17 +39,24 @@ interface GitHubData {
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const DAYS = ['Mon', 'Wed', 'Fri']
 
-// GitHub uses 5 levels (0-4). Map each to a color + opacity.
-const LEVEL_COLORS = [
-  { color: 'var(--muted)', opacity: 0.15 }, // level 0 — no contributions
-  { color: '#7c3aed', opacity: 0.35 },      // level 1 — low
-  { color: '#7c3aed', opacity: 0.6 },       // level 2 — medium-low
-  { color: '#7c3aed', opacity: 0.85 },      // level 3 — medium-high
-  { color: '#7c3aed', opacity: 1 },         // level 4 — high
+// GitHub's exact contribution graph colors
+const GITHUB_COLORS = [
+  '#ebedf0', // 0 — no contributions
+  '#9be9a8', // 1 — low
+  '#40c463', // 2 — medium-low
+  '#30a14e', // 3 — medium-high
+  '#216e39', // 4 — high
 ]
-
-function levelFor(level: number) {
-  return LEVEL_COLORS[level] || LEVEL_COLORS[0]
+const GITHUB_COLORS_DARK = [
+  '#161b22',
+  '#0e4429',
+  '#006d32',
+  '#26a641',
+  '#39d353',
+]
+function getColor(level: number, isDark: boolean) {
+  const colors = isDark ? GITHUB_COLORS_DARK : GITHUB_COLORS
+  return colors[level] || colors[0]
 }
 
 export function ActivityHeatmap() {
@@ -75,7 +82,7 @@ export function ActivityHeatmap() {
     let streak = 0
     let best = 0
     for (const d of days) {
-      if (d.level > 0) {
+      if (d.count > 0) {
         streak++
         if (streak > best) best = streak
       } else {
@@ -186,20 +193,19 @@ export function ActivityHeatmap() {
                       {Array.from({ length: 7 }).map((_, di) => {
                         const day = week[di]
                         if (!day) return <div key={di} className="w-[11px] h-[11px] rounded-[2px]" />
-                        const levelColor = levelFor(day.level)
+                        const color = getColor(day.level, isDark)
                         const dateStr = new Date(day.date).toLocaleDateString(undefined, {
                           weekday: 'short',
                           month: 'short',
                           day: 'numeric',
                         })
-                        const contribText = day.level === 0 ? 'No contributions' : `${day.level} contribution level`
+                        const contribText = day.count === 0 ? 'No contributions' : `${day.count} contribution${day.count !== 1 ? 's' : ''}`
                         return (
                           <div
                             key={di}
                             className="w-[11px] h-[11px] rounded-[2px] transition-transform hover:scale-150 hover:z-10 relative"
                             style={{
-                              backgroundColor: levelColor.color,
-                              opacity: levelColor.opacity,
+                              backgroundColor: color,
                             }}
                             title={`${dateStr}: ${contribText}`}
                           />
@@ -213,11 +219,11 @@ export function ActivityHeatmap() {
               {/* Legend */}
               <div className="flex items-center justify-end gap-1.5 mt-3 text-[10px] text-muted-foreground">
                 <span>Less</span>
-                {LEVEL_COLORS.map((l, i) => (
+                {(isDark ? GITHUB_COLORS_DARK : GITHUB_COLORS).map((c, i) => (
                   <div
                     key={i}
                     className="w-[11px] h-[11px] rounded-[2px]"
-                    style={{ backgroundColor: l.color, opacity: l.opacity }}
+                    style={{ backgroundColor: c }}
                   />
                 ))}
                 <span>More</span>

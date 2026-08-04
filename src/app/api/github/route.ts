@@ -2,70 +2,25 @@ import { NextResponse } from 'next/server'
 
 // In-memory cache (15 min)
 let cache: { data: unknown; ts: number } | null = null
-const CACHE_TTL = 15 * 60 * 1000 // 15 minutes — updates frequently
-
+const CACHE_TTL = 15 * 60 * 1000
 const USERNAME = 'ado1d'
 
 export async function GET() {
   try {
-    if (cache && Date.now() - cache.ts < CACHE_TTL) {
-      return NextResponse.json(cache.data)
-    }
+    if (cache && Date.now() - cache.ts < CACHE_TTL) return NextResponse.json(cache.data)
 
     const headers: Record<string, string> = {
       'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36',
       Accept: 'application/vnd.github.v3+json',
     }
 
-    // Use Promise.allSettled so individual failures don't break everything.
-    // The contributions page scrape (no rate limit) is the most important.
-    const [userResult, eventsResult, reposResult, contribResult] = await Promise.allSettled([
-      fetch(`https://api.github.com/users/${USERNAME}`, { headers, signal: AbortSignal.timeout(8000) }),
-      fetch(`https://api.github.com/users/${USERNAME}/events/public?per_page=100`, { headers, signal: AbortSignal.timeout(8000) }),
+    const [profileResult, contribResult, reposResult] = await Promise.allSettled([
+      fetch(`https://github.com/${USERNAME}`, { headers: { 'User-Agent': headers['User-Agent'] }, signal: AbortSignal.timeout(10000) }),
+      fetch(`https://github.com/users/${USERNAME}/contributions`, { headers: { 'User-Agent': headers['User-Agent'] }, signal: AbortSignal.timeout(10000) }),
       fetch(`https://api.github.com/users/${USERNAME}/repos?per_page=100&sort=updated`, { headers, signal: AbortSignal.timeout(8000) }),
-      fetch(`https://github.com/users/${USERNAME}/contributions`, {
-        headers: { 'User-Agent': headers['User-Agent'] },
-        signal: AbortSignal.timeout(10000),
-      }),
     ])
 
-    // Parse contributions HTML (most important — no rate limit)
-    let heatmap: { date: string; count: number; level: number }[] = []
-    if (contribResult.status === 'fulfilled' && contribResult.value.ok) {
-      const contribHtml = await contribResult.value.text()
-      const dayRegex = /data-date="([^"]+)"[^>]*data-level="(\d+)"/g
-      let match
-      while ((match = dayRegex.exec(contribHtml)) !== null) {
-        heatmap.push({
-          date: match[1],
-          level: parseInt(match[2], 10),
-          count: parseInt(match[2], 10),
-        })
-      }
-    }
-
-    // If scraping failed, fall back to building from events
-    if (heatmap.length === 0 && eventsResult.status === 'fulfilled' && eventsResult.value.ok) {
-      const events = await eventsResult.value.json()
-      const days: Record<string, number> = {}
-      const today = new Date()
-      for (let i = 364; i >= 0; i--) {
-        const d = new Date(today)
-        d.setDate(d.getDate() - i)
-        days[d.toISOString().slice(0, 10)] = 0
-      }
-      for (const e of events) {
-        const dateStr = e.created_at?.slice(0, 10)
-        if (dateStr && dateStr in days) days[dateStr]++
-      }
-      heatmap = Object.entries(days).map(([date, count]) => ({
-        date,
-        count,
-        level: count === 0 ? 0 : Math.min(4, Math.ceil(count / 2)),
-      }))
-    }
-
-    // Parse user profile (optional)
+    // Parse profile page
     let profile = {
       name: USERNAME,
       avatar: `https://avatars.githubusercontent.com/u/156225408?v=4`,
@@ -74,62 +29,72 @@ export async function GET() {
       following: 0,
       publicRepos: 0,
       htmlUrl: `https://github.com/${USERNAME}`,
-      createdAt: '',
     }
-    if (userResult.status === 'fulfilled' && userResult.value.ok) {
-      const user = await userResult.value.json()
-      profile = {
-        name: user.name || user.login,
-        avatar: user.avatar_url,
-        bio: user.bio,
-        followers: user.followers,
-        following: user.following,
-        publicRepos: user.public_repos,
-        htmlUrl: user.html_url,
-        createdAt: user.created_at,
-      }
+    if (profileResult.status === 'fulfilled' && profileResult.value.ok) {
+      const html = await profileResult.value.text()
+      const nameMatch = html.match(/<span class="p-name[^"]*"[^>]*>\s*([^<]+?)\s*<\/span>/)
+      const repoMatch = html.match(/(\d+)\s*repositories?/i)
+      const followerMatch = html.match(/(\d+)\s*followers?/i)
+      const avatarMatch = html.match(/avatars\.githubusercontent\.com\/u\/(\d+)/)
+      if (nameMatch) profile.name = nameMatch[1].trim()
+      if (repoMatch) profile.publicRepos = parseInt(repoMatch[1], 10)
+      if (followerMatch) profile.followers = parseInt(followerMatch[1], 10)
+      if (avatarMatch) profile.avatar = `https://avatars.githubusercontent.com/u/${avatarMatch[1]}?v=4`
     }
 
-    // Parse repos (optional)
+    // Parse contributions page — extract date + level + real count from tooltips
+    let heatmap: { date: string; count: number; level: number }[] = []
+    let totalContributions = 0
+    if (contribResult.status === 'fulfilled' && contribResult.value.ok) {
+      const html = await contribResult.value.text()
+
+      // Get total from heading
+      const totalMatch = html.match(/(\d+)\s*contributions?\s*in\s*the\s*last\s*year/i)
+      if (totalMatch) totalContributions = parseInt(totalMatch[1], 10)
+
+      // Extract all td elements with data-date + data-level
+      const dayRegex = /data-date="([^"]+)"[^>]*data-level="(\d+)"/g
+      let match
+      const days: { date: string; level: number }[] = []
+      while ((match = dayRegex.exec(html)) !== null) {
+        days.push({ date: match[1], level: parseInt(match[2], 10) })
+      }
+
+      // Extract tooltips to get real contribution counts
+      // Tooltips look like: "5 contributions on November 16th." or "No contributions on August 3rd."
+      const tooltipRegex = /tool-tip[^>]*for="[^"]*contribution[^"]*"[^>]*>(.*?)<\/tool-tip>/gs
+      const tooltips: string[] = []
+      let tMatch
+      while ((tMatch = tooltipRegex.exec(html)) !== null) {
+        const text = tMatch[1].trim()
+        if (text.includes('No contributions')) {
+          tooltips.push('0')
+        } else {
+          const countMatch = text.match(/(\d+)/)
+          tooltips.push(countMatch ? countMatch[1] : '0')
+        }
+      }
+
+      // Combine days + counts
+      heatmap = days.map((day, i) => ({
+        date: day.date,
+        level: day.level,
+        count: i < tooltips.length ? parseInt(tooltips[i], 10) : 0,
+      }))
+    }
+
+    // Parse repos
     let topRepos: any[] = []
-    let languages: { language: string; count: number }[] = []
     if (reposResult.status === 'fulfilled' && reposResult.value.ok) {
       const repos = await reposResult.value.json()
       topRepos = repos
         .filter((r: any) => !r.fork)
         .sort((a: any, b: any) => b.stargazers_count - a.stargazers_count)
         .slice(0, 6)
-        .map((r: any) => ({
-          name: r.name,
-          description: r.description,
-          stars: r.stargazers_count,
-          forks: r.forks_count,
-          language: r.language,
-          url: r.html_url,
-          updatedAt: r.updated_at,
-        }))
-      const langCount: Record<string, number> = {}
-      for (const r of repos) {
-        if (r.language) langCount[r.language] = (langCount[r.language] || 0) + 1
-      }
-      languages = Object.entries(langCount)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 8)
-        .map(([lang, count]) => ({ language: lang, count }))
+        .map((r: any) => ({ name: r.name, description: r.description, stars: r.stargazers_count, forks: r.forks_count, language: r.language, url: r.html_url }))
     }
 
-    const activeDays = heatmap.filter((d) => d.level > 0).length
-    const totalContributions = heatmap.reduce((s, d) => s + d.level, 0)
-
-    // Parse events count (only if not already consumed by fallback)
-    let totalEvents = 0
-    if (eventsResult.status === 'fulfilled' && eventsResult.value.ok && heatmap.length > 0) {
-      try {
-        const events = await eventsResult.value.json()
-        totalEvents = Array.isArray(events) ? events.length : 0
-      } catch { /* already consumed or parse error */ }
-    }
-
+    const activeDays = heatmap.filter((d) => d.count > 0).length
     const data = {
       username: USERNAME,
       profile,
@@ -137,15 +102,13 @@ export async function GET() {
       totalDays: heatmap.length,
       activeDays,
       totalContributions,
-      totalEvents,
       topRepos,
-      languages,
     }
 
     cache = { data, ts: Date.now() }
     return NextResponse.json(data)
   } catch (error) {
     console.error('GitHub API error:', error)
-    return NextResponse.json({ error: 'Failed to fetch GitHub data' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed' }, { status: 500 })
   }
 }
