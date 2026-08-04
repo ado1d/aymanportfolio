@@ -196,6 +196,18 @@ model Faq {
   updatedAt DateTime @updatedAt
 }
 
+// Lifestyle photo gallery — life activities, events, memories
+model LifestylePhoto {
+  id        String   @id @default(cuid())
+  imageUrl  String                    // cover image
+  gallery   String?                   // comma-separated additional image URLs
+  caption   String
+  category  String   @default("Life")  // Life, Travel, Events, Friends, Achievement
+  claps     Int      @default(0)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
 // Fun facts — rotating interesting facts about Ayman
 model FunFact {

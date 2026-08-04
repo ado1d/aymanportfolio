@@ -78,7 +78,7 @@ import { ContestStats } from '@/components/portfolio/contest-stats'
 import { HeroSpotlight } from '@/components/portfolio/hero-spotlight'
 import { SectionDivider } from '@/components/portfolio/section-divider'
 import { VisitorLocationWidget } from '@/components/portfolio/visitor-location-widget'
-import { Printer } from 'lucide-react'
+import { Printer, Camera } from 'lucide-react'
 import { downloadVCard } from '@/lib/vcard'
 import { useTypewriter } from '@/hooks/use-typewriter'
 import { useParallax } from '@/hooks/use-parallax'
@@ -105,6 +105,11 @@ const NAV_ITEMS = [
   { label: 'Testimonials', id: 'testimonials' },
   { label: 'FAQ', id: 'faq' },
   { label: 'Contact', id: 'contact' },
+]
+
+const NAV_LINKS = [
+  ...NAV_ITEMS.map(item => ({ ...item, external: false })),
+  { label: 'Lifestyle', id: 'lifestyle', external: true },
 ]
 
 interface LightboxState {
@@ -414,14 +419,14 @@ export default function Home() {
             </a>
 
             <div className="hidden lg:flex items-center gap-1">
-              {NAV_ITEMS.map((item) => (
+              {NAV_LINKS.map((item) => (
                 <a
                   key={item.id}
-                  href={`#${item.id}`}
-                  className={`nav-underline px-3 py-1.5 rounded-md text-sm transition-colors ${
-                    activeSection === item.id
-                      ? 'text-primary bg-primary/10 font-medium'
-                      : 'text-muted-foreground hover:text-primary'
+                  href={item.external ? `/${item.id}` : `#${item.id}`}
+                  className={`nav-underline px-3 py-1.5 rounded-md text-sm font-medium ${
+                    !item.external && activeSection === item.id
+                      ? 'text-primary bg-primary/10'
+                      : 'text-foreground/70'
                   }`}
                 >
                   {item.label}
@@ -503,12 +508,12 @@ export default function Home() {
 
           {mobileMenuOpen && (
             <div className="lg:hidden py-4 border-t">
-              {NAV_ITEMS.map((item) => (
+              {NAV_LINKS.map((item) => (
                 <a
                   key={item.id}
-                  href={`#${item.id}`}
+                  href={item.external ? `/${item.id}` : `#${item.id}`}
                   className={`block w-full text-left px-3 py-2 rounded-md text-sm ${
-                    activeSection === item.id ? 'text-primary bg-primary/10' : 'text-muted-foreground'
+                    !item.external && activeSection === item.id ? 'text-primary bg-primary/10' : 'text-muted-foreground'
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -785,6 +790,36 @@ export default function Home() {
           <div className="max-w-4xl mx-auto">
             <SectionHeader eyebrow="Kind Words" title="Testimonials" icon={Quote} subtitle="What mentors, teammates, and professors say" />
             <Testimonials testimonials={testimonials} editMode={edit.editMode} onSaved={refresh} />
+          </div>
+        </section>
+
+        {/* ============ LIFESTYLE CTA ============ */}
+        <section className="py-16 sm:py-24 px-4 sm:px-6">
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="relative overflow-hidden rounded-3xl p-8 sm:p-12 border-2 border-primary/20 bg-gradient-to-br from-primary/5 via-pink-500/5 to-cyan-500/5">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+              <div className="absolute bottom-0 left-0 w-40 h-40 bg-pink-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+              <div className="relative">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4 uppercase tracking-wider">
+                  <Camera className="w-3.5 h-3.5" /> Life Beyond Code
+                </span>
+                <h2 className="text-2xl sm:text-4xl font-bold mb-3">
+                  <span className="gradient-text">Discover My Lifestyle</span>
+                </h2>
+                <p className="text-sm sm:text-base text-muted-foreground mb-6 max-w-lg mx-auto">
+                  Hackathons, campus life, travels, and the moments that shape me.
+                  Explore my photo gallery and clap for your favorites! ❤️
+                </p>
+                <a
+                  href="/lifestyle"
+                  className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-primary to-pink-500 text-white font-semibold text-sm sm:text-base shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:scale-105 transition-all duration-300 action-glow"
+                >
+                  <Camera className="w-5 h-5" />
+                  Explore My Gallery
+                  <ArrowRight className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
           </div>
         </section>
 

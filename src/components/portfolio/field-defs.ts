@@ -104,6 +104,13 @@ export const FIELD_DEFS: Record<string, FieldDef[]> = {
     { key: 'category', label: 'Category', type: 'text', placeholder: 'General, Technical, Opportunities...' },
     { key: 'order', label: 'Order', type: 'number' },
   ],
+  lifestylePhoto: [
+    { key: 'imageUrl', label: 'Cover image', type: 'image', full: true },
+    { key: 'gallery', label: 'Gallery images (comma-separated URLs)', type: 'tags', full: true },
+    { key: 'caption', label: 'Caption', type: 'textarea', full: true, required: true },
+    { key: 'category', label: 'Category', type: 'text', placeholder: 'Life, Travel, Events, Friends, Achievement' },
+    { key: 'order', label: 'Order', type: 'number' },
+  ],
   funFact: [
     { key: 'icon', label: 'Icon (emoji)', type: 'text', placeholder: '⚡ 🚀 💻 🐛' },
     { key: 'text', label: 'Fact', type: 'textarea', full: true, required: true },
