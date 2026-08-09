@@ -93,6 +93,10 @@ import type {
   SocialLink,
 } from '@/lib/types'
 
+// import { VisitorLocationWidget } from '@/components/portfolio/visitor-location-widget'
+import { VantaGlobe } from '@/components/portfolio/vanta-globe'
+// import { Printer, Camera } from 'lucide-react'
+
 const NAV_ITEMS = [
   { label: 'About', id: 'about' },
   { label: 'Skills', id: 'skills' },
@@ -183,12 +187,12 @@ export default function Home() {
   const typedRole = useTypewriter(
     [
       'Competitive Programmer',
-      'Hackathon Winner',
+      'Hackathon Participants',
       'Full-Stack Builder',
-      'CS Undergraduate',
+      'Software Engineering Undergraduate',
       'Problem Solver',
     ],
-    { typeSpeed: 80, deleteSpeed: 40, pauseEnd: 1600 }
+    { typeSpeed: 40, deleteSpeed: 40, pauseEnd: 1600 }
   )
   const parallax = useParallax(600)
   const sound = useSoundEffects()
@@ -369,8 +373,8 @@ export default function Home() {
   const funFacts = data?.funFacts || []
 
   const displayName = profile?.name || 'Ayman'
-  const displayTitle = profile?.title || 'Computer Science Student'
-  const displayEmail = profile?.email || 'ayman.dev@gmail.com'
+  const displayTitle = profile?.title || 'Software Engineering Undergrad'
+  const displayEmail = profile?.email || 'aaymanchowdhury@gmail.com'
   const displayLocation = profile?.location || 'Dhaka, Bangladesh'
   const firstName = displayName.split(' ')[0]
 
@@ -380,24 +384,32 @@ export default function Home() {
   return (
     <SoundProvider>
     <KonamiEasterEgg>
-    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+    <VantaGlobe className="min-h-screen w-full">
+      <div className="relative z-10 min-h-screen flex flex-col bg-transparent">
       <JsonLd profile={profile} projects={projects} socialLinks={socialLinks} />
       <ReadingProgress />
-
-      {/* Background Effects (kept lightweight for smoothness) */}
-      <div className="fixed inset-0 grid-bg pointer-events-none" />
-      <div className="aurora" />
-      <div ref={mouseLightRef} className="mouse-light" />
 
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass border-b">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
-            <a href="#home" className="text-xl font-bold gradient-text flex items-center gap-2">
-              <span className="inline-flex w-8 h-8 items-center justify-center rounded-lg bg-primary/10 text-primary text-sm">
+            <a href="#home" className="flex items-center gap-2">
+              {/* <span className="inline-flex w-8 h-8 items-center justify-center rounded-lg bg-primary/10 text-primary text-sm">
                 {firstName[0]}
+              </span> */}
+              <span
+                className="inline-block gradient-text"
+                style={{
+                  fontFamily: '"Brush Script MT", "Segoe Script", cursive',
+                  fontSize: '2.2rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.08em',
+                  transform: 'rotate(-2deg)',
+                  textShadow: '0 1px 2px rgba(0,0,0,0.15)',
+                }}
+              >
+                {firstName}
               </span>
-              {firstName}
             </a>
 
             <div className="hidden lg:flex items-center gap-1">
@@ -523,8 +535,8 @@ export default function Home() {
 
       <main className="flex-1 relative z-10 pt-16">
         {/* ============ HERO ============ */}
-        <section id="home" className="min-h-[90vh] flex items-center justify-center px-4 sm:px-6 pt-8">
-          <div className="text-center max-w-4xl">
+        <section id="home" className="min-h-[90vh] px-4 sm:px-6 pt-8">
+          <div className="text-center max-w-4xl mx-auto">
             <div className="flex justify-center mb-8">
               <div className="relative parallax-slow" style={{ transform: `translateY(${parallax * 0.15}px)` }}>
                 <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-primary via-pink-500 to-cyan-500 blur-2xl opacity-40 animate-pulse parallax-fast" style={{ transform: `translateY(${parallax * 0.3}px) scale(${1 + parallax * 0.0005})` }} />
@@ -639,7 +651,7 @@ export default function Home() {
             <div className="mt-8 animate-bounce">
               <ArrowRight className="w-5 h-5 mx-auto rotate-90 text-muted-foreground" />
             </div>
-          </div>
+            </div>
         </section>
 
         {/* ============ STATS STRIP ============ */}
@@ -885,6 +897,7 @@ export default function Home() {
         }}
       />
     </div>
+    </VantaGlobe>
     </KonamiEasterEgg>
     </SoundProvider>
   )
