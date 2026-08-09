@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ayman · Computer Science Student & Competitive Programmer",
+  title: "Ayman · Software Engineering Student & Competitive Programmer",
   description:
-    "Portfolio of Ayman — a final-year CS undergraduate, competitive programmer, hackathon winner, and full-stack builder. Explore my projects, contests, certificates, and achievements.",
+    "Portfolio of Ayman — a final-year Software Engineering undergraduate, competitive programmer, hackathon winner, and full-stack builder. Explore my projects, contests, certificates, and achievements.",
   keywords: [
     "Ayman",
     "portfolio",
@@ -26,21 +26,25 @@ export const metadata: Metadata = {
     "computer science",
     "full-stack developer",
     "Bangladesh",
+    "Portfolio Templete"
   ],
   authors: [{ name: "Ayman" }],
-  metadataBase: new URL("https://ayman.dev"),
+  metadataBase: new URL("https://ayman-portfolio-seven.vercel.app"),
+  icons: {
+    icon: "https://res.cloudinary.com/ne2uunmx/image/upload/v1786283178/portfolio/ok4nr79p7pyqetf6uniw.jpg",
+  },
   openGraph: {
-    title: "Ayman · CS Student & Competitive Programmer",
+    title: "Ayman · Full-stack developer & Competitive Programmer",
     description:
-      "Final-year CS undergraduate · Competitive programmer · Hackathon winner · Full-stack builder",
+      "Final-year Software Engineering undergraduate · Competitive programmer · Hackathon winner · Full-stack builder",
     type: "website",
     siteName: "Ayman · Portfolio",
     images: [
       {
-        url: "/og-image.svg",
+        url: "https://res.cloudinary.com/ne2uunmx/image/upload/v1786283178/portfolio/ok4nr79p7pyqetf6uniw.jpg",
         width: 1200,
         height: 630,
-        alt: "Ayman — Computer Science Student & Competitive Programmer",
+        alt: "Ayman — Software Engineering Student & Competitive Programmer",
       },
     ],
   },
