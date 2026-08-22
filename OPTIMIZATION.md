@@ -9,37 +9,32 @@ login, add / edit / delete, image upload, admin inbox, and the lifestyle gallery
 | Metric                          | Before              | After        |
 | ------------------------------- | ------------------- | ------------ |
 | Initial JS transfer (gzipped)   | ~447 KB (+ CDN JS)  | **241 KB**   |
-| Runtime CDN scripts (mobile) | 660 KB (Three.js + Vanta) | **0 KB** |
-| Runtime CDN scripts (desktop) | 660 KB, blocking load       | ~660 KB, idle-loaded after first paint |
-| Long tasks (>50 ms) while scrolling (mobile) | 34 | **0** |
-| WebGL animation loop on phones | Always running | **Removed** (desktop-only) |
+| CDN scripts (Three.js + Vanta)  | 660 KB, blocking load | ~660 KB, idle-loaded after first paint |
+| "Loading portfolio..." skeleton flashing during scroll | always | **never** (local Suspense boundaries) |
 | npm dependencies                | ~60                 | **25**       |
 
-## 1. Kept the Vanta.js globe — but made it desktop-only and idle-loaded
+## 1. Vanta globe — kept everywhere, but never blocking
 
-The old `VantaGlobe` downloaded Three.js r134 (~600 KB) plus the Vanta GLOBE
-script from CDNs on every visit and then ran a full-screen WebGL animation
-loop for the entire session — even on phones, where it was the single biggest
-cause of lag, jank, and battery drain.
+The globe downloads Three.js r134 (~600 KB) plus the Vanta GLOBE script from
+CDNs and runs a full-screen WebGL animation loop, which is the single
+biggest performance cost on the site — especially on phones. It stays on
+desktop AND mobile (it's the site's signature visual), but with guards so
+it never makes the page feel broken:
 
-The globe is back (`src/components/portfolio/vanta-globe.tsx`) with guards so
-it keeps the desktop wow-factor without reintroducing the mobile pain:
-
-- **Desktop only** — it initializes on viewports >= 768 px; phones keep the
-  pure-CSS `AuroraBackground` (0 KB JS, GPU-composited transforms only).
 - **Idle-loaded** — Three.js/Vanta are fetched and initialized only after
-  first paint via `requestIdleCallback`, so page load and LCP are never
-  blocked by ~600 KB of scripts.
+  first paint via `requestIdleCallback`, so page load, hydration, and LCP
+  are never blocked by ~600 KB of scripts.
+- **Low-end device skip** — devices with < 2 GB RAM or < 2 CPU cores get
+  the CSS aurora instead (a full-screen WebGL loop would stutter there).
 - **Reduced-motion aware** — skipped entirely for `prefers-reduced-motion`.
 - **Graceful fallback** — the CSS aurora renders underneath at all times; if
   the CDN is unreachable, the site still looks intentional.
-- **Clean teardown** — the WebGL context is destroyed on unmount, and the
-  viewport media query is watched so resizing between mobile/desktop swaps
-  backgrounds correctly.
+- **Clean teardown** — the WebGL context is destroyed on unmount.
 
-Both layers are composed in `src/components/portfolio/site-background.tsx`.
+If mobile scroll smoothness ever matters more than the globe, restricting
+it to desktop again is a one-line change in `vanta-globe.tsx`.
 
-## 2. Code-split the home page into lazy sections
+## 2. Code-split the home page into lazy sections (no skeleton flashing)
 
 `src/app/page.tsx` used to be a single 62 KB client component that imported and
 rendered every section (charts, heatmap, galleries, FAQ…) at once.
@@ -47,8 +42,16 @@ rendered every section (charts, heatmap, galleries, FAQ…) at once.
 Now each section lives in `src/components/portfolio/sections/` and is loaded via
 `next/dynamic` behind a `LazySection` wrapper (IntersectionObserver). Sections
 below the fold are not mounted — and their code is not even fetched — until the
-user scrolls near them. A small `minHeight` placeholder prevents layout shift,
-and a late-check fallback catches instant programmatic jumps.
+user scrolls near them.
+
+Each `LazySection` wraps its children in a **local `<Suspense>` boundary**
+whose fallback matches the placeholder height. Without that boundary, a
+section whose code chunk is still streaming suspends up to the route-level
+boundary (`app/loading.tsx`), which flashes the full-page "Loading
+portfolio..." skeleton every time the user scrolls into an unloaded section.
+With it, only a sized placeholder shows while the chunk arrives — no flash,
+no layout shift. A late-check fallback also catches instant programmatic
+jumps (anchor links, "scroll to bottom").
 
 ## 3. Eliminated re-render storms
 

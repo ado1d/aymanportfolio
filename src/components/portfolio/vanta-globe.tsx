@@ -1,25 +1,25 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 /**
- * VantaGlobe — the Vanta.js GLOBE effect, restored with performance guards.
+ * VantaGlobe — the Vanta.js GLOBE effect, restored everywhere.
  *
  * The raw effect downloads Three.js (~600 KB) from a CDN and runs a
- * full-screen WebGL animation loop, which was the main cause of mobile lag.
- * This version keeps the exact same visual but:
+ * full-screen WebGL animation loop, which was the main cause of the old
+ * mobile lag. Now that the page itself is 46% lighter and sections are
+ * lazy-loaded, the globe runs on mobile again — but with guards so it
+ * stays as smooth as possible:
  *
- *   - renders on desktop-size viewports only (>= 768px); phones keep the
- *     lightweight CSS aurora background
  *   - initializes AFTER first paint (requestIdleCallback) so it never
  *     competes with page load / LCP
- *   - is skipped entirely for prefers-reduced-motion users
+ *   - skipped entirely for prefers-reduced-motion users
+ *   - skipped on very low-end devices (budget phones with < 2 GB RAM or
+ *     fewer than 2 cores) where a full-screen WebGL loop would stutter
  *   - cleans up its WebGL context on unmount
  *   - falls back gracefully: if the CDN is unreachable, the CSS aurora
  *     background (rendered underneath) simply stays visible
  */
-
-const DESKTOP_QUERY = '(min-width: 768px)'
 
 // Store the VANTA.GLOBE constructor once loaded
 type VantaEffect = { destroy: () => void }
@@ -52,6 +52,19 @@ function loadScript(src: string): Promise<void> {
   })
 }
 
+/** Cheap capability probe: skip WebGL on very low-end devices only. */
+function canRunWebGL(): boolean {
+  try {
+    const nav = navigator as Navigator & { deviceMemory?: number }
+    if ((nav.hardwareConcurrency || 4) < 2) return false
+    // Chrome/Android expose deviceMemory in GB; iOS Safari doesn't
+    if (typeof nav.deviceMemory === 'number' && nav.deviceMemory < 2) return false
+    return true
+  } catch {
+    return true
+  }
+}
+
 export function VantaGlobe({
   color = 0xff3b8d,
   color2 = 0x2dd4bf,
@@ -62,21 +75,11 @@ export function VantaGlobe({
 }: VantaGlobeProps) {
   const vantaRef = useRef<HTMLDivElement>(null)
   const effectRef = useRef<VantaEffect | null>(null)
-  const [enabled, setEnabled] = useState(false)
-
-  // Decide (and re-decide on resize) whether this viewport gets the globe.
-  useEffect(() => {
-    const mq = window.matchMedia(DESKTOP_QUERY)
-    const update = () => setEnabled(mq.matches)
-    update()
-    mq.addEventListener('change', update)
-    return () => mq.removeEventListener('change', update)
-  }, [])
 
   // Load Three.js + Vanta once the browser is idle, then start the effect.
   useEffect(() => {
-    if (!enabled) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (!canRunWebGL()) return
 
     let cancelled = false
 
@@ -144,7 +147,7 @@ export function VantaGlobe({
 
     // Wait for idle so the globe never delays first paint or hydration.
     const idleId = 'requestIdleCallback' in window
-      ? window.requestIdleCallback(() => init(), { timeout: 2000 })
+      ? window.requestIdleCallback(() => init(), { timeout: 2500 })
       : window.setTimeout(init, 1200)
 
     return () => {
@@ -159,9 +162,7 @@ export function VantaGlobe({
         effectRef.current = null
       }
     }
-  }, [enabled, scale, scaleMobile, color, color2, size, backgroundColor])
-
-  if (!enabled) return null
+  }, [scale, scaleMobile, color, color2, size, backgroundColor])
 
   return (
     <div

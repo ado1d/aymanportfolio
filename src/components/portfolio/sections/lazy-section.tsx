@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode, useEffect, useRef, useState } from 'react'
+import { ReactNode, Suspense, useEffect, useRef, useState } from 'react'
 
 interface LazySectionProps {
   children: ReactNode
@@ -19,6 +19,12 @@ interface LazySectionProps {
  * the main reason the site felt heavy on phones. Combined with next/dynamic,
  * each section's code is also split into its own chunk that is only fetched
  * when needed.
+ *
+ * The inner <Suspense> is important: without it, a section whose code chunk
+ * is still downloading suspends up to the ROUTE-level boundary (app/loading.tsx),
+ * which flashes the full-page "Loading portfolio..." skeleton every time the
+ * user scrolls into a not-yet-loaded section. With it, only the small
+ * placeholder below shows while the chunk streams in.
  */
 export function LazySection({ children, minHeight = 500, rootMargin = '900px 0px', className }: LazySectionProps) {
   const ref = useRef<HTMLDivElement>(null)
@@ -61,9 +67,11 @@ export function LazySection({ children, minHeight = 500, rootMargin = '900px 0px
     }
   }, [rootMargin])
 
+  const placeholder = <div style={{ minHeight }} aria-hidden="true" />
+
   return (
     <div ref={ref} className={className}>
-      {visible ? children : <div style={{ minHeight }} aria-hidden="true" />}
+      {visible ? <Suspense fallback={placeholder}>{children}</Suspense> : placeholder}
     </div>
   )
 }
