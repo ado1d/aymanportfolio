@@ -3,9 +3,11 @@
 import { Github, Linkedin, Mail, Facebook, ExternalLink, Code2, Twitter, Globe, Youtube, Instagram } from 'lucide-react'
 
 export function CodeforcesIcon({ className }: { className?: string }) {
+  // Official Codeforces mark (the "podium" bars, middle tallest) —
+  // source: simple-icons Codeforces path (same logo as icons8's set)
   return (
     <svg viewBox="0 0 24 24" className={className || 'w-5 h-5'} fill="currentColor" aria-hidden>
-      <path d="M4.5 7.5a1.5 1.5 0 0 1 3 0v9a1.5 1.5 0 0 1-3 0v-9Zm6 0a1.5 1.5 0 0 1 3 0v9a1.5 1.5 0 0 1-3 0v-9Zm6.75 0a1.5 1.5 0 0 1 3 0v6.75a1.5 1.5 0 0 1-3 0V7.5Z" />
+      <path d="M4.5 7.5C5.328 7.5 6 8.172 6 9v10.5c0 .828-.672 1.5-1.5 1.5h-3C.673 21 0 20.328 0 19.5V9c0-.828.673-1.5 1.5-1.5h3zm9-4.5c.828 0 1.5.672 1.5 1.5v15c0 .828-.672 1.5-1.5 1.5h-3c-.827 0-1.5-.672-1.5-1.5v-15c0-.828.673-1.5 1.5-1.5h3zm9 7.5c.828 0 1.5.672 1.5 1.5v7.5c0 .828-.672 1.5-1.5 1.5h-3c-.828 0-1.5-.672-1.5-1.5V12c0-.828.672-1.5 1.5-1.5h3z" />
     </svg>
   )
 }
