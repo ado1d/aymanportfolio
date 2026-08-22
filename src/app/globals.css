@@ -138,6 +138,81 @@
     linear-gradient(to bottom, rgba(167, 139, 250, 0.06) 1px, transparent 1px);
 }
 
+/* ---- Aurora background (pure CSS, GPU-friendly replacement for the WebGL globe) ---- */
+.aurora-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 58, 237, 0.12), transparent 70%),
+    var(--background);
+}
+.dark .aurora-bg {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(167, 139, 250, 0.1), transparent 70%),
+    var(--background);
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.35;
+  will-change: transform;
+  animation: aurora-drift 26s ease-in-out infinite alternate;
+}
+/* Blur radius is expensive on mobile GPUs — soften it on small screens */
+@media (max-width: 768px) {
+  .aurora-blob { filter: blur(60px); opacity: 0.28; }
+}
+.aurora-blob-1 {
+  width: 55vw; height: 55vw; max-width: 720px; max-height: 720px;
+  top: -18%; left: -12%;
+  background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
+}
+.aurora-blob-2 {
+  width: 45vw; height: 45vw; max-width: 620px; max-height: 620px;
+  bottom: -16%; right: -10%;
+  background: radial-gradient(circle, #ec4899 0%, transparent 70%);
+  animation-delay: -9s;
+  animation-duration: 32s;
+}
+.aurora-blob-3 {
+  width: 38vw; height: 38vw; max-width: 520px; max-height: 520px;
+  top: 34%; right: -14%;
+  background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
+  opacity: 0.22;
+  animation-delay: -18s;
+  animation-duration: 38s;
+}
+.dark .aurora-blob { opacity: 0.25; }
+.dark .aurora-blob-3 { opacity: 0.16; }
+
+.aurora-grid {
+  position: absolute;
+  inset: 0;
+  background-size: 56px 56px;
+  background-image:
+    linear-gradient(to right, rgba(124, 58, 237, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(124, 58, 237, 0.05) 1px, transparent 1px);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 85%);
+  mask-image: linear-gradient(to bottom, black 0%, transparent 85%);
+}
+.dark .aurora-grid {
+  background-image:
+    linear-gradient(to right, rgba(167, 139, 250, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(167, 139, 250, 0.055) 1px, transparent 1px);
+}
+
+@keyframes aurora-drift {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(6vw, -4vh) scale(1.08); }
+  100% { transform: translate(-5vw, 5vh) scale(0.95); }
+}
+
+/* Legacy helpers kept for the lifestyle page and print styles */
 .aurora {
   position: fixed;
   inset: 0;
@@ -216,6 +291,8 @@
 .dark .mouse-light { background: radial-gradient(circle, rgba(167, 139, 250, 0.12) 0%, rgba(167, 139, 250, 0.04) 40%, transparent 70%); }
 
 /* ============ Glass Effect ============ */
+/* Blur + saturate is one of the most expensive effects on mobile GPUs.
+   Reduce the blur radius on small screens. */
 .glass {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(16px) saturate(180%);
@@ -223,6 +300,12 @@
 }
 .dark .glass {
   background: rgba(15, 10, 26, 0.7);
+}
+@media (max-width: 768px) {
+  .glass {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
 }
 
 /* ============ Gradient Text ============ */
@@ -233,6 +316,11 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: gradient-shift 6s ease infinite;
+}
+/* Animating background-position repaints the text continuously —
+   pause it on small screens to keep scrolling smooth. */
+@media (max-width: 768px) {
+  .gradient-text { animation: none; }
 }
 @keyframes gradient-shift {
   0%, 100% { background-position: 0% center; }
@@ -247,6 +335,9 @@
 }
 
 /* ============ Glowing Border Card ============ */
+/* Perf note: the animated gradient border only runs WHILE hovering.
+   Previously the @property animation ran continuously on every card
+   (dozens of elements) even at opacity 0 — a constant CPU cost. */
 .glow-card {
   position: relative;
   overflow: hidden;
@@ -277,13 +368,15 @@
     linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  animation: border-rotate 4s linear infinite;
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
   z-index: 0;
 }
-.glow-card:hover::before { opacity: 1; }
+.glow-card:hover::before {
+  opacity: 1;
+  animation: border-rotate 4s linear infinite;
+}
 .glow-card a { position: relative; z-index: 10; pointer-events: auto; }
 @property --border-angle {
   syntax: '<angle>';
@@ -427,6 +520,9 @@
   /* Hide non-essential UI */
   .grid-bg,
   .aurora,
+  .aurora-bg,
+  .aurora-blob,
+  .aurora-grid,
   .particles,
   .particle,
   .mouse-light,
@@ -568,7 +664,8 @@
   }
   .particle,
   .aurora::before,
-  .aurora::after {
+  .aurora::after,
+  .aurora-blob {
     animation: none !important;
   }
 }
