@@ -15,7 +15,7 @@ import { ScrollProgressButton } from '@/components/portfolio/scroll-progress-but
 import { KonamiEasterEgg } from '@/components/portfolio/konami-easter-egg'
 import { SoundProvider } from '@/components/portfolio/sound-provider'
 import { CursorFollower } from '@/components/portfolio/cursor-follower'
-import { AuroraBackground } from '@/components/portfolio/aurora-background'
+import { SiteBackground } from '@/components/portfolio/site-background'
 import { JsonLd } from '@/components/portfolio/json-ld'
 import { SectionDivider } from '@/components/portfolio/section-divider'
 import { useSoundEffects } from '@/hooks/use-sound-effects'
@@ -237,7 +237,7 @@ export default function Home() {
   return (
     <SoundProvider>
       <KonamiEasterEgg>
-        <AuroraBackground />
+        <SiteBackground />
         <div className="relative z-10 min-h-screen flex flex-col bg-transparent">
           <JsonLd profile={profile} projects={projects} socialLinks={socialLinks} />
           <ReadingProgress />

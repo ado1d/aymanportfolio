@@ -9,23 +9,35 @@ login, add / edit / delete, image upload, admin inbox, and the lifestyle gallery
 | Metric                          | Before              | After        |
 | ------------------------------- | ------------------- | ------------ |
 | Initial JS transfer (gzipped)   | ~447 KB (+ CDN JS)  | **241 KB**   |
-| Runtime CDN scripts             | 660 KB (Three.js + Vanta) | **0 KB** |
-| Long tasks (>50 ms) while scrolling | 34               | **0**        |
-| Constant WebGL animation loop   | Always running      | **Removed**  |
+| Runtime CDN scripts (mobile) | 660 KB (Three.js + Vanta) | **0 KB** |
+| Runtime CDN scripts (desktop) | 660 KB, blocking load       | ~660 KB, idle-loaded after first paint |
+| Long tasks (>50 ms) while scrolling (mobile) | 34 | **0** |
+| WebGL animation loop on phones | Always running | **Removed** (desktop-only) |
 | npm dependencies                | ~60                 | **25**       |
 
-## 1. Replaced the Vanta.js globe with a pure-CSS aurora background
+## 1. Kept the Vanta.js globe — but made it desktop-only and idle-loaded
 
 The old `VantaGlobe` downloaded Three.js r134 (~600 KB) plus the Vanta GLOBE
-script from CDNs on every visit and then ran a full-screen WebGL animation loop
-for the entire session — even when scrolled away. On phones this was the single
-biggest cause of lag, jank, and battery drain.
+script from CDNs on every visit and then ran a full-screen WebGL animation
+loop for the entire session — even on phones, where it was the single biggest
+cause of lag, jank, and battery drain.
 
-The new `AuroraBackground` (`src/components/portfolio/aurora-background.tsx`) is
-plain markup + CSS: three drifting gradient blobs and a subtle grid. It paints
-instantly, costs 0 KB of JavaScript, animates only `transform` (GPU-composited),
-softens its blur on small screens, and disables itself under
-`prefers-reduced-motion`.
+The globe is back (`src/components/portfolio/vanta-globe.tsx`) with guards so
+it keeps the desktop wow-factor without reintroducing the mobile pain:
+
+- **Desktop only** — it initializes on viewports >= 768 px; phones keep the
+  pure-CSS `AuroraBackground` (0 KB JS, GPU-composited transforms only).
+- **Idle-loaded** — Three.js/Vanta are fetched and initialized only after
+  first paint via `requestIdleCallback`, so page load and LCP are never
+  blocked by ~600 KB of scripts.
+- **Reduced-motion aware** — skipped entirely for `prefers-reduced-motion`.
+- **Graceful fallback** — the CSS aurora renders underneath at all times; if
+  the CDN is unreachable, the site still looks intentional.
+- **Clean teardown** — the WebGL context is destroyed on unmount, and the
+  viewport media query is watched so resizing between mobile/desktop swaps
+  backgrounds correctly.
+
+Both layers are composed in `src/components/portfolio/site-background.tsx`.
 
 ## 2. Code-split the home page into lazy sections
 
