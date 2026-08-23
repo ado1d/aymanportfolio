@@ -79,36 +79,39 @@
 }
 
 .dark {
-  --background: #0a0712;
-  --foreground: #fafafa;
-  --card: #15101f;
-  --card-foreground: #fafafa;
-  --popover: #15101f;
-  --popover-foreground: #fafafa;
+  /* Clean slate-navy dark theme — crisper than the old purple-black:
+     clear card elevation, visible borders, readable muted text, and it
+     matches the Vanta globe's navy background tone. */
+  --background: #0b111e;
+  --foreground: #eef2f8;
+  --card: #141b2b;
+  --card-foreground: #eef2f8;
+  --popover: #141b2b;
+  --popover-foreground: #eef2f8;
   --primary: #a78bfa;
-  --primary-foreground: #0a0712;
-  --secondary: #1f1730;
-  --secondary-foreground: #fafafa;
-  --muted: #1f1730;
-  --muted-foreground: #a1a1aa;
-  --accent: #1f1730;
-  --accent-foreground: #fafafa;
+  --primary-foreground: #0b111e;
+  --secondary: #1d2536;
+  --secondary-foreground: #eef2f8;
+  --muted: #1d2536;
+  --muted-foreground: #9aa7bd;
+  --accent: #1d2536;
+  --accent-foreground: #eef2f8;
   --destructive: #f87171;
-  --border: rgba(255, 255, 255, 0.08);
-  --input: rgba(255, 255, 255, 0.12);
+  --border: rgba(148, 163, 184, 0.16);
+  --input: rgba(148, 163, 184, 0.2);
   --ring: #a78bfa;
   --chart-1: #a78bfa;
   --chart-2: #34d399;
   --chart-3: #fbbf24;
   --chart-4: #f472b6;
   --chart-5: #22d3ee;
-  --sidebar: #15101f;
-  --sidebar-foreground: #fafafa;
+  --sidebar: #141b2b;
+  --sidebar-foreground: #eef2f8;
   --sidebar-primary: #a78bfa;
-  --sidebar-primary-foreground: #0a0712;
-  --sidebar-accent: #1f1730;
-  --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-primary-foreground: #0b111e;
+  --sidebar-accent: #1d2536;
+  --sidebar-accent-foreground: #eef2f8;
+  --sidebar-border: rgba(148, 163, 184, 0.16);
   --sidebar-ring: #a78bfa;
 }
 
@@ -299,7 +302,7 @@
   -webkit-backdrop-filter: blur(16px) saturate(180%);
 }
 .dark .glass {
-  background: rgba(15, 10, 26, 0.7);
+  background: rgba(11, 17, 30, 0.72);
 }
 @media (max-width: 768px) {
   .glass {

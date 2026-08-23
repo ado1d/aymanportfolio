@@ -68,7 +68,7 @@ function canRunWebGL(): boolean {
 export function VantaGlobe({
   color = 0xff3b8d,
   color2 = 0x2dd4bf,
-  backgroundColor = 0x020617,
+  backgroundColor = 0x0b111e,
   size = 1.2,
   scale = 1.15,
   scaleMobile = 1.0,
