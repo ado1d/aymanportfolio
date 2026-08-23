@@ -135,7 +135,7 @@ function TechLogo({ skill, editMode, onSaved }: { skill: SkillItem; editMode: bo
               onError={() => setImgError(true)}
             />
           ) : (
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-pink-500 flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-cyan-500 flex items-center justify-center text-white font-bold text-sm">
               {skill.name.charAt(0)}
             </div>
           )}

@@ -32,7 +32,7 @@ export function FavoriteToggle({ projectId, projectTitle }: FavoriteToggleProps)
     <button
       onClick={handleToggle}
       className={`inline-flex items-center gap-1.5 text-sm transition-colors ${
-        fav ? 'text-pink-500' : 'text-muted-foreground hover:text-pink-500'
+        fav ? 'text-rose-500' : 'text-muted-foreground hover:text-rose-500'
       }`}
       aria-label={fav ? 'Remove from favorites' : 'Add to favorites'}
       aria-pressed={fav}
@@ -50,7 +50,7 @@ export function FavoritesCount({ className = '' }: { className?: string }) {
   if (!hydrated || count === 0) return null
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-500/10 text-pink-600 dark:text-pink-400 text-xs font-medium border border-pink-500/20 ${className}`}
+      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-medium border border-rose-500/20 ${className}`}
       title={`${count} favorited project${count !== 1 ? 's' : ''}`}
     >
       <Star className="w-3.5 h-3.5 fill-current" />

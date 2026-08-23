@@ -92,7 +92,7 @@ export function HeroSection({ profile, socialLinks, displayName, firstName }: He
       <div className="text-center max-w-4xl mx-auto">
         <div className="flex justify-center mb-8">
           <ParallaxAvatar>
-            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-primary via-pink-500 to-cyan-500 blur-2xl opacity-40 animate-pulse" />
+            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-primary via-violet-500 to-cyan-500 blur-2xl opacity-40 animate-pulse" />
             {profile?.avatarUrl ? (
               <img
                 src={profile.avatarUrl}
@@ -103,7 +103,7 @@ export function HeroSection({ profile, socialLinks, displayName, firstName }: He
                 className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover ring-4 ring-background shadow-2xl"
               />
             ) : (
-              <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-tr from-primary via-pink-500 to-cyan-500 flex items-center justify-center text-5xl font-bold text-white ring-4 ring-background shadow-2xl">
+              <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-tr from-primary via-violet-500 to-cyan-500 flex items-center justify-center text-5xl font-bold text-white ring-4 ring-background shadow-2xl">
                 {firstName[0]}
               </div>
             )}

@@ -57,7 +57,7 @@
   --secondary-foreground: #0f0a1a;
   --muted: #f5f3ff;
   --muted-foreground: #6b7280;
-  --accent: #fdf2f8;
+  --accent: #ecfeff;
   --accent-foreground: #0f0a1a;
   --destructive: #ef4444;
   --border: #ede9fe;
@@ -66,7 +66,7 @@
   --chart-1: #7c3aed;
   --chart-2: #10b981;
   --chart-3: #f59e0b;
-  --chart-4: #ec4899;
+  --chart-4: #3b82f6;
   --chart-5: #06b6d4;
   --sidebar: #fafaff;
   --sidebar-foreground: #0f0a1a;
@@ -103,7 +103,7 @@
   --chart-1: #a78bfa;
   --chart-2: #34d399;
   --chart-3: #fbbf24;
-  --chart-4: #f472b6;
+  --chart-4: #60a5fa;
   --chart-5: #22d3ee;
   --sidebar: #141b2b;
   --sidebar-foreground: #eef2f8;
@@ -178,7 +178,7 @@
 .aurora-blob-2 {
   width: 45vw; height: 45vw; max-width: 620px; max-height: 620px;
   bottom: -16%; right: -10%;
-  background: radial-gradient(circle, #ec4899 0%, transparent 70%);
+  background: radial-gradient(circle, #22d3ee 0%, transparent 70%);
   animation-delay: -9s;
   animation-duration: 32s;
 }
@@ -240,7 +240,7 @@
   left: -10%;
 }
 .aurora::after {
-  background: radial-gradient(circle, #ec4899 0%, transparent 70%);
+  background: radial-gradient(circle, #22d3ee 0%, transparent 70%);
   bottom: -20%;
   right: -10%;
   animation-delay: -10s;
@@ -313,7 +313,7 @@
 
 /* ============ Gradient Text ============ */
 .gradient-text {
-  background: linear-gradient(135deg, #7c3aed 0%, #ec4899 50%, #7c3aed 100%);
+  background: linear-gradient(135deg, #7c3aed 0%, #22d3ee 50%, #7c3aed 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
@@ -331,7 +331,7 @@
 }
 
 .gradient-text-static {
-  background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+  background: linear-gradient(135deg, #7c3aed 0%, #22d3ee 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -358,9 +358,9 @@
   background: linear-gradient(
     var(--border-angle, 0deg),
     #7c3aed 0%,
-    #ec4899 25%,
+    #22d3ee 25%,
     #06b6d4 50%,
-    #ec4899 75%,
+    #22d3ee 75%,
     #7c3aed 100%
   );
   -webkit-mask:
@@ -427,7 +427,7 @@
 .section-line {
   height: 3px;
   width: 64px;
-  background: linear-gradient(90deg, #7c3aed, #ec4899);
+  background: linear-gradient(90deg, #7c3aed, #22d3ee);
   border-radius: 999px;
   margin: 0 auto;
 }
@@ -495,7 +495,7 @@
 
 /* ============ Timeline ============ */
 .timeline-line {
-  background: linear-gradient(to bottom, #7c3aed 0%, #ec4899 50%, transparent 100%);
+  background: linear-gradient(to bottom, #7c3aed 0%, #22d3ee 50%, transparent 100%);
 }
 
 /* Hide scrollbar utility */
@@ -700,7 +700,7 @@
   bottom: -4px;
   width: 0;
   height: 2px;
-  background: linear-gradient(90deg, #7c3aed, #ec4899);
+  background: linear-gradient(90deg, #7c3aed, #22d3ee);
   border-radius: 2px;
   transform: translateX(-50%);
   transition: width 0.3s ease;
@@ -795,7 +795,7 @@
   100% { background-position: 200% center; }
 }
 .shimmer-text {
-  background: linear-gradient(90deg, var(--primary) 0%, var(--primary) 40%, #ec4899 50%, var(--primary) 60%, var(--primary) 100%);
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary) 40%, #22d3ee 50%, var(--primary) 60%, var(--primary) 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
@@ -871,7 +871,7 @@
   inset: 0;
   border-radius: inherit;
   padding: 1.5px;
-  background: linear-gradient(135deg, #7c3aed, #ec4899, #06b6d4);
+  background: linear-gradient(135deg, #7c3aed, #22d3ee, #06b6d4);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;

@@ -77,7 +77,7 @@ export function Testimonials({ testimonials, editMode, onSaved }: TestimonialsPr
                     className="w-12 h-12 rounded-full object-cover ring-2 ring-primary/20"
                   />
                 ) : (
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-primary to-pink-500 flex items-center justify-center text-white font-bold text-lg ring-2 ring-primary/20">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-primary to-cyan-500 flex items-center justify-center text-white font-bold text-lg ring-2 ring-primary/20">
                     {current.name.charAt(0)}
                   </div>
                 )}
