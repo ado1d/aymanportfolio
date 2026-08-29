@@ -26,7 +26,7 @@ export function ReadingProgress() {
   return (
     <div className="fixed top-0 left-0 right-0 z-[60] h-1 pointer-events-none" aria-hidden>
       <div
-        className="h-full bg-gradient-to-r from-primary via-pink-500 to-cyan-500 transition-[width] duration-150 ease-out shadow-[0_0_10px_rgba(124,58,237,0.6)]"
+        className="h-full bg-gradient-to-r from-primary via-violet-500 to-cyan-500 transition-[width] duration-150 ease-out shadow-[0_0_10px_rgba(124,58,237,0.6)]"
         style={{ width: `${progress}%` }}
       />
     </div>

@@ -30,7 +30,7 @@ export function SectionDivider({ flip = false, variant = 'default', className = 
         <defs>
           <linearGradient id={`divider-grad-${variant}-${flip}`} x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.6" />
-            <stop offset="50%" stopColor="#ec4899" stopOpacity="0.4" />
+            <stop offset="50%" stopColor="#22d3ee" stopOpacity="0.4" />
             <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.6" />
           </linearGradient>
         </defs>

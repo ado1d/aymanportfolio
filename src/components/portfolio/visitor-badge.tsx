@@ -78,7 +78,7 @@ export function VisitorBadge({ detailed = false }: VisitorBadgeProps) {
               <div key={i} className="flex-1 flex flex-col items-center gap-1 group">
                 <div className="w-full flex-1 flex items-end">
                   <div
-                    className="w-full rounded-t bg-gradient-to-t from-primary/60 to-primary transition-all duration-500 group-hover:from-primary group-hover:to-pink-500 relative"
+                    className="w-full rounded-t bg-gradient-to-t from-primary/60 to-primary transition-all duration-500 group-hover:from-primary group-hover:to-cyan-500 relative"
                     style={{ height: `${Math.max(height, d.count > 0 ? 12 : 4)}%` }}
                     title={`${d.date}: ${d.count} visits`}
                   >

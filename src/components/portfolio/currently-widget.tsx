@@ -19,7 +19,7 @@ const TYPE_CONFIG: Record<string, { icon: React.ElementType; label: string; colo
   learning: { icon: Lightbulb, label: 'Learning', color: 'text-amber-500' },
   building: { icon: Hammer, label: 'Building', color: 'text-primary' },
   reading: { icon: BookOpen, label: 'Reading', color: 'text-cyan-500' },
-  listening: { icon: Music, label: 'Listening', color: 'text-pink-500' },
+  listening: { icon: Music, label: 'Listening', color: 'text-cyan-500' },
 }
 
 export function CurrentlyWidget({ currently, editMode, onSaved }: CurrentlyWidgetProps) {

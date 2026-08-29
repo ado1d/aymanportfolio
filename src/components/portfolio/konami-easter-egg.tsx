@@ -39,7 +39,7 @@ export function KonamiEasterEgg({ children }: KonamiEasterEggProps) {
 
 function ConfettiOverlay() {
   const pieces = Array.from({ length: 80 })
-  const colors = ['#7c3aed', '#ec4899', '#06b6d4', '#f59e0b', '#10b981', '#a855f7']
+  const colors = ['#7c3aed', '#22d3ee', '#06b6d4', '#f59e0b', '#10b981', '#a855f7']
 
   return (
     <div className="fixed inset-0 z-[100] pointer-events-none flex items-center justify-center" aria-hidden>

@@ -57,7 +57,7 @@
   --secondary-foreground: #0f0a1a;
   --muted: #f5f3ff;
   --muted-foreground: #6b7280;
-  --accent: #fdf2f8;
+  --accent: #ecfeff;
   --accent-foreground: #0f0a1a;
   --destructive: #ef4444;
   --border: #ede9fe;
@@ -66,7 +66,7 @@
   --chart-1: #7c3aed;
   --chart-2: #10b981;
   --chart-3: #f59e0b;
-  --chart-4: #ec4899;
+  --chart-4: #3b82f6;
   --chart-5: #06b6d4;
   --sidebar: #fafaff;
   --sidebar-foreground: #0f0a1a;
@@ -79,36 +79,39 @@
 }
 
 .dark {
-  --background: #0a0712;
-  --foreground: #fafafa;
-  --card: #15101f;
-  --card-foreground: #fafafa;
-  --popover: #15101f;
-  --popover-foreground: #fafafa;
+  /* Clean slate-navy dark theme — crisper than the old purple-black:
+     clear card elevation, visible borders, readable muted text, and it
+     matches the Vanta globe's navy background tone. */
+  --background: #0b111e;
+  --foreground: #eef2f8;
+  --card: #141b2b;
+  --card-foreground: #eef2f8;
+  --popover: #141b2b;
+  --popover-foreground: #eef2f8;
   --primary: #a78bfa;
-  --primary-foreground: #0a0712;
-  --secondary: #1f1730;
-  --secondary-foreground: #fafafa;
-  --muted: #1f1730;
-  --muted-foreground: #a1a1aa;
-  --accent: #1f1730;
-  --accent-foreground: #fafafa;
+  --primary-foreground: #0b111e;
+  --secondary: #1d2536;
+  --secondary-foreground: #eef2f8;
+  --muted: #1d2536;
+  --muted-foreground: #9aa7bd;
+  --accent: #1d2536;
+  --accent-foreground: #eef2f8;
   --destructive: #f87171;
-  --border: rgba(255, 255, 255, 0.08);
-  --input: rgba(255, 255, 255, 0.12);
+  --border: rgba(148, 163, 184, 0.16);
+  --input: rgba(148, 163, 184, 0.2);
   --ring: #a78bfa;
   --chart-1: #a78bfa;
   --chart-2: #34d399;
   --chart-3: #fbbf24;
-  --chart-4: #f472b6;
+  --chart-4: #60a5fa;
   --chart-5: #22d3ee;
-  --sidebar: #15101f;
-  --sidebar-foreground: #fafafa;
+  --sidebar: #141b2b;
+  --sidebar-foreground: #eef2f8;
   --sidebar-primary: #a78bfa;
-  --sidebar-primary-foreground: #0a0712;
-  --sidebar-accent: #1f1730;
-  --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-primary-foreground: #0b111e;
+  --sidebar-accent: #1d2536;
+  --sidebar-accent-foreground: #eef2f8;
+  --sidebar-border: rgba(148, 163, 184, 0.16);
   --sidebar-ring: #a78bfa;
 }
 
@@ -138,6 +141,81 @@
     linear-gradient(to bottom, rgba(167, 139, 250, 0.06) 1px, transparent 1px);
 }
 
+/* ---- Aurora background (pure CSS, GPU-friendly replacement for the WebGL globe) ---- */
+.aurora-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 58, 237, 0.12), transparent 70%),
+    var(--background);
+}
+.dark .aurora-bg {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(167, 139, 250, 0.1), transparent 70%),
+    var(--background);
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.35;
+  will-change: transform;
+  animation: aurora-drift 26s ease-in-out infinite alternate;
+}
+/* Blur radius is expensive on mobile GPUs — soften it on small screens */
+@media (max-width: 768px) {
+  .aurora-blob { filter: blur(60px); opacity: 0.28; }
+}
+.aurora-blob-1 {
+  width: 55vw; height: 55vw; max-width: 720px; max-height: 720px;
+  top: -18%; left: -12%;
+  background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
+}
+.aurora-blob-2 {
+  width: 45vw; height: 45vw; max-width: 620px; max-height: 620px;
+  bottom: -16%; right: -10%;
+  background: radial-gradient(circle, #22d3ee 0%, transparent 70%);
+  animation-delay: -9s;
+  animation-duration: 32s;
+}
+.aurora-blob-3 {
+  width: 38vw; height: 38vw; max-width: 520px; max-height: 520px;
+  top: 34%; right: -14%;
+  background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
+  opacity: 0.22;
+  animation-delay: -18s;
+  animation-duration: 38s;
+}
+.dark .aurora-blob { opacity: 0.25; }
+.dark .aurora-blob-3 { opacity: 0.16; }
+
+.aurora-grid {
+  position: absolute;
+  inset: 0;
+  background-size: 56px 56px;
+  background-image:
+    linear-gradient(to right, rgba(124, 58, 237, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(124, 58, 237, 0.05) 1px, transparent 1px);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 85%);
+  mask-image: linear-gradient(to bottom, black 0%, transparent 85%);
+}
+.dark .aurora-grid {
+  background-image:
+    linear-gradient(to right, rgba(167, 139, 250, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(167, 139, 250, 0.055) 1px, transparent 1px);
+}
+
+@keyframes aurora-drift {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(6vw, -4vh) scale(1.08); }
+  100% { transform: translate(-5vw, 5vh) scale(0.95); }
+}
+
+/* Legacy helpers kept for the lifestyle page and print styles */
 .aurora {
   position: fixed;
   inset: 0;
@@ -162,7 +240,7 @@
   left: -10%;
 }
 .aurora::after {
-  background: radial-gradient(circle, #ec4899 0%, transparent 70%);
+  background: radial-gradient(circle, #22d3ee 0%, transparent 70%);
   bottom: -20%;
   right: -10%;
   animation-delay: -10s;
@@ -216,23 +294,36 @@
 .dark .mouse-light { background: radial-gradient(circle, rgba(167, 139, 250, 0.12) 0%, rgba(167, 139, 250, 0.04) 40%, transparent 70%); }
 
 /* ============ Glass Effect ============ */
+/* Blur + saturate is one of the most expensive effects on mobile GPUs.
+   Reduce the blur radius on small screens. */
 .glass {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
 }
 .dark .glass {
-  background: rgba(15, 10, 26, 0.7);
+  background: rgba(11, 17, 30, 0.72);
+}
+@media (max-width: 768px) {
+  .glass {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
 }
 
 /* ============ Gradient Text ============ */
 .gradient-text {
-  background: linear-gradient(135deg, #7c3aed 0%, #ec4899 50%, #7c3aed 100%);
+  background: linear-gradient(135deg, #7c3aed 0%, #22d3ee 50%, #7c3aed 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: gradient-shift 6s ease infinite;
+}
+/* Animating background-position repaints the text continuously —
+   pause it on small screens to keep scrolling smooth. */
+@media (max-width: 768px) {
+  .gradient-text { animation: none; }
 }
 @keyframes gradient-shift {
   0%, 100% { background-position: 0% center; }
@@ -240,13 +331,16 @@
 }
 
 .gradient-text-static {
-  background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+  background: linear-gradient(135deg, #7c3aed 0%, #22d3ee 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 /* ============ Glowing Border Card ============ */
+/* Perf note: the animated gradient border only runs WHILE hovering.
+   Previously the @property animation ran continuously on every card
+   (dozens of elements) even at opacity 0 — a constant CPU cost. */
 .glow-card {
   position: relative;
   overflow: hidden;
@@ -264,9 +358,9 @@
   background: linear-gradient(
     var(--border-angle, 0deg),
     #7c3aed 0%,
-    #ec4899 25%,
+    #22d3ee 25%,
     #06b6d4 50%,
-    #ec4899 75%,
+    #22d3ee 75%,
     #7c3aed 100%
   );
   -webkit-mask:
@@ -277,13 +371,15 @@
     linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  animation: border-rotate 4s linear infinite;
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
   z-index: 0;
 }
-.glow-card:hover::before { opacity: 1; }
+.glow-card:hover::before {
+  opacity: 1;
+  animation: border-rotate 4s linear infinite;
+}
 .glow-card a { position: relative; z-index: 10; pointer-events: auto; }
 @property --border-angle {
   syntax: '<angle>';
@@ -331,7 +427,7 @@
 .section-line {
   height: 3px;
   width: 64px;
-  background: linear-gradient(90deg, #7c3aed, #ec4899);
+  background: linear-gradient(90deg, #7c3aed, #22d3ee);
   border-radius: 999px;
   margin: 0 auto;
 }
@@ -399,7 +495,7 @@
 
 /* ============ Timeline ============ */
 .timeline-line {
-  background: linear-gradient(to bottom, #7c3aed 0%, #ec4899 50%, transparent 100%);
+  background: linear-gradient(to bottom, #7c3aed 0%, #22d3ee 50%, transparent 100%);
 }
 
 /* Hide scrollbar utility */
@@ -427,6 +523,10 @@
   /* Hide non-essential UI */
   .grid-bg,
   .aurora,
+  .aurora-bg,
+  .aurora-blob,
+  .aurora-grid,
+  .vanta-bg,
   .particles,
   .particle,
   .mouse-light,
@@ -568,7 +668,8 @@
   }
   .particle,
   .aurora::before,
-  .aurora::after {
+  .aurora::after,
+  .aurora-blob {
     animation: none !important;
   }
 }
@@ -599,7 +700,7 @@
   bottom: -4px;
   width: 0;
   height: 2px;
-  background: linear-gradient(90deg, #7c3aed, #ec4899);
+  background: linear-gradient(90deg, #7c3aed, #22d3ee);
   border-radius: 2px;
   transform: translateX(-50%);
   transition: width 0.3s ease;
@@ -694,7 +795,7 @@
   100% { background-position: 200% center; }
 }
 .shimmer-text {
-  background: linear-gradient(90deg, var(--primary) 0%, var(--primary) 40%, #ec4899 50%, var(--primary) 60%, var(--primary) 100%);
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary) 40%, #22d3ee 50%, var(--primary) 60%, var(--primary) 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
@@ -770,7 +871,7 @@
   inset: 0;
   border-radius: inherit;
   padding: 1.5px;
-  background: linear-gradient(135deg, #7c3aed, #ec4899, #06b6d4);
+  background: linear-gradient(135deg, #7c3aed, #22d3ee, #06b6d4);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;

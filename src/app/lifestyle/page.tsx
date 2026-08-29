@@ -31,7 +31,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   Events: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
   Travel: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20',
   Achievement: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
-  Friends: 'bg-pink-500/10 text-pink-600 dark:text-pink-400 border-pink-500/20',
+  Friends: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20',
   Life: 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20',
   Campus: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
 }

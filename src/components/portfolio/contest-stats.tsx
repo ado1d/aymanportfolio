@@ -86,8 +86,8 @@ export function ContestStats({ contests }: ContestStatsProps) {
       icon: Award,
       label: 'Platforms',
       value: `${stats.platforms}`,
-      color: 'text-pink-500',
-      bg: 'bg-pink-500/10',
+      color: 'text-cyan-500',
+      bg: 'bg-cyan-500/10',
     },
     {
       icon: Star,

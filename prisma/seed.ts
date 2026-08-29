@@ -370,9 +370,9 @@ async function main() {
   // Social links
   const socials = [
     { platform: 'GitHub', url: 'https://github.com/ado1d', icon: 'github', order: 0 },
-    { platform: 'LinkedIn', url: '#', icon: 'linkedin', order: 1 },
+    { platform: 'LinkedIn', url: 'https://www.linkedin.com/in/aymanchowdhury69', icon: 'linkedin', order: 1 },
     { platform: 'Codeforces', url: 'https://codeforces.com/profile/adold_op', icon: 'codeforces', order: 2 },
-    { platform: 'Facebook', url: '#', icon: 'facebook', order: 3 },
+    { platform: 'Facebook', url: 'https://www.facebook.com/ayman.chowdhury.7731', icon: 'facebook', order: 3 },
     { platform: 'Email', url: 'mailto:ayman.dev@gmail.com', icon: 'mail', order: 4 },
   ]
   for (let i = 0; i < socials.length; i++) {
