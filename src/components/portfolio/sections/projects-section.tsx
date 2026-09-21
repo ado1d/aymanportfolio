@@ -25,7 +25,7 @@ export function ProjectsSection({
   onOpenDetail: (p: Project) => void
 } & SectionEditProps) {
   return (
-    <section id="projects" className="py-24 px-4 sm:px-6 bg-muted/20">
+    <section className="py-24 px-4 sm:px-6 bg-muted/20">
       <div className="max-w-6xl mx-auto">
         <SectionHeader eyebrow="Things I've Built" title="Projects" icon={Rocket} subtitle="From competitive programming tools to full-stack apps" />
         {editMode && (

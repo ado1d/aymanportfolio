@@ -9,7 +9,7 @@ import type { Skills } from '@/lib/types'
 
 export function SkillsSection({ skills, editMode, onSaved }: { skills: Skills } & SectionEditProps) {
   return (
-    <section id="skills" className="py-24 px-4 sm:px-6 bg-muted/20">
+    <section className="py-24 px-4 sm:px-6 bg-muted/20">
       <div className="max-w-5xl mx-auto">
         <SectionHeader eyebrow="Tech Stack" title="Skills & Tools" icon={Code} subtitle="Technologies I use to bring ideas to life" />
         {editMode && (

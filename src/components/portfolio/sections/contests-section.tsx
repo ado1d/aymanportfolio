@@ -15,7 +15,7 @@ import type { Contest } from '@/lib/types'
 
 export function ContestsSection({ contests, editMode, onSaved }: { contests: Contest[] } & SectionEditProps) {
   return (
-    <section id="contests" className="py-24 px-4 sm:px-6">
+    <section className="py-24 px-4 sm:px-6">
       <div className="max-w-5xl mx-auto">
         <SectionHeader eyebrow="Competitive Programming" title="Contests & Rankings" icon={Target} subtitle="Algorithms are my sport" />
         {editMode && (

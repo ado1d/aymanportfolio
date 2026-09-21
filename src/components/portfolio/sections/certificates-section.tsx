@@ -24,7 +24,7 @@ export function CertificatesSection({
   onOpenLightbox: (imgs: LightboxImage[], i: number) => void
 } & SectionEditProps) {
   return (
-    <section id="certificates" className="py-24 px-4 sm:px-6">
+    <section className="py-24 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
         <SectionHeader eyebrow="Lifelong Learning" title="Certificates" icon={Award} subtitle="Verified credentials & specializations" />
         {editMode && (

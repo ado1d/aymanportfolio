@@ -10,7 +10,6 @@ import { PortfolioSkeleton } from '@/components/portfolio/portfolio-skeleton'
 import { AdminInbox } from '@/components/portfolio/admin-inbox'
 import { ShortcutHelp } from '@/components/portfolio/shortcut-help'
 import { ProjectDetailModal } from '@/components/portfolio/project-detail-modal'
-import { ReadingProgress } from '@/components/portfolio/reading-progress'
 import { ScrollProgressButton } from '@/components/portfolio/scroll-progress-button'
 import { KonamiEasterEgg } from '@/components/portfolio/konami-easter-egg'
 import { CursorFollower } from '@/components/portfolio/cursor-follower'
@@ -198,7 +197,6 @@ export default function Home() {
       <SiteBackground />
       <div className="relative z-10 min-h-screen flex flex-col bg-transparent">
         <JsonLd profile={profile} projects={projects} socialLinks={socialLinks} />
-        <ReadingProgress />
 
         {/* Navigation */}
         <SiteNav
@@ -230,41 +228,41 @@ export default function Home() {
           <SectionDivider />
 
           {/* ============ Below-the-fold sections: lazy mounted + code-split ============ */}
-          <LazySection minHeight={900}>
+          <LazySection id="about" minHeight={900}>
             <AboutSection profile={profile} currently={currently} funFacts={funFacts} {...editProps} />
           </LazySection>
 
-          <LazySection minHeight={800}>
+          <LazySection id="skills" minHeight={800}>
             <SkillsSection skills={skills} {...editProps} />
           </LazySection>
 
-          <LazySection minHeight={700}>
+          <LazySection id="education" minHeight={700}>
             <EducationSection education={education} {...editProps} />
           </LazySection>
 
-          <LazySection minHeight={900}>
+          <LazySection id="hackathons" minHeight={900}>
             <HackathonsSection hackathons={hackathons} onOpenLightbox={openLightbox} {...editProps} />
           </LazySection>
 
-          <LazySection minHeight={1100}>
+          <LazySection id="contests" minHeight={1100}>
             <ContestsSection contests={contests} {...editProps} />
           </LazySection>
 
-          <LazySection minHeight={1000}>
+          <LazySection id="projects" minHeight={1000}>
             <ProjectsSection projects={projects} onOpenLightbox={openLightbox} onOpenDetail={openDetail} {...editProps} />
           </LazySection>
 
-          <LazySection minHeight={800}>
+          <LazySection id="certificates" minHeight={800}>
             <CertificatesSection certificates={certificates} onOpenLightbox={openLightbox} {...editProps} />
           </LazySection>
 
-          <LazySection minHeight={600}>
+          <LazySection id="achievements" minHeight={600}>
             <AchievementsSection achievements={achievements} {...editProps} />
           </LazySection>
 
           <SectionDivider flip />
 
-          <LazySection minHeight={500}>
+          <LazySection id="testimonials" minHeight={500}>
             <TestimonialsSection testimonials={testimonials} {...editProps} />
           </LazySection>
 
@@ -272,11 +270,11 @@ export default function Home() {
             <LifestyleCta />
           </LazySection>
 
-          <LazySection minHeight={700}>
+          <LazySection id="faq" minHeight={700}>
             <FaqSectionBlock faqs={faqs} {...editProps} />
           </LazySection>
 
-          <LazySection minHeight={600}>
+          <LazySection id="contact" minHeight={600}>
             <ContactSection email={displayEmail} location={displayLocation} socialLinks={socialLinks} {...editProps} />
           </LazySection>
         </main>

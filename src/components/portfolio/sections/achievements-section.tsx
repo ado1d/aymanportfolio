@@ -11,7 +11,7 @@ import type { Achievement } from '@/lib/types'
 
 export function AchievementsSection({ achievements, editMode, onSaved }: { achievements: Achievement[] } & SectionEditProps) {
   return (
-    <section id="achievements" className="py-24 px-4 sm:px-6 bg-muted/20">
+    <section className="py-24 px-4 sm:px-6 bg-muted/20">
       <div className="max-w-5xl mx-auto">
         <SectionHeader eyebrow="Highlights" title="Achievements" icon={Medal} subtitle="Milestones along the way" />
         {editMode && (

@@ -12,7 +12,7 @@ import type { Faq, SocialLink, Testimonial } from '@/lib/types'
 
 export function TestimonialsSection({ testimonials, editMode, onSaved }: { testimonials: Testimonial[] } & SectionEditProps) {
   return (
-    <section id="testimonials" className="py-24 px-4 sm:px-6">
+    <section className="py-24 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto">
         <SectionHeader eyebrow="Kind Words" title="Testimonials" icon={Quote} subtitle="What mentors, teammates, and professors say" />
         <Testimonials testimonials={testimonials} editMode={editMode} onSaved={onSaved} />
@@ -23,7 +23,7 @@ export function TestimonialsSection({ testimonials, editMode, onSaved }: { testi
 
 export function FaqSectionBlock({ faqs, editMode, onSaved }: { faqs: Faq[] } & SectionEditProps) {
   return (
-    <section id="faq" className="py-24 px-4 sm:px-6 bg-muted/20">
+    <section className="py-24 px-4 sm:px-6 bg-muted/20">
       <div className="max-w-4xl mx-auto">
         <SectionHeader eyebrow="Questions & Answers" title="FAQ" icon={HelpCircle} subtitle="Things people often ask me" />
         <FaqSection faqs={faqs} editMode={editMode} onSaved={onSaved} />
@@ -44,7 +44,7 @@ export function ContactSection({
   socialLinks: SocialLink[]
 } & SectionEditProps) {
   return (
-    <section id="contact" className="py-24 px-4 sm:px-6">
+    <section className="py-24 px-4 sm:px-6">
       <div className="max-w-3xl mx-auto">
         <SectionHeader eyebrow="Get In Touch" title="Let's Connect" icon={Send} subtitle="Have an opportunity, idea, or just want to say hi? Drop me a message." />
         <Card className="glow-card">

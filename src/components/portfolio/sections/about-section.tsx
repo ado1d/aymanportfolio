@@ -25,7 +25,7 @@ export function AboutSection({
   funFacts: FunFact[]
 } & SectionEditProps) {
   return (
-    <section id="about" className="py-24 px-4 sm:px-6">
+    <section className="py-24 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto space-y-8">
         <SectionHeader eyebrow="Who I am" title="About Me" icon={Sparkles} />
         <AboutBlock profile={profile} editMode={editMode} onSaved={onSaved} />
