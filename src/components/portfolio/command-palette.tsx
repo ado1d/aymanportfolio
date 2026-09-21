@@ -74,16 +74,6 @@ export function CommandPalette({
         },
         keywords: 'top home start',
       },
-      {
-        id: 'print',
-        label: 'Print / Save as PDF',
-        group: 'Actions',
-        action: () => {
-          window.print()
-          onOpenChange(false)
-        },
-        keywords: 'print pdf save resume',
-      },
     ]
 
     return [...nav, ...social, ...actions]

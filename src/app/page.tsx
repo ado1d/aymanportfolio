@@ -183,7 +183,6 @@ export default function Home() {
   const testimonials = data?.testimonials || []
   const currently = data?.currently || {}
   const faqs = data?.faqs || []
-  const funFacts = data?.funFacts || []
 
   const displayName = profile?.name || 'Ayman'
   const displayEmail = profile?.email || 'aaymanchowdhury@gmail.com'
@@ -229,7 +228,7 @@ export default function Home() {
 
           {/* ============ Below-the-fold sections: lazy mounted + code-split ============ */}
           <LazySection id="about" minHeight={900}>
-            <AboutSection profile={profile} currently={currently} funFacts={funFacts} {...editProps} />
+            <AboutSection profile={profile} currently={currently} {...editProps} />
           </LazySection>
 
           <LazySection id="skills" minHeight={800}>
