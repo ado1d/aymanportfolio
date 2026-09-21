@@ -8,24 +8,21 @@ import { FIELD_DEFS } from '../field-defs'
 import { CurrentlyWidget } from '../currently-widget'
 import { VisitorLocationWidget } from '../visitor-location-widget'
 import { ActivityHeatmap } from '../activity-heatmap'
-import { FunFactsWidget } from '../fun-facts-widget'
 import { VisitorBadge } from '../visitor-badge'
 import { SectionHeader, type SectionEditProps } from './section-header'
-import type { CurrentlyData, FunFact, PortfolioData, Profile } from '@/lib/types'
+import type { CurrentlyData, PortfolioData, Profile } from '@/lib/types'
 
 export function AboutSection({
   profile,
   currently,
-  funFacts,
   editMode,
   onSaved,
 }: {
   profile: Profile | null
   currently: CurrentlyData
-  funFacts: FunFact[]
 } & SectionEditProps) {
   return (
-    <section id="about" className="py-24 px-4 sm:px-6">
+    <section className="py-24 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto space-y-8">
         <SectionHeader eyebrow="Who I am" title="About Me" icon={Sparkles} />
         <AboutBlock profile={profile} editMode={editMode} onSaved={onSaved} />
@@ -34,7 +31,6 @@ export function AboutSection({
           <VisitorLocationWidget />
         </div>
         <ActivityHeatmap />
-        <FunFactsWidget funFacts={funFacts} editMode={editMode} onSaved={onSaved} />
         {editMode && <VisitorBadge detailed />}
       </div>
     </section>

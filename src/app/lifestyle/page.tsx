@@ -4,9 +4,8 @@ import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import {
   ArrowLeft, Loader2, Camera, X, ChevronLeft, ChevronRight,
-  Plus, Pencil, Trash2, ShieldCheck, Moon, Sun, Upload, Loader2 as Spinner,
+  Plus, Pencil, Trash2, ShieldCheck, Upload, Loader2 as Spinner,
 } from 'lucide-react'
-import { Switch } from '@/components/ui/switch'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -56,7 +55,6 @@ export default function LifestylePage() {
   const [lightbox, setLightbox] = useState<number | null>(null)
   const [clapping, setClapping] = useState<Set<string>>(new Set())
   const [clapBursts, setClapBursts] = useState<Record<string, number>>({})
-  const [isDark, setIsDark] = useState(false)
   const [editMode, setEditMode] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const [authed, setAuthed] = useState(false)
@@ -65,21 +63,6 @@ export default function LifestylePage() {
   const [editOpen, setEditOpen] = useState(false)
   const [uploading, setUploading] = useState(false)
   const { toast } = useToast()
-
-  useEffect(() => {
-    const saved = localStorage.getItem('theme')
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    const dark = saved === 'dark' || (!saved && prefersDark)
-    setIsDark(dark)
-    if (dark) document.documentElement.classList.add('dark')
-  }, [])
-
-  const toggleTheme = () => {
-    const next = !isDark
-    setIsDark(next)
-    if (next) { document.documentElement.classList.add('dark'); localStorage.setItem('theme', 'dark') }
-    else { document.documentElement.classList.remove('dark'); localStorage.setItem('theme', 'light') }
-  }
 
   const load = useCallback(async () => {
     try {
@@ -173,11 +156,6 @@ export default function LifestylePage() {
               <span className="gradient-text">My Lifestyle</span>
             </h1>
             <div className="flex items-center gap-2">
-              <div className="hidden sm:flex items-center gap-1.5">
-                <Sun className="w-4 h-4 text-muted-foreground" />
-                <Switch checked={isDark} onCheckedChange={toggleTheme} aria-label="Toggle dark mode" />
-                <Moon className="w-4 h-4 text-muted-foreground" />
-              </div>
               <Button variant={editMode ? 'default' : 'outline'} size="sm" onClick={toggleEditMode}>
                 {editMode ? <><Pencil className="w-3.5 h-3.5 mr-1.5" /> Editing</> : <><ShieldCheck className="w-3.5 h-3.5 mr-1.5" /> Edit</>}
               </Button>

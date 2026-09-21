@@ -5,7 +5,6 @@ import {
   ArrowRight,
   Eye,
   FileText,
-  Printer,
   Send,
   UserPlus,
 } from 'lucide-react'
@@ -181,15 +180,6 @@ export function HeroSection({ profile, socialLinks, displayName, firstName }: He
               </a>
             </Button>
           )}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="hover-lift"
-            onClick={() => window.print()}
-            title="Print or save as PDF"
-          >
-            <Printer className="w-3.5 h-3.5 mr-1.5" /> Print
-          </Button>
         </div>
 
         <div className="mt-6 flex items-center justify-center gap-2 flex-wrap">

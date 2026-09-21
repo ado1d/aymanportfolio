@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Loader2, Send, CheckCircle2, Mail, MapPin, Copy } from 'lucide-react'
-import { useSoundToast } from '@/hooks/use-sound-toast'
+import { useToast } from '@/hooks/use-toast'
 import { getSocialIcon } from './icons'
 import type { SocialLink } from '@/lib/types'
 
@@ -20,7 +20,7 @@ export function ContactForm({ email, location, socialLinks }: ContactFormProps) 
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
-  const { toast } = useSoundToast()
+  const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,7 +41,6 @@ export function ContactForm({ email, location, socialLinks }: ContactFormProps) 
       toast({
         title: 'Message sent! 🎉',
         description: "Thanks for reaching out — I'll get back to you soon.",
-        sound: 'success',
       })
     } catch {
       toast({ title: 'Network error', description: 'Please try again.', variant: 'destructive' })
@@ -53,7 +52,7 @@ export function ContactForm({ email, location, socialLinks }: ContactFormProps) 
   const copyEmail = async () => {
     try {
       await navigator.clipboard.writeText(email)
-      toast({ title: 'Email copied to clipboard', sound: 'toggle' })
+      toast({ title: 'Email copied to clipboard' })
     } catch {
       toast({ title: 'Could not copy', variant: 'destructive' })
     }

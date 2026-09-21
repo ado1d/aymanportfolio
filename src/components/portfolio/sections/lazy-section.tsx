@@ -9,6 +9,13 @@ interface LazySectionProps {
   /** How far outside the viewport the section starts loading (px) */
   rootMargin?: string
   className?: string
+  /**
+   * Anchor id for this section (e.g. "about", "skills").
+   * Put on the OUTER wrapper so that <a href="#about"> and
+   * document.getElementById('about') resolve immediately on first paint,
+   * BEFORE the heavy inner section has mounted.
+   */
+  id?: string
 }
 
 /**
@@ -25,8 +32,14 @@ interface LazySectionProps {
  * which flashes the full-page "Loading portfolio..." skeleton every time the
  * user scrolls into a not-yet-loaded section. With it, only the small
  * placeholder below shows while the chunk streams in.
+ *
+ * Anchor IDs: pass the section's anchor id via the `id` prop. It lands on
+ * this outer wrapper, which is always in the DOM. Putting the id on the
+ * inner <section> instead would mean it doesn't exist until the user scrolls
+ * close enough to mount it — and anchor links / "scroll to section" buttons
+ * would silently do nothing on first page load.
  */
-export function LazySection({ children, minHeight = 500, rootMargin = '900px 0px', className }: LazySectionProps) {
+export function LazySection({ children, minHeight = 500, rootMargin = '900px 0px', className, id }: LazySectionProps) {
   const ref = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
 
@@ -70,7 +83,7 @@ export function LazySection({ children, minHeight = 500, rootMargin = '900px 0px
   const placeholder = <div style={{ minHeight }} aria-hidden="true" />
 
   return (
-    <div ref={ref} className={className}>
+    <div ref={ref} id={id} className={className}>
       {visible ? <Suspense fallback={placeholder}>{children}</Suspense> : placeholder}
     </div>
   )

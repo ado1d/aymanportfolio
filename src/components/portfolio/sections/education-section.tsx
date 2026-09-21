@@ -11,7 +11,7 @@ import type { Education } from '@/lib/types'
 
 export function EducationSection({ education, editMode, onSaved }: { education: Education[] } & SectionEditProps) {
   return (
-    <section id="education" className="py-24 px-4 sm:px-6">
+    <section className="py-24 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto">
         <SectionHeader eyebrow="Academic Journey" title="Education" icon={GraduationCap} subtitle="Where I built my foundations" />
         {editMode && (

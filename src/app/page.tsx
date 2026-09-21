@@ -10,15 +10,12 @@ import { PortfolioSkeleton } from '@/components/portfolio/portfolio-skeleton'
 import { AdminInbox } from '@/components/portfolio/admin-inbox'
 import { ShortcutHelp } from '@/components/portfolio/shortcut-help'
 import { ProjectDetailModal } from '@/components/portfolio/project-detail-modal'
-import { ReadingProgress } from '@/components/portfolio/reading-progress'
 import { ScrollProgressButton } from '@/components/portfolio/scroll-progress-button'
 import { KonamiEasterEgg } from '@/components/portfolio/konami-easter-egg'
-import { SoundProvider } from '@/components/portfolio/sound-provider'
 import { CursorFollower } from '@/components/portfolio/cursor-follower'
 import { SiteBackground } from '@/components/portfolio/site-background'
 import { JsonLd } from '@/components/portfolio/json-ld'
 import { SectionDivider } from '@/components/portfolio/section-divider'
-import { useSoundEffects } from '@/hooks/use-sound-effects'
 import { SiteNav, NAV_ITEMS } from '@/components/portfolio/site-nav'
 import { HeroSection } from '@/components/portfolio/sections/hero-section'
 import { StatsSection } from '@/components/portfolio/sections/stats-section'
@@ -68,19 +65,8 @@ export default function Home() {
   const [inboxOpen, setInboxOpen] = useState(false)
   const [shortcutHelpOpen, setShortcutHelpOpen] = useState(false)
   const [detailProject, setDetailProject] = useState<Project | null>(null)
-  const [isDark, setIsDark] = useState(false)
 
-  const sound = useSoundEffects()
   const edit = useEditMode()
-
-  // theme init
-  useEffect(() => {
-    const saved = localStorage.getItem('theme')
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    const dark = saved === 'dark' || (!saved && prefersDark)
-    setIsDark(dark)
-    if (dark) document.documentElement.classList.add('dark')
-  }, [])
 
   // Cmd+K / Ctrl+K to open command palette + other keyboard shortcuts
   useEffect(() => {
@@ -118,22 +104,6 @@ export default function Home() {
         return
       }
 
-      // "t" toggles theme (read current state from DOM to avoid stale closure)
-      if (e.key.toLowerCase() === 't' && !e.metaKey && !e.ctrlKey && !e.altKey) {
-        e.preventDefault()
-        const isCurrentlyDark = document.documentElement.classList.contains('dark')
-        if (isCurrentlyDark) {
-          document.documentElement.classList.remove('dark')
-          localStorage.setItem('theme', 'light')
-          setIsDark(false)
-        } else {
-          document.documentElement.classList.add('dark')
-          localStorage.setItem('theme', 'dark')
-          setIsDark(true)
-        }
-        return
-      }
-
       // "g" + letter = go to section
       if (e.key.toLowerCase() === 'g' && !e.metaKey && !e.ctrlKey) {
         const handler = (ev: KeyboardEvent) => {
@@ -160,18 +130,6 @@ export default function Home() {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
-
-  const toggleTheme = () => {
-    const next = !isDark
-    setIsDark(next)
-    if (next) {
-      document.documentElement.classList.add('dark')
-      localStorage.setItem('theme', 'dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-      localStorage.setItem('theme', 'light')
-    }
-  }
 
   const refresh = useCallback(async () => {
     try {
@@ -225,7 +183,6 @@ export default function Home() {
   const testimonials = data?.testimonials || []
   const currently = data?.currently || {}
   const faqs = data?.faqs || []
-  const funFacts = data?.funFacts || []
 
   const displayName = profile?.name || 'Ayman'
   const displayEmail = profile?.email || 'aaymanchowdhury@gmail.com'
@@ -235,145 +192,136 @@ export default function Home() {
   const editProps = { editMode: edit.editMode, onSaved: refresh }
 
   return (
-    <SoundProvider>
-      <KonamiEasterEgg>
-        <SiteBackground />
-        <div className="relative z-10 min-h-screen flex flex-col bg-transparent">
-          <JsonLd profile={profile} projects={projects} socialLinks={socialLinks} />
-          <ReadingProgress />
+    <KonamiEasterEgg>
+      <SiteBackground />
+      <div className="relative z-10 min-h-screen flex flex-col bg-transparent">
+        <JsonLd profile={profile} projects={projects} socialLinks={socialLinks} />
 
-          {/* Navigation */}
-          <SiteNav
-            firstName={firstName}
-            isDark={isDark}
-            onToggleTheme={toggleTheme}
-            editMode={edit.editMode}
-            authed={edit.authed}
-            onToggleEditMode={edit.toggleEditMode}
-            onOpenCommandPalette={() => setCmdOpen(true)}
-            onOpenInbox={() => setInboxOpen(true)}
-            soundEnabled={sound.enabled}
-            onToggleSound={sound.toggle}
-          />
+        {/* Navigation */}
+        <SiteNav
+          firstName={firstName}
+          editMode={edit.editMode}
+          authed={edit.authed}
+          onToggleEditMode={edit.toggleEditMode}
+          onOpenCommandPalette={() => setCmdOpen(true)}
+          onOpenInbox={() => setInboxOpen(true)}
+        />
 
-          <main className="flex-1 relative z-10 pt-16">
-            {/* ============ HERO (renders immediately) ============ */}
-            <HeroSection
-              profile={profile}
-              socialLinks={socialLinks}
-              displayName={displayName}
-              firstName={firstName}
-            />
-
-            {/* ============ STATS STRIP ============ */}
-            <StatsSection
-              hackathons={hackathons.length}
-              contests={contests.length}
-              projects={projects.length}
-              certificates={certificates.length}
-            />
-
-            <SectionDivider />
-
-            {/* ============ Below-the-fold sections: lazy mounted + code-split ============ */}
-            <LazySection minHeight={900}>
-              <AboutSection profile={profile} currently={currently} funFacts={funFacts} {...editProps} />
-            </LazySection>
-
-            <LazySection minHeight={800}>
-              <SkillsSection skills={skills} {...editProps} />
-            </LazySection>
-
-            <LazySection minHeight={700}>
-              <EducationSection education={education} {...editProps} />
-            </LazySection>
-
-            <LazySection minHeight={900}>
-              <HackathonsSection hackathons={hackathons} onOpenLightbox={openLightbox} {...editProps} />
-            </LazySection>
-
-            <LazySection minHeight={1100}>
-              <ContestsSection contests={contests} {...editProps} />
-            </LazySection>
-
-            <LazySection minHeight={1000}>
-              <ProjectsSection projects={projects} onOpenLightbox={openLightbox} onOpenDetail={openDetail} {...editProps} />
-            </LazySection>
-
-            <LazySection minHeight={800}>
-              <CertificatesSection certificates={certificates} onOpenLightbox={openLightbox} {...editProps} />
-            </LazySection>
-
-            <LazySection minHeight={600}>
-              <AchievementsSection achievements={achievements} {...editProps} />
-            </LazySection>
-
-            <SectionDivider flip />
-
-            <LazySection minHeight={500}>
-              <TestimonialsSection testimonials={testimonials} {...editProps} />
-            </LazySection>
-
-            <LazySection minHeight={400}>
-              <LifestyleCta />
-            </LazySection>
-
-            <LazySection minHeight={700}>
-              <FaqSectionBlock faqs={faqs} {...editProps} />
-            </LazySection>
-
-            <LazySection minHeight={600}>
-              <ContactSection email={displayEmail} location={displayLocation} socialLinks={socialLinks} {...editProps} />
-            </LazySection>
-          </main>
-
-          {/* Footer (sticky) */}
-          <footer className="border-t relative z-10 mt-auto">
-            <div className="container mx-auto px-4 sm:px-6 py-6 text-center">
-              <p className="text-sm text-muted-foreground">
-                © {new Date().getFullYear()} {firstName} · Crafted with{' '}
-                <span className="text-red-500">♥</span> & Next.js
-              </p>
-            </div>
-          </footer>
-
-          {/* Scroll progress ring / back-to-top */}
-          <ScrollProgressButton />
-
-          {/* Custom cursor follower (desktop only) */}
-          <CursorFollower />
-
-          {/* Login + Lightbox + Command Palette */}
-          <LoginDialog open={edit.showLogin} onOpenChange={edit.setShowLogin} onLogin={edit.login} />
-          {lightbox && (
-            <ImageLightbox
-              images={lightbox.images}
-              open={!!lightbox}
-              startIndex={lightbox.index}
-              onClose={() => setLightbox(null)}
-            />
-          )}
-          <CommandPalette
-            open={cmdOpen}
-            onOpenChange={setCmdOpen}
-            sections={NAV_ITEMS}
+        <main className="flex-1 relative z-10 pt-16">
+          {/* ============ HERO (renders immediately) ============ */}
+          <HeroSection
+            profile={profile}
             socialLinks={socialLinks}
-            onToggleTheme={toggleTheme}
-            isDark={isDark}
+            displayName={displayName}
+            firstName={firstName}
           />
-          <AdminInbox open={inboxOpen} onOpenChange={setInboxOpen} authed={edit.authed} />
-          <ShortcutHelp open={shortcutHelpOpen} onOpenChange={setShortcutHelpOpen} />
-          <ProjectDetailModal
-            project={detailProject}
-            open={!!detailProject}
-            onOpenChange={(o) => !o && setDetailProject(null)}
-            onOpenLightbox={(url) => {
-              setLightbox({ images: [{ url, title: detailProject?.title, subtitle: detailProject?.description }], index: 0 })
-              setDetailProject(null)
-            }}
+
+          {/* ============ STATS STRIP ============ */}
+          <StatsSection
+            hackathons={hackathons.length}
+            contests={contests.length}
+            projects={projects.length}
+            certificates={certificates.length}
           />
-        </div>
-      </KonamiEasterEgg>
-    </SoundProvider>
+
+          <SectionDivider />
+
+          {/* ============ Below-the-fold sections: lazy mounted + code-split ============ */}
+          <LazySection id="about" minHeight={900}>
+            <AboutSection profile={profile} currently={currently} {...editProps} />
+          </LazySection>
+
+          <LazySection id="skills" minHeight={800}>
+            <SkillsSection skills={skills} {...editProps} />
+          </LazySection>
+
+          <LazySection id="education" minHeight={700}>
+            <EducationSection education={education} {...editProps} />
+          </LazySection>
+
+          <LazySection id="hackathons" minHeight={900}>
+            <HackathonsSection hackathons={hackathons} onOpenLightbox={openLightbox} {...editProps} />
+          </LazySection>
+
+          <LazySection id="contests" minHeight={1100}>
+            <ContestsSection contests={contests} {...editProps} />
+          </LazySection>
+
+          <LazySection id="projects" minHeight={1000}>
+            <ProjectsSection projects={projects} onOpenLightbox={openLightbox} onOpenDetail={openDetail} {...editProps} />
+          </LazySection>
+
+          <LazySection id="certificates" minHeight={800}>
+            <CertificatesSection certificates={certificates} onOpenLightbox={openLightbox} {...editProps} />
+          </LazySection>
+
+          <LazySection id="achievements" minHeight={600}>
+            <AchievementsSection achievements={achievements} {...editProps} />
+          </LazySection>
+
+          <SectionDivider flip />
+
+          <LazySection id="testimonials" minHeight={500}>
+            <TestimonialsSection testimonials={testimonials} {...editProps} />
+          </LazySection>
+
+          <LazySection minHeight={400}>
+            <LifestyleCta />
+          </LazySection>
+
+          <LazySection id="faq" minHeight={700}>
+            <FaqSectionBlock faqs={faqs} {...editProps} />
+          </LazySection>
+
+          <LazySection id="contact" minHeight={600}>
+            <ContactSection email={displayEmail} location={displayLocation} socialLinks={socialLinks} {...editProps} />
+          </LazySection>
+        </main>
+
+        {/* Footer (sticky) */}
+        <footer className="border-t relative z-10 mt-auto">
+          <div className="container mx-auto px-4 sm:px-6 py-6 text-center">
+            <p className="text-sm text-muted-foreground">
+              © {new Date().getFullYear()} {firstName} · Crafted with{' '}
+              <span className="text-red-500">♥</span> & Next.js
+            </p>
+          </div>
+        </footer>
+
+        {/* Scroll progress ring / back-to-top */}
+        <ScrollProgressButton />
+
+        {/* Custom cursor follower (desktop only) */}
+        <CursorFollower />
+
+        {/* Login + Lightbox + Command Palette */}
+        <LoginDialog open={edit.showLogin} onOpenChange={edit.setShowLogin} onLogin={edit.login} />
+        {lightbox && (
+          <ImageLightbox
+            images={lightbox.images}
+            open={!!lightbox}
+            startIndex={lightbox.index}
+            onClose={() => setLightbox(null)}
+          />
+        )}
+        <CommandPalette
+          open={cmdOpen}
+          onOpenChange={setCmdOpen}
+          sections={NAV_ITEMS}
+          socialLinks={socialLinks}
+        />
+        <AdminInbox open={inboxOpen} onOpenChange={setInboxOpen} authed={edit.authed} />
+        <ShortcutHelp open={shortcutHelpOpen} onOpenChange={setShortcutHelpOpen} />
+        <ProjectDetailModal
+          project={detailProject}
+          open={!!detailProject}
+          onOpenChange={(o) => !o && setDetailProject(null)}
+          onOpenLightbox={(url) => {
+            setLightbox({ images: [{ url, title: detailProject?.title, subtitle: detailProject?.description }], index: 0 })
+            setDetailProject(null)
+          }}
+        />
+      </div>
+    </KonamiEasterEgg>
   )
 }

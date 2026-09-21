@@ -25,7 +25,7 @@ export function HackathonsSection({
   onOpenLightbox: (imgs: LightboxImage[], i: number) => void
 } & SectionEditProps) {
   return (
-    <section id="hackathons" className="py-24 px-4 sm:px-6 bg-muted/20">
+    <section className="py-24 px-4 sm:px-6 bg-muted/20">
       <div className="max-w-6xl mx-auto">
         <SectionHeader eyebrow="Building Under Pressure" title="Hackathons" icon={Trophy} subtitle="Where ideas meet deadlines — and I thrive" />
         {editMode && (

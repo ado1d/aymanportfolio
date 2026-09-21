@@ -21,8 +21,7 @@ const SHORTCUTS: ShortcutItem[] = [
   { keys: ['G', 'S'], description: 'Go to Skills', group: 'Navigation' },
   { keys: ['G', 'P'], description: 'Go to Projects', group: 'Navigation' },
   { keys: ['G', 'C'], description: 'Go to Contact', group: 'Navigation' },
-  { keys: ['T'], description: 'Toggle dark / light theme', group: 'Theme' },
-  { keys: ['←', '→'], description: 'Prev / Next testimonial (when in section)', group: 'Gallery' },
+  { keys: ['\u2190', '\u2192'], description: 'Prev / Next testimonial (when in section)', group: 'Gallery' },
 ]
 
 interface ShortcutHelpProps {
