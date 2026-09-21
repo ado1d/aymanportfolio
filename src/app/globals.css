@@ -79,40 +79,45 @@
 }
 
 .dark {
-  /* Clean slate-navy dark theme — crisper than the old purple-black:
-     clear card elevation, visible borders, readable muted text, and it
-     matches the Vanta globe's navy background tone. */
-  --background: #0b111e;
-  --foreground: #eef2f8;
-  --card: #141b2b;
-  --card-foreground: #eef2f8;
-  --popover: #141b2b;
-  --popover-foreground: #eef2f8;
-  --primary: #a78bfa;
-  --primary-foreground: #0b111e;
-  --secondary: #1d2536;
-  --secondary-foreground: #eef2f8;
-  --muted: #1d2536;
-  --muted-foreground: #9aa7bd;
-  --accent: #1d2536;
-  --accent-foreground: #eef2f8;
+  /* Readable slate-navy dark theme.
+     Key tweaks for readability:
+     - Slightly lighter page background so card elevation reads clearly.
+     - Strengthen foreground + muted-foreground so body text / eyebrow text
+       / muted captions don't blend into the background.
+     - Glass nav uses a more opaque, slightly lighter tint so nav text
+       stands out instead of matching the page body.
+  */
+  --background: #0d1322;
+  --foreground: #f4f7fc;
+  --card: #18213a;
+  --card-foreground: #f4f7fc;
+  --popover: #18213a;
+  --popover-foreground: #f4f7fc;
+  --primary: #c4b5fd;
+  --primary-foreground: #0d1322;
+  --secondary: #1f2942;
+  --secondary-foreground: #f4f7fc;
+  --muted: #1f2942;
+  --muted-foreground: #b8c4d6;
+  --accent: #1f2942;
+  --accent-foreground: #f4f7fc;
   --destructive: #f87171;
-  --border: rgba(148, 163, 184, 0.16);
-  --input: rgba(148, 163, 184, 0.2);
-  --ring: #a78bfa;
-  --chart-1: #a78bfa;
+  --border: rgba(148, 163, 184, 0.22);
+  --input: rgba(148, 163, 184, 0.26);
+  --ring: #c4b5fd;
+  --chart-1: #c4b5fd;
   --chart-2: #34d399;
   --chart-3: #fbbf24;
   --chart-4: #60a5fa;
   --chart-5: #22d3ee;
-  --sidebar: #141b2b;
-  --sidebar-foreground: #eef2f8;
-  --sidebar-primary: #a78bfa;
-  --sidebar-primary-foreground: #0b111e;
-  --sidebar-accent: #1d2536;
-  --sidebar-accent-foreground: #eef2f8;
-  --sidebar-border: rgba(148, 163, 184, 0.16);
-  --sidebar-ring: #a78bfa;
+  --sidebar: #18213a;
+  --sidebar-foreground: #f4f7fc;
+  --sidebar-primary: #c4b5fd;
+  --sidebar-primary-foreground: #0d1322;
+  --sidebar-accent: #1f2942;
+  --sidebar-accent-foreground: #f4f7fc;
+  --sidebar-border: rgba(148, 163, 184, 0.22);
+  --sidebar-ring: #c4b5fd;
 }
 
 @layer base {
@@ -302,7 +307,9 @@
   -webkit-backdrop-filter: blur(16px) saturate(180%);
 }
 .dark .glass {
-  background: rgba(11, 17, 30, 0.72);
+  /* Slightly lighter + more opaque than the page background so nav text
+     and the glass-bordered cards read clearly against the body. */
+  background: rgba(24, 33, 58, 0.86);
 }
 @media (max-width: 768px) {
   .glass {
