@@ -2,7 +2,7 @@
 
 import { Heart, Star } from 'lucide-react'
 import { useFavorites } from '@/hooks/use-favorites'
-import { useSoundToast } from '@/hooks/use-sound-toast'
+import { useToast } from '@/hooks/use-toast'
 
 interface FavoriteToggleProps {
   projectId: string
@@ -12,7 +12,7 @@ interface FavoriteToggleProps {
 /** A heart button on each project card to bookmark it. */
 export function FavoriteToggle({ projectId, projectTitle }: FavoriteToggleProps) {
   const { isFavorite, toggle, hydrated } = useFavorites()
-  const { toast } = useSoundToast()
+  const { toast } = useToast()
   const fav = isFavorite(projectId)
 
   if (!hydrated) return null
@@ -24,7 +24,6 @@ export function FavoriteToggle({ projectId, projectTitle }: FavoriteToggleProps)
     toast({
       title: fav ? 'Removed from favorites' : 'Added to favorites',
       description: fav ? undefined : projectTitle,
-      sound: fav ? 'toggle' : 'success',
     })
   }
 

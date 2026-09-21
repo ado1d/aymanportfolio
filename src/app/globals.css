@@ -851,15 +851,6 @@
   will-change: transform;
 }
 
-/* ============ Sound toggle pulse ============ */
-@keyframes sound-on-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-.sound-on-indicator {
-  animation: sound-on-pulse 1.5s ease-in-out infinite;
-}
-
 /* ============ Gradient border on hover (animated) ============ */
 .gradient-border-hover {
   position: relative;

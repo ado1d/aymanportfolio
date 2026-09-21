@@ -1,9 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Command, Inbox, Menu, Moon, Pencil, ShieldCheck, Sun, Volume2, VolumeX, X } from 'lucide-react'
+import { Command, Inbox, Menu, Pencil, ShieldCheck, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
 
 export const NAV_ITEMS = [
   { label: 'About', id: 'about' },
@@ -25,19 +24,18 @@ export const NAV_LINKS = [
 
 interface SiteNavProps {
   firstName: string
-  isDark: boolean
-  onToggleTheme: () => void
   editMode: boolean
   authed: boolean
   onToggleEditMode: () => void
   onOpenCommandPalette: () => void
   onOpenInbox: () => void
-  soundEnabled: boolean
-  onToggleSound: () => void
 }
 
 /**
  * SiteNav — the top navigation bar.
+ *
+ * Theme is forced to dark mode globally; the previous light/dark switch and
+ * the sound-effects toggle have been removed.
  *
  * Perf: `activeSection` state lives HERE instead of the page, so scroll
  * highlighting only re-renders this small bar. Section tracking uses a single
@@ -45,15 +43,11 @@ interface SiteNavProps {
  */
 export function SiteNav({
   firstName,
-  isDark,
-  onToggleTheme,
   editMode,
   authed,
   onToggleEditMode,
   onOpenCommandPalette,
   onOpenInbox,
-  soundEnabled,
-  onToggleSound,
 }: SiteNavProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('')
@@ -127,24 +121,6 @@ export function SiteNav({
                 ⌘K
               </kbd>
             </button>
-            <div className="hidden sm:flex items-center gap-1.5">
-              <Sun className="w-4 h-4 text-muted-foreground" />
-              <Switch checked={isDark} onCheckedChange={onToggleTheme} aria-label="Toggle dark mode" />
-              <Moon className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <button
-              onClick={onToggleSound}
-              className="hidden sm:inline-flex p-2 rounded-md hover:bg-muted transition-colors"
-              aria-label={soundEnabled ? 'Mute sound effects' : 'Enable sound effects'}
-              aria-pressed={soundEnabled}
-              title={soundEnabled ? 'Sound on — click to mute' : 'Sound off — click to enable'}
-            >
-              {soundEnabled ? (
-                <Volume2 className="w-4 h-4 text-primary sound-on-indicator" />
-              ) : (
-                <VolumeX className="w-4 h-4 text-muted-foreground" />
-              )}
-            </button>
             <Button
               variant={editMode ? 'default' : 'outline'}
               size="sm"
@@ -197,11 +173,6 @@ export function SiteNav({
               </a>
             ))}
             <div className="flex items-center gap-3 px-3 mt-3">
-              <div className="flex items-center gap-1.5">
-                <Sun className="w-4 h-4" />
-                <Switch checked={isDark} onCheckedChange={onToggleTheme} aria-label="Toggle dark mode" />
-                <Moon className="w-4 h-4" />
-              </div>
               <Button variant="outline" size="sm" onClick={onToggleEditMode} className="flex-1">
                 <ShieldCheck className="w-3.5 h-3.5 mr-1.5" /> Edit Mode
               </Button>

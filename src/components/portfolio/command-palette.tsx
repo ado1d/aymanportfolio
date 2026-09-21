@@ -6,7 +6,7 @@ import {
   DialogContent,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Search, CornerDownLeft, ArrowUp, ArrowDown, Moon, Sun } from 'lucide-react'
+import { Search, CornerDownLeft, ArrowUp, ArrowDown } from 'lucide-react'
 import { getSocialIcon } from './icons'
 import type { SocialLink } from '@/lib/types'
 
@@ -25,8 +25,6 @@ interface CommandPaletteProps {
   onOpenChange: (o: boolean) => void
   sections: { label: string; id: string }[]
   socialLinks: SocialLink[]
-  onToggleTheme: () => void
-  isDark: boolean
 }
 
 export function CommandPalette({
@@ -34,8 +32,6 @@ export function CommandPalette({
   onOpenChange,
   sections,
   socialLinks,
-  onToggleTheme,
-  isDark,
 }: CommandPaletteProps) {
   const [query, setQuery] = useState('')
   const [activeIndex, setActiveIndex] = useState(0)
@@ -53,20 +49,6 @@ export function CommandPalette({
       },
       keywords: s.label.toLowerCase(),
     }))
-
-    const theme: CommandItem[] = [
-      {
-        id: 'theme-toggle',
-        label: isDark ? 'Switch to light mode' : 'Switch to dark mode',
-        group: 'Theme',
-        icon: isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />,
-        action: () => {
-          onToggleTheme()
-          onOpenChange(false)
-        },
-        keywords: 'theme dark light mode toggle',
-      },
-    ]
 
     const social: CommandItem[] = socialLinks.map((s) => ({
       id: `social-${s.id}`,
@@ -104,8 +86,8 @@ export function CommandPalette({
       },
     ]
 
-    return [...nav, ...theme, ...social, ...actions]
-  }, [sections, socialLinks, isDark, onToggleTheme, onOpenChange])
+    return [...nav, ...social, ...actions]
+  }, [sections, socialLinks, onOpenChange])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -181,7 +163,7 @@ export function CommandPalette({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKeyDown}
-            placeholder="Search sections, theme, links, actions..."
+            placeholder="Search sections, links, actions..."
             aria-label="Search commands"
             className="flex-1 h-14 bg-transparent outline-none text-sm placeholder:text-muted-foreground"
           />
