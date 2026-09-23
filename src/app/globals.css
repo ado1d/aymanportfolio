@@ -313,7 +313,7 @@
 
 /* ============ Gradient Text ============ */
 .gradient-text {
-  background: linear-gradient(135deg, #7c3aed 0%, #22d3ee 50%, #7c3aed 100%);
+  background: linear-gradient(135deg, #7adda2  0%, #6ae099 50%, #7adda2 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
@@ -331,7 +331,7 @@
 }
 
 .gradient-text-static {
-  background: linear-gradient(135deg, #7c3aed 0%, #22d3ee 100%);
+  background: linear-gradient(135deg, #7adda2 0%, #22d3ee 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -357,11 +357,11 @@
   padding: 1px;
   background: linear-gradient(
     var(--border-angle, 0deg),
-    #7c3aed 0%,
+    #7adda2 0%,
     #22d3ee 25%,
     #06b6d4 50%,
     #22d3ee 75%,
-    #7c3aed 100%
+    #7adda2 100%
   );
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
@@ -495,7 +495,7 @@
 
 /* ============ Timeline ============ */
 .timeline-line {
-  background: linear-gradient(to bottom, #7c3aed 0%, #22d3ee 50%, transparent 100%);
+  background: linear-gradient(to bottom, #7adda2 0%, #22d3ee 50%, transparent 100%);
 }
 
 /* Hide scrollbar utility */
