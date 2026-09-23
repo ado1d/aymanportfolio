@@ -96,8 +96,8 @@ export function HeroSection({ profile, socialLinks, displayName, firstName }: He
               <img
                 src={profile.avatarUrl}
                 alt={displayName}
-                width={160}
-                height={160}
+                width={180}
+                height={180}
                 decoding="async"
                 className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover ring-4 ring-background shadow-2xl"
               />
@@ -115,7 +115,7 @@ export function HeroSection({ profile, socialLinks, displayName, firstName }: He
         {profile?.available && (
           <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 text-sm font-medium mb-6 border border-green-500/20">
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            Available for opportunities
+            Open to Work
           </span>
         )}
 
