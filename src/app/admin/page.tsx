@@ -971,16 +971,20 @@ function SocialLinksEditor() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState<SocialLink | null>(null)
   const [open, setOpen] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
     fetch('/api/admin/social-links')
       .then(res => res.json())
-      .then(data => setLinks(data))
+      .then(data => setLinks(Array.isArray(data) ? data : []))
       .finally(() => setLoading(false))
   }, [])
 
   const handleSave = async (link: SocialLink) => {
+    setSaving(true)
     try {
       const method = link.id ? 'PUT' : 'POST'
       const res = await fetch('/api/admin/social-links', {
@@ -999,22 +1003,44 @@ function SocialLinksEditor() {
         setOpen(false)
         setEditing(null)
         toast({ title: 'Social link saved!' })
+      } else {
+        const err = await res.json().catch(() => ({}))
+        toast({ title: 'Failed to save social link', description: err.error || `Server returned ${res.status}`, variant: 'destructive' })
       }
     } catch {
-      toast({ title: 'Failed to save social link', variant: 'destructive' })
+      toast({ title: 'Network error while saving', variant: 'destructive' })
+    } finally {
+      setSaving(false)
     }
   }
 
   const handleDelete = async (id: string) => {
+    setDeleting(true)
     try {
       const res = await fetch(`/api/admin/social-links?id=${id}`, { method: 'DELETE' })
       if (res.ok) {
         setLinks(links.filter(l => l.id !== id))
         toast({ title: 'Social link deleted' })
+      } else {
+        const err = await res.json().catch(() => ({}))
+        toast({ title: 'Failed to delete social link', description: err.error || `Server returned ${res.status}`, variant: 'destructive' })
       }
     } catch {
-      toast({ title: 'Failed to delete social link', variant: 'destructive' })
+      toast({ title: 'Network error while deleting', variant: 'destructive' })
+    } finally {
+      setDeleting(false)
+      setDeleteId(null)
     }
+  }
+
+  const openAdd = () => {
+    setEditing({ platform: '', url: '', icon: '' })
+    setOpen(true)
+  }
+
+  const openEdit = (link: SocialLink) => {
+    setEditing({ ...link })
+    setOpen(true)
   }
 
   if (loading) return <div className="p-8 text-center">Loading...</div>
@@ -1024,58 +1050,17 @@ function SocialLinksEditor() {
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           Social Links
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button
-                size="sm"
-                onClick={() => {
-                  setEditing({ platform: '', url: '', icon: '' })
-                  setOpen(true)
-                }}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Link
-              </Button>
-            </DialogTrigger>
-            {editing && (
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>{editing.id ? 'Edit' : 'Add'} Social Link</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Platform</Label>
-                    <Input
-                      value={editing.platform}
-                      onChange={(e) => setEditing({ ...editing, platform: e.target.value })}
-                      placeholder="GitHub, LinkedIn, etc."
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>URL</Label>
-                    <Input
-                      value={editing.url}
-                      onChange={(e) => setEditing({ ...editing, url: e.target.value })}
-                      placeholder="https://..."
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Icon (emoji)</Label>
-                    <Input
-                      value={editing.icon}
-                      onChange={(e) => setEditing({ ...editing, icon: e.target.value })}
-                      placeholder="🐙"
-                    />
-                  </div>
-                  <Button onClick={() => handleSave(editing)} className="w-full">Save</Button>
-                </div>
-              </DialogContent>
-            )}
-          </Dialog>
+          <Button size="sm" onClick={openAdd}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Link
+          </Button>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-wrap gap-2">
+          {links.length === 0 && (
+            <p className="text-sm text-muted-foreground">No social links yet. Click &ldquo;Add Link&rdquo; to create one.</p>
+          )}
           {links.map((link) => (
             <div key={link.id} className="flex items-center gap-2 p-2 border rounded-lg">
               <span>{link.icon}</span>
@@ -1084,10 +1069,8 @@ function SocialLinksEditor() {
                 size="icon"
                 variant="ghost"
                 className="h-6 w-6"
-                onClick={() => {
-                  setEditing(link)
-                  setOpen(true)
-                }}
+                onClick={() => openEdit(link)}
+                title="Edit"
               >
                 <Edit className="w-3 h-3" />
               </Button>
@@ -1095,7 +1078,8 @@ function SocialLinksEditor() {
                 size="icon"
                 variant="ghost"
                 className="h-6 w-6"
-                onClick={() => handleDelete(link.id!)}
+                onClick={() => setDeleteId(link.id!)}
+                title="Delete"
               >
                 <Trash2 className="w-3 h-3 text-destructive" />
               </Button>
@@ -1103,6 +1087,85 @@ function SocialLinksEditor() {
           ))}
         </div>
       </CardContent>
+
+      {/* Edit / Add dialog — controlled, always mounted when open so Radix
+          doesn't fight with conditional rendering. */}
+      <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null) }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editing?.id ? 'Edit' : 'Add'} Social Link</DialogTitle>
+          </DialogHeader>
+          {editing && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Platform</Label>
+                <Input
+                  value={editing.platform}
+                  onChange={(e) => setEditing({ ...editing, platform: e.target.value })}
+                  placeholder="GitHub, LinkedIn, etc."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>URL</Label>
+                <Input
+                  value={editing.url}
+                  onChange={(e) => setEditing({ ...editing, url: e.target.value })}
+                  placeholder="https://..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Icon (emoji)</Label>
+                <Input
+                  value={editing.icon}
+                  onChange={(e) => setEditing({ ...editing, icon: e.target.value })}
+                  placeholder="🐙"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => { setOpen(false); setEditing(null) }}
+                  disabled={saving}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => handleSave(editing)}
+                  className="flex-1"
+                  disabled={saving}
+                >
+                  {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                  {saving ? 'Saving...' : 'Save'}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirmation */}
+      <AlertDialog open={!!deleteId} onOpenChange={(o) => { if (!o) setDeleteId(null) }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this social link?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The social link will be permanently removed from your portfolio.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteId && handleDelete(deleteId)}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+              {deleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   )
 }

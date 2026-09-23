@@ -48,9 +48,22 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const { id, platform, url, icon, order } = body
 
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required for updates' }, { status: 400 })
+    }
+
+    // Only include fields that are actually present in the request body.
+    // This avoids Prisma trying to set fields to undefined/null when the
+    // client sends a partial update (e.g. only platform + url without order).
+    const data: Record<string, unknown> = {}
+    if (platform !== undefined) data.platform = platform
+    if (url !== undefined) data.url = url
+    if (icon !== undefined) data.icon = icon
+    if (order !== undefined) data.order = order
+
     const socialLink = await db.socialLink.update({
       where: { id },
-      data: { platform, url, icon, order },
+      data,
     })
 
     return NextResponse.json(socialLink)
