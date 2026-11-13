@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'portfolio2024'
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || ''
 
 export async function POST(request: Request) {
   try {
     const { password } = await request.json()
-    if (password !== ADMIN_PASSWORD) {
+    if (!ADMIN_PASSWORD || password !== ADMIN_PASSWORD) {
       return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
     }
     const token = Buffer.from(`${ADMIN_PASSWORD}:${Date.now()}`).toString('base64')
@@ -36,7 +36,7 @@ export function verifyAuth(request: Request): boolean {
   const value = token.split('=')[1]
   try {
     const decoded = Buffer.from(value, 'base64').toString()
-    return decoded.startsWith(`${ADMIN_PASSWORD}:`)
+    return !!ADMIN_PASSWORD && decoded.startsWith(`${ADMIN_PASSWORD}:`)
   } catch {
     return false
   }

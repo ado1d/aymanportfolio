@@ -63,5 +63,5 @@ npm run dev
 
 ## Admin Access
 - URL: http://localhost:3000/admin
-- Password: ayman2024
+- Password: the value of the `ADMIN_PASSWORD` environment variable
 

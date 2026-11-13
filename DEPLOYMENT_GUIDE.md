@@ -50,7 +50,7 @@ npx shadcn@latest add card badge button input textarea label dialog tabs switch 
 6. **Setup environment**
 ```bash
 echo "DATABASE_URL=\"file:./dev.db\"" > .env
-echo "ADMIN_PASSWORD=\"ayman2024\"" >> .env
+echo "ADMIN_PASSWORD=\"change-me\"" >> .env
 ```
 
 7. **Setup database**
@@ -68,7 +68,7 @@ npm run dev
 9. **Open in browser**
 - Portfolio: http://localhost:3000
 - Admin: http://localhost:3000/admin
-- Password: `ayman2024`
+- Password: the value of `ADMIN_PASSWORD` in your `.env`
 
 ---
 

@@ -3,14 +3,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { randomBytes } from 'crypto'
 
 // Admin password - in production, this should be in environment variables
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'ayman2024'
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || ''
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { password } = body
 
-    if (password !== ADMIN_PASSWORD) {
+    if (!ADMIN_PASSWORD || password !== ADMIN_PASSWORD) {
       return NextResponse.json({ error: 'Invalid password' }, { status: 401 })
     }
 
