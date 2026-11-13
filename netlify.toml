@@ -1,0 +1,4 @@
+[build.environment]
+  # The Cloudinary cloud name is a public identifier embedded in image URLs
+  # (e.g. in src/app/layout.tsx), so it is not treated as a secret.
+  SECRETS_SCAN_OMIT_KEYS = "CLOUDINARY_CLOUD_NAME"

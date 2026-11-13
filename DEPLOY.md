@@ -16,7 +16,7 @@ In your Vercel project dashboard (Settings → Environment Variables), add the f
 |------|-------|
 | `DATABASE_URL` | `postgres://...your-connection-string...` |
 | `DIRECT_URL` | `postgres://...your-connection-string...` (same as above) |
-| `ADMIN_PASSWORD` | `ayman69` (or your preferred password) |
+| `ADMIN_PASSWORD` | `your-secure-password` |
 
 > **Note:** The `DATABASE_URL` and `DIRECT_URL` should be your PostgreSQL connection string (e.g. from Prisma Postgres, Neon, or Vercel Postgres). It must start with `postgres://` or `postgresql://`.
 
@@ -106,7 +106,7 @@ The `next.config.ts` has `images.remotePatterns` configured for:
 
 - Visit your deployed site
 - Click **Edit** in the nav
-- Enter the password (default: `ayman69`)
+- Enter the password (the value of `ADMIN_PASSWORD`)
 - You can now add/edit/delete all content (projects, skills, contests, etc.)
 - Uploaded images are stored in `/public/uploads/` (note: these are ephemeral on Vercel — for persistent uploads, use Vercel Blob or S3)
 
